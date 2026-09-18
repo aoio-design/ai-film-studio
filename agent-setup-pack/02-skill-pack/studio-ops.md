@@ -221,6 +221,13 @@ field. Feedback on the script lives in that JSON's `feedback[]` too.
    them") may only touch cards that have NO media yet — never re-run a
    draft writer over generated cards, or the card will show text that never
    ran. One field, one meaning; the send-log is immutable.
+7. **Changing the studio itself is plan-first.** When the owner asks for a
+   customisation — a different look, a new view, wording changes, an extra
+   scheduled job, or using another platform's credits — research it, present a
+   plan (what changes, which files, what could break, how to undo it, what it
+   costs) and WAIT for approval before you edit anything. Never build first to
+   demo it. The full rule is in `01-agent-onboarding.md` → "Changing my
+   studio".
 
 ## The production loop (follow this order — it is the owner's workflow)
 

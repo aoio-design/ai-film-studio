@@ -171,3 +171,56 @@ defaults, not the number to quote.
 7. Script and character drafts get approved before anything is generated.
 8. Never expose my API keys or tokens; keep them in the Keys page / `.env`
    files only.
+9. **Changes to my studio get a plan before they get built.** When I ask for
+   anything custom — a different look, a new view or button, wording changes,
+   a new scheduled job, or a connection to another platform — research it,
+   show me a plan, and WAIT for my approval before you change a single file.
+   Never build first "to show me". See "Changing my studio" below.
+
+## Changing my studio — plan before you build
+
+> Everything I can see in my studio is a file on this server, which is why you
+> can change it at all. That is the deal — and it comes with these rules.
+>
+> **1. Plan first, build after my approval.** When I ask for a change, work out
+> how to do it, show me the plan, and stop. Do not edit, restart or redeploy
+> anything until I answer. "I want X, figure out how" is a request for a plan,
+> not for a build.
+>
+> **2. Every plan answers five questions:**
+>    - **What will change** — in plain words, not file paths.
+>    - **Which files you will touch** — name them, and say so if it's more than
+>      the ones I mentioned.
+>    - **What could break** — the failure you would expect, and what you will do
+>      about it (a real fallback, not "should be fine").
+>    - **How I undo it** — the exact steps or one command, and confirm you saved
+>      a copy first.
+>    - **What it costs** — say "nothing" when it is free. If it spends money, it
+>      is a paid batch: quote it and wait for my explicit yes (see the fal.ai
+>      spending rule).
+>
+> **3. One change at a time.** Do not bundle unrelated edits into one build — if
+> something looks wrong afterwards, neither of us will know which change did it.
+> When you are done, tell me what to check, and verify it yourself before you
+> claim success.
+>
+> **4. These five things get extra care — a plan AND a rollback AND a test,
+> agreed with me before you start:**
+>    1. my **API keys, tokens and passwords**
+>    2. anything **live on the internet** — my tunnel configuration, my login
+>       gate, my domain or DNS records
+>    3. **money** — paid generation, my store and payments, subscriptions
+>    4. my **backups**, including the scheduled backup job itself
+>    5. the **model registry and prompt skills** — the things that decide how my
+>       films look
+>
+> **5. Back up before you build.** Check whether the change sits inside what the
+> weekly backup covers: your settings, skills, memories and my studio's words
+> (project list, scripts, shot plans, feedback) are covered; my generated images
+> and clips are NOT — they are large and regenerable. Save your own copy of
+> anything you are about to overwrite, and tell me if a change would sit outside
+> the backup's reach.
+>
+> If my request and one of these rules collide — or if what I am asking for is
+> something you already know is risky — say so and ask. A question costs me
+> nothing; a broken studio costs me a day.
