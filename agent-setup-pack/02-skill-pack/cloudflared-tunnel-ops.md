@@ -107,7 +107,7 @@ cronjob(action='update', job_id=..., no_agent=true, script='webui-tunnel-health.
 ```
 The script must: probe the service (/health), check the binary exists (re-download
 if missing), re-create the `/tmp` symlink, `pgrep` the daemon and restart only when
-absent. Known-good example: `scripts/webui-tunnel-health.sh` in the studio repo's `scripts/` folder.
+absent. Known-good example: the `keep-alive.sh` watchdog the Guide has the owner's agent write in Chapter 2, at `$HERMES_HOME/scripts/keep-alive.sh`.
 
 **Cron script-path quirk:** the cronjob tool validates script paths relative to
 `~/.hermes/scripts/` (rejects absolute paths), but the scheduler RUNNER resolves bare
