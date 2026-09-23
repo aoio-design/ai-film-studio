@@ -13,13 +13,18 @@ paid API call that returns finished files.*
 
 - The owner has a **fal.ai** account (prepaid credits) and an **API key**
   stored as **`FAL_KEY`** in your environment file on the server — the owner adds
-  it there through the app's file browser (`$HERMES_HOME/.env`, guide Ch4 §4.4).
+  it there through the app's file browser — `$HERMES_HOME/.env`, which sits in a
+  dot-folder: the owner must set the workspace to Home and switch on
+  "Show hidden files" in the workspace options menu before they can see it
+  (guide Ch4 §4.4).
   **fal is not an LLM provider, so it never appears on the app's Providers page —
   if the owner says it isn't there, that is correct, not a bug.** Confirm it with:
   ```bash
   echo ${FAL_KEY:+FAL_KEY is set}
   ```
-  If it prints nothing, read `$HERMES_HOME/.env` yourself and report what you find.
+  If it prints nothing, read `$HERMES_HOME/.env` yourself and report what you find
+  (never ask the owner to paste the key into chat — tell them the steps in guide
+  Ch4 §4.4 instead).
   If the line is missing, tell the owner to add `FAL_KEY=…` to that file in
   their Hermes app (guide Chapter 4, Section 4.4) — **never** ask them to
   paste the key in chat.

@@ -103,6 +103,9 @@ browser**. Re-check them if browsing ever starts costing money.
 **fal.ai is not an LLM provider — it never appears on the app's Settings → Providers page.**
 The key belongs in the agent's own environment file, which the owner edits through the
 app's file browser (`$HERMES_HOME/.env`) — never in a chat, and never in the studio repo.
+**That file lives in a dot-folder (`.hermes`), which the file panel hides by default:**
+the owner must set the workspace to **Home** and turn on **Show hidden files** in the
+workspace options menu, or they will report that the file does not exist.
 By hand (or to check the file):
 
 ```bash
