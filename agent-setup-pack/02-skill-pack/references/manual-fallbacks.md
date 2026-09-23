@@ -100,9 +100,10 @@ browser**. Re-check them if browsing ever starts costing money.
 
 ## 4. The fal.ai key (normal path: Guide Chapter 4, Section 4.4)
 
-The owner pastes it in the app: **Settings → Providers → fal.ai**. By hand, if the key
-must be available to a script or a cron session, it belongs in the agent's own env file
-on disk — never in a chat, and never in the studio repo:
+**fal.ai is not an LLM provider — it never appears on the app's Settings → Providers page.**
+The key belongs in the agent's own environment file, which the owner edits through the
+app's file browser (`$HERMES_HOME/.env`) — never in a chat, and never in the studio repo.
+By hand (or to check the file):
 
 ```bash
 grep -c FAL_KEY "$HERMES_HOME/.env" || echo "FAL_KEY=..." >> "$HERMES_HOME/.env"

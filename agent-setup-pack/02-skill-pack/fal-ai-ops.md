@@ -12,13 +12,15 @@ paid API call that returns finished files.*
 ## The account and the key
 
 - The owner has a **fal.ai** account (prepaid credits) and an **API key**
-  stored as **`FAL_KEY`**, entered by the owner in the app under **Settings →
-  Providers** (which writes it on the server, so it reaches your process
-  environment). Confirm it with:
+  stored as **`FAL_KEY`** in your environment file on the server — the owner adds
+  it there through the app's file browser (`$HERMES_HOME/.env`, guide Ch4 §4.4).
+  **fal is not an LLM provider, so it never appears on the app's Providers page —
+  if the owner says it isn't there, that is correct, not a bug.** Confirm it with:
   ```bash
   echo ${FAL_KEY:+FAL_KEY is set}
   ```
-  If it prints nothing, tell the owner to add `FAL_KEY` under Settings → Providers in
+  If it prints nothing, read `$HERMES_HOME/.env` yourself and report what you find.
+  If the line is missing, tell the owner to add `FAL_KEY=…` to that file in
   their Hermes app (guide Chapter 4, Section 4.4) — **never** ask them to
   paste the key in chat.
 - **Never print, log, or echo the key itself.** Secrets live in the
@@ -175,7 +177,7 @@ upscale — check `genmedia pricing <model-id>` for live rates).
 
 | Symptom | Action |
 |---|---|
-| `FAL_KEY is set` prints nothing | Key not stored — tell the owner to add it under Settings → Providers in their app (guide Ch4 §4.4). Stop. |
+| `FAL_KEY is set` prints nothing | Key not in your environment — read `$HERMES_HOME/.env`; if the line is missing, tell the owner to add `FAL_KEY=…` to it via the app's file browser (guide Ch4 §4.4). If the line IS there, ask them to restart the app so you pick it up. Stop. |
 | `401 Unauthorized` / `403` | Key wrong or scope not **API** — ask the owner to check the key on fal.ai. |
 | `429` or queue waits long | Platform is busy or out of credit — check the balance; wait and retry, or ask the owner to top up. |
 | Model error in the response | Re-read `genmedia run <model> --help`, fix the parameter, retry. One retry, then report. |
