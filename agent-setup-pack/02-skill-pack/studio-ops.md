@@ -157,7 +157,7 @@ Pattern: `<scope-id>_<Entity>_<Kind>_v<N>[<_option>].<ext>`
 | Keyframe image | `<episode-id>_<ShotID>_v1.png` |
 | Video clip | `<episode-id>_<ShotID>_v1.mp4` (same v-number as its keyframe) |
 | 4K master | same name as the approved clip, in `masters/<film>/` |
-| Downloaded master | after upscaling, ALSO copy the master into the shot folder as `master-1080p.mp4` / `master-4k.mp4` — the studio serves any file in a shot's folder, so this is how the owner downloads their finished clip (never overwrite the clip itself) |
+| Delivery copy | when the owner asks for their finished clips, zip the approved masters for that film into ONE file in the shared home (e.g. `$HERMES_HOME/exports/<film>-masters.zip`) and put it in a reply as a `MEDIA:<absolute path>` token — the app turns that into a clickable download card in the chat. Keep each zip under 50 MB (the app's snapshot cap); if the film is bigger, split it by episode and say so. The studio serves any file in a shot's folder too, so a per-shot `master-1080p.mp4` copy is a valid fallback when a zip will not fit |
 | Voice reference | `<season-id>_<CharacterName>_Audio_Reference_v1.wav` |
 | `metadata.json` | Script, prompts, feedback notes (with timestamps) |
 

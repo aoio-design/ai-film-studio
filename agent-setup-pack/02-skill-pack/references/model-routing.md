@@ -42,7 +42,9 @@ The `reference_images` stage now has two profiles — **`new-sheet-from-prompt`*
 A shot's `model: <id>` + `resolved_at: <ts>` records what produced it (**provenance**). Adding an
 alternative profile NEVER touches the default — selection is additive.
 
-**A binding is a (provider, model) pair.** The global default currently names one provider
+**A binding is a (provider, model) pair.** A second provider (Higgsfield) may be configured
+with its key in the same `.env` (`HIGGSFIELD_API_KEY`); price it on every job it can run.
+ The global default currently names one provider
 because it is the only one that can run every stage; when a second provider is configured, the
 price check runs across providers for that stage BEFORE a paid run (`provider-price-comparison.md`),
 and a binding that names a provider with no key configured is not a valid binding — say so instead

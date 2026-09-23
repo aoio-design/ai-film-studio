@@ -44,8 +44,8 @@ per-unit rate.
 
 - **fal.ai (current default):** `genmedia pricing <model-id>` for the live per-unit
   rate, or the model's page on fal. Full mechanics: `fal-ai-ops`.
-- **Higgsfield API (candidate, USD pay-per-use):** rates are per model and live in the
-  console at `console.higgsfield.ai` (their docs state the model catalog and each
+- **Higgsfield API (configured when the owner added `HIGGSFIELD_API_KEY`):** rates are per
+  model and live in the console at `console.higgsfield.ai` (their docs state the model catalog and each
   model's documentation live there, and that their public `openapi.json` is
   supplementary — a model missing from it is not proof it is unavailable). Read the
   model page at quote time; do not trust a blog table.

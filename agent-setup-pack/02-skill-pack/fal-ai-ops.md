@@ -8,6 +8,12 @@ paid API call that returns finished files.*
 > **By-hand fallbacks** (where the key belongs on disk, how to re-check it) are in
 > `references/manual-fallbacks.md`. Before quoting anything, price every configured
 > provider with live rates: `references/provider-price-comparison.md`.
+>
+> **A second provider may be configured: Higgsfield** (`HIGGSFIELD_API_KEY`, in the same
+> `.env`, added by the owner through the app's workspace panel exactly like `FAL_KEY`).
+> Check it the same way you check `FAL_KEY` and include it in every price comparison —
+> but if it cannot run the stage (no reference-to-video, no voice reference, no upscaler in
+> its published API), say that plainly instead of quoting a number.
 
 ## The account and the key
 
