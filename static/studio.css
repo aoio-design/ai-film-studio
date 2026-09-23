@@ -389,7 +389,7 @@ body.focus-shots .fab .fab-icon { display:block; }
 .theme-toggle:hover { color:var(--text); transform:scale(1.06); }
 
 /* ---------- Header pill nav (Projects · Season · Assets) ----------
-   Shared across /p (gallery), /s (season), /a (assets) page headers.
+   Shared across /p (studio), /s (season), /a (assets) page headers.
    Per-page context hiding: the current section's pill is omitted (e.g. the
    Assets pill on /a, Season+Assets pills on /s). */
 .nav-pillbox {

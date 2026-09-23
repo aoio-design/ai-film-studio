@@ -1,6 +1,6 @@
 ---
 name: ai-film-pipeline
-description: "Master pipeline skill for producing AI short films and micro-dramas with the owner's studio: idea → script → shots → images (FLUX on fal.ai) → clips (MiniMax H3 Max) → gallery review → 4K masters (bytedance upscaler)."
+description: "Master pipeline skill for producing AI short films and micro-dramas with the owner's studio: idea → script → shots → images (FLUX on fal.ai) → clips (MiniMax H3 Max) → studio review → 4K masters (bytedance upscaler)."
 version: 3.0.0
 author: Hermes Agent
 license: MIT
@@ -17,7 +17,7 @@ metadata:
 The owner's end-to-end pipeline for AI short films and micro-dramas. All
 generation runs through their **fal.ai** account (see `fal-ai-ops` for the
 models, commands and spending rule); all review happens in their **studio**
-gallery (see `studio-ops`). Post-production (assembly, titles, music) is done
+studio (see `studio-ops`). Post-production (assembly, titles, music) is done
 by the owner in their video editor.
 
 ## The pipeline (follow this order)
@@ -51,7 +51,7 @@ by the owner in their video editor.
 
 ## Rules that never bend
 
-- **CLARIFY FIRST — ambiguous instruction = ask, then wait.** If any instruction is ambiguous (chat, gallery review loop, anywhere), ASK the user what they mean and WAIT before taking ANY action. Never guess, never pick a "reasonable default". Ambiguity includes: which assets/steps are meant, whether a review message means "approved, go ahead", which phase "generate" refers to, or anything readable more than one way. A clarifying question is correct action; acting on a guess is not.
+- **CLARIFY FIRST — ambiguous instruction = ask, then wait.** If any instruction is ambiguous (chat, studio review loop, anywhere), ASK the user what they mean and WAIT before taking ANY action. Never guess, never pick a "reasonable default". Ambiguity includes: which assets/steps are meant, whether a review message means "approved, go ahead", which phase "generate" refers to, or anything readable more than one way. A clarifying question is correct action; acting on a guess is not.
 - **Words before media.** Never generate before the script, shot plan and
   character bible are approved.
 - **Two approval gates, in order.** (1) After drafting a script, hand it back

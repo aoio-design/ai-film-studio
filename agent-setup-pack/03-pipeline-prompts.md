@@ -1,7 +1,7 @@
 # Pipeline Prompts — Ready to Paste
 
 *Every prompt below is copy-paste ready. Replace the bracketed parts with
-your own details. Use these with your agent in chat, or in the gallery review
+your own details. Use these with your agent in chat, or in the studio review
 loop (see studio-ops skill).*
 
 > **House rule that applies to every prompt here:** if an instruction is

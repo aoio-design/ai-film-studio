@@ -1,6 +1,6 @@
 ---
 name: cloudflared-tunnel-ops
-description: "Operate and troubleshoot cloudflared named tunnels routing subdomains to local services (Hermes WebUI, gallery, dashboards). Covers 502 vs origin-down diagnosis, tunnel lifecycle, config validation, and health-check cron patterns."
+description: "Operate and troubleshoot cloudflared named tunnels routing subdomains to local services (Hermes WebUI, studio, dashboards). Covers 502 vs origin-down diagnosis, tunnel lifecycle, config validation, and health-check cron patterns."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -14,7 +14,7 @@ metadata:
 
 ## When to Use
 
-- A subdomain (e.g. `agent.[YOUR_SECRET]`, `gallery.[YOUR_SECRET]`) is down / 502 / unreachable
+- A subdomain (e.g. `agent.[YOUR_SECRET]`, `studio.[YOUR_SECRET]`) is down / 502 / unreachable
 - Restarting the Hermes WebUI or other tunneled local services
 - Validating or editing the tunnel ingress config
 - Investigating why a health-check cron stopped firing
@@ -32,7 +32,7 @@ Diagnostic order:
 
 **Connection refused / DNS failure on the subdomain itself** = tunnel or DNS record problem. Verify the CNAME: `cloudflared tunnel route dns <TUNNEL> <hostname>`.
 
-**Cloudflare error 1033 / 530 on EVERY subdomain = the tunnel process is DOWN** (not the origins). 530 = "origin unreachable" at the edge; when ALL hostnames through the same named tunnel fail at once (store, gallery, agent, guide…), the cloudflared process died (this deployment: watchdog race or a background session ending silently — the process can vanish while the watchdog believes it healthy). Diagnosis: `pgrep -af "[c]loudflared"` returns nothing → restart the tunnel (see Lifecycle). A single 502 on one subdomain while the others work = origin down (start the service); ALL subdomains 530/1033 = restart the tunnel. After restarting, verify each subdomain: 302/200 = fine, 502 on one = that origin is down, 530 again = tunnel still not connected.
+**Cloudflare error 1033 / 530 on EVERY subdomain = the tunnel process is DOWN** (not the origins). 530 = "origin unreachable" at the edge; when ALL hostnames through the same named tunnel fail at once (store, studio, agent, guide…), the cloudflared process died (this deployment: watchdog race or a background session ending silently — the process can vanish while the watchdog believes it healthy). Diagnosis: `pgrep -af "[c]loudflared"` returns nothing → restart the tunnel (see Lifecycle). A single 502 on one subdomain while the others work = origin down (start the service); ALL subdomains 530/1033 = restart the tunnel. After restarting, verify each subdomain: 302/200 = fine, 502 on one = that origin is down, 530 again = tunnel still not connected.
 
 ## Tunnel Lifecycle
 
@@ -102,7 +102,7 @@ cronjob(action='update', job_id=..., no_agent=true, script='webui-tunnel-health.
 ```
 The script must: probe the service (/health), check the binary exists (re-download
 if missing), re-create the `/tmp` symlink, `pgrep` the daemon and restart only when
-absent. Known-good example: `scripts/webui-tunnel-health.sh` in the gallery repo's `scripts/` folder.
+absent. Known-good example: `scripts/webui-tunnel-health.sh` in the studio repo's `scripts/` folder.
 
 **Cron script-path quirk:** the cronjob tool validates script paths relative to
 `~/.hermes/scripts/` (rejects absolute paths), but the scheduler RUNNER resolves bare

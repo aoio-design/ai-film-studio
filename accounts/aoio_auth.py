@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 AOIO account store — one email + password login shared by every private
-surface on this box (studio gallery, agent Web UI gate).
+surface on this box (studio, agent Web UI gate).
 
 Stdlib only (sqlite3 + hashlib.scrypt) so any app can import it regardless of
 which virtualenv it runs in:

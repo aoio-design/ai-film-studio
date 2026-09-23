@@ -1,6 +1,6 @@
-# AI Film Gallery
+# AI Film Studio
 
-A private, login-protected **shot-review gallery** for AI film production. It shows every shot of your film as a card — script text, audio, prompts, generated video, and your feedback notes — in one private web page you open in your browser.
+A private, login-protected **shot-review studio** for AI film production. It shows every shot of your film as a card — script text, audio, prompts, generated video, and your feedback notes — in one private web page you open in your browser.
 
 Part of the **[Agentic AI Film Production Studio](https://store.aoiostudios.com/store)** guide. It runs on the same VPS as your AI agent; no extra hosting, no extra cost.
 

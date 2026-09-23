@@ -66,7 +66,7 @@ alternative profile NEVER touches the default — selection is additive.
 
 ## Agent↔owner workflow (the journey)
 
-**Principle: the studio (gallery / FAB) REVIEWS + collects feedback; the CHAT session orchestrates
+**Principle: the studio (FAB) REVIEWS + collects feedback; the CHAT session orchestrates
 generation** (skills, FAL key, cost quoting, registry). Generation is never triggered from the FAB
 (the feedback watcher is deliberately read-only). When the owner hits "generate" in the FAB,
 redirect them to the chat session.

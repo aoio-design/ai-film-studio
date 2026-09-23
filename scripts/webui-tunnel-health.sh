@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # WebUI + Cloudflare tunnel watchdog.
 # Silent when healthy (empty stdout = no delivery). Prints a one-liner only when it restarted something.
-# Overrides: GALLERY_DIR (default /opt/data/studio) and TUNNEL_NAME (default: read from
-# ~/.cloudflared/config.yml, falling back to ai-film-gallery).
+# Overrides: STUDIO_DIR (default /opt/data/studio) and TUNNEL_NAME (default: read from
+# ~/.cloudflared/config.yml, falling back to ai-film-studio).
 OUT=""
 
 # 1. WebUI on 8787
@@ -28,9 +28,9 @@ ln -sf "$CF" /tmp/cloudflared
 
 # 3. Cloudflare tunnel. The tunnel name comes from the buyer's own config
 #    (~/.cloudflared/config.yml, first "tunnel:" line) so any name works;
-#    fall back to $TUNNEL_NAME, then ai-film-gallery.
+#    fall back to $TUNNEL_NAME, then ai-film-studio.
 TUNNEL_NAME="${TUNNEL_NAME:-$(grep -m1 '^tunnel:' ~/.cloudflared/config.yml 2>/dev/null | awk '{print $2}')}"
-TUNNEL_NAME="${TUNNEL_NAME:-ai-film-gallery}"
+TUNNEL_NAME="${TUNNEL_NAME:-ai-film-studio}"
 if ! pgrep -f "cloudflared tunnel run $TUNNEL_NAME" >/dev/null; then
   nohup "$CF" tunnel run "$TUNNEL_NAME" \
     >> /opt/data/logs/cloudflared.log 2>&1 </dev/null &
@@ -53,9 +53,9 @@ if ! curl -sf --max-time 5 http://127.0.0.1:8790/health >/dev/null 2>&1; then
 fi
 
 # 6. AI Film Studio on 80 (own email + password login)
-GALLERY_DIR="${GALLERY_DIR:-/opt/data/studio}"
+STUDIO_DIR="${STUDIO_DIR:-${GALLERY_DIR:-/opt/data/studio}}"
 if ! curl -sf --max-time 5 http://127.0.0.1:80/login >/dev/null 2>&1; then
-  (cd "$GALLERY_DIR" && nohup bash start.sh >> /opt/data/logs/gallery-restart.log 2>&1 &)
+  (cd "$STUDIO_DIR" && nohup bash start.sh >> /opt/data/logs/studio-restart.log 2>&1 &)
   OUT="$OUT restarted studio"
 fi
 

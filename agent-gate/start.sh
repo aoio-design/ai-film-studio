@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Start the agent login gate — email + password sign-in for your Hermes Web UI.
 #
-# Accounts are shared with the gallery (../accounts/aoio_auth.py):
+# Accounts are shared with the studio (../accounts/aoio_auth.py):
 #   python3 ../accounts/aoio_auth.py add you@example.com --name "Your Name"
 #
 # Your Cloudflare tunnel must send ONLY these two paths here (port 8790):

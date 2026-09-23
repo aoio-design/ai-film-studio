@@ -1,5 +1,5 @@
 """
-CONSUME Gallery — 5-row shot viewer for Lucas's AI film pipeline.
+Shot-review studio — card viewer for an AI film production pipeline.
 
 Rows per shot:
 1. Script segment
@@ -34,16 +34,17 @@ sys.path.insert(0, _find_account_store())
 import aoio_auth
 
 app = Flask(__name__)
-# Stable across restarts when GALLERY_SECRET is set, so a restart does not sign
+# Stable across restarts when STUDIO_SECRET is set, so a restart does not sign
 # everyone out; random (sessions dropped on restart) when it is not.
-app.secret_key = os.environ.get("GALLERY_SECRET") or os.urandom(32).hex()
+app.secret_key = os.environ.get("STUDIO_SECRET") or os.environ.get("GALLERY_SECRET") or os.urandom(32).hex()
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    # Set GALLERY_SECURE_COOKIE=1 when the gallery is only reached over HTTPS
+    # Set STUDIO_SECURE_COOKIE=1 when the studio is only reached over HTTPS
     # (e.g. behind a Cloudflare tunnel). Leave it off while testing on
     # http://127.0.0.1, or the browser will refuse to send the cookie.
-    SESSION_COOKIE_SECURE=os.environ.get("GALLERY_SECURE_COOKIE", "") == "1",
+    SESSION_COOKIE_SECURE=(os.environ.get("STUDIO_SECURE_COOKIE")
+                           or os.environ.get("GALLERY_SECURE_COOKIE") or "") == "1",
 )
 
 
@@ -64,11 +65,11 @@ PROJECTS_FILE = DATA_DIR / "projects.json"
 
 # First-run setup only. NO password is shipped in this file or in start.sh: while
 # zero accounts exist the app generates a random one-time setup code per start and
-# prints it to its log (gallery.log). Anyone reading this source learns nothing
+# prints it to its log (studio.log). Anyone reading this source learns nothing
 # usable. The code stops working the moment an account exists.
 _SETUP_CODE = None
 # Roles allowed to open the studio.
-GALLERY_ROLES = ("owner", "reviewer")
+STUDIO_ROLES = ("owner", "reviewer")
 # Failed-login throttle: attempts per IP per window (seconds).
 LOGIN_MAX_FAILS, LOGIN_WINDOW = 10, 300
 _login_fails = {}
@@ -79,8 +80,8 @@ def setup_code():
     global _SETUP_CODE
     if _SETUP_CODE is None:
         _SETUP_CODE = "setup-" + secrets.token_urlsafe(9)
-        print(f"[gallery] no accounts yet — one-time setup code: {_SETUP_CODE}\n"
-              f"[gallery] create your real login with: "
+        print(f"[studio] no accounts yet — one-time setup code: {_SETUP_CODE}\n"
+              f"[studio] create your real login with: "
               f"python3 aoio_auth.py add you@example.com", flush=True)
     return _SETUP_CODE
 
@@ -219,7 +220,7 @@ def index():
 def login_page():
     error = None
     # First-run mode: no accounts yet -> accept the random one-time setup code
-    # printed to gallery.log, so a fresh install is reachable before the first
+    # printed to studio.log, so a fresh install is reachable before the first
     # account is created. Disappears the moment an account exists.
     bootstrap = aoio_auth.count_users() == 0
     if request.method == "POST":
@@ -238,7 +239,7 @@ def login_page():
             login_failed(ip)
             error = "Wrong setup code"
         else:
-            user = aoio_auth.verify(email, password, roles=GALLERY_ROLES)
+            user = aoio_auth.verify(email, password, roles=STUDIO_ROLES)
             if user:
                 session["logged_in"] = True
                 session["email"] = user["email"]
@@ -246,7 +247,7 @@ def login_page():
                 session["role"] = user["role"]
                 return redirect(url_for("project_list"))
             login_failed(ip)
-            print(f"[gallery] login REJECTED for {email or '-'} from {ip}", flush=True)
+            print(f"[studio] login REJECTED for {email or '-'} from {ip}", flush=True)
             error = "Wrong email or password"
     elif bootstrap:
         setup_code()          # make sure the code is generated + logged
@@ -288,7 +289,7 @@ def season_page(season_id):
 
 @app.route("/p/<project_id>")
 @login_required
-def gallery(project_id):
+def studio_view(project_id):
     data = load_projects()
     project = None
     for p in data["projects"]:
@@ -377,7 +378,7 @@ def gallery(project_id):
     episode.setdefault("feedback", [])
 
     season = get_season_for_episode(project_id)
-    return render_template("gallery.html", project=project, episode=episode, season=season)
+    return render_template("studio.html", project=project, episode=episode, season=season)
 
 @app.route("/p/<project_id>/script", methods=["POST"])
 @login_required
@@ -794,5 +795,5 @@ def add_asset_feedback(project_id, asset_id):
     return jsonify({"ok": True})
 
 if __name__ == "__main__":
-    port = int(os.environ.get("GALLERY_PORT", 5001))
+    port = int(os.environ.get("STUDIO_PORT") or os.environ.get("GALLERY_PORT") or 5001)
     app.run(host="0.0.0.0", port=port, debug=False)

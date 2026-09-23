@@ -12,8 +12,8 @@ import json
 import os
 from datetime import datetime, timezone
 
-GALLERY = os.environ.get("GALLERY_DIR", "/opt/data/studio")
-STATE = os.path.join(GALLERY, ".feedback-watch-state")
+STUDIO_DIR = os.environ.get("STUDIO_DIR") or os.environ.get("GALLERY_DIR") or "/opt/data/studio"
+STATE = os.path.join(STUDIO_DIR, ".feedback-watch-state")
 
 
 def parse_ts(s):
@@ -33,7 +33,7 @@ def main():
             last = 0.0
 
     found = []
-    shots_root = os.path.join(GALLERY, "shots")
+    shots_root = os.path.join(STUDIO_DIR, "shots")
     if os.path.isdir(shots_root):
         for root, _dirs, files in os.walk(shots_root):
             for fn in files:
@@ -47,7 +47,7 @@ def main():
                 for fb in data.get("feedback", []):
                     t = parse_ts(fb.get("timestamp", ""))
                     if t > last + 60:
-                        loc = os.path.relpath(root, GALLERY)
+                        loc = os.path.relpath(root, STUDIO_DIR)
                         found.append((fb.get("timestamp", "")[:16], loc, fb.get("text", "")[:90]))
 
     with open(STATE, "w") as f:
@@ -56,7 +56,7 @@ def main():
     if first_run or not found:
         return  # silent
 
-    print(f"🎬 New gallery feedback ({len(found)}):")
+    print(f"🎬 New studio feedback ({len(found)}):")
     for ts_str, loc, txt in found:
         print(f"  {ts_str} · {loc}: {txt}")
     print("Process it: read the feedback files and regenerate/revise accordingly.")

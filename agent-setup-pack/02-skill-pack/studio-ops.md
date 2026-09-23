@@ -30,13 +30,13 @@ choice is remembered per browser.
 | `/opt/data/studio/shots/<film>/<shot>/` | One folder per shot, media inside |
 | `/opt/data/studio/assets/<season>/<asset>/` | Character/Location/Prop folders for the Bible & Assets page |
 | `/opt/data/studio/masters/<film>/<shot_id>.mp4` | Approved clips upscaled to 4K — the owner's finished footage |
-| `gallery.YOUR-DOMAIN.com` | The public address (Cloudflare tunnel) |
+| `studio.YOUR-DOMAIN.com` | The public address (Cloudflare tunnel) |
 
 ## Accounts & logins (email + password)
 
-The gallery and the owner's agent Web UI share ONE account store — the
+The studio and the owner's agent Web UI share ONE account store — the
 stdlib-only program `aoio_auth.py`. It normally lives at
-`/opt/data/aoio-auth/aoio_auth.py` (the gallery's `start.sh` points at it with
+`/opt/data/aoio-auth/aoio_auth.py` (the studio's `start.sh` points at it with
 `export AOIO_AUTH_DIR=/opt/data/aoio-auth`); a standalone copy also ships inside
 the app at `/opt/data/studio/accounts/aoio_auth.py`.
 
@@ -48,14 +48,14 @@ python3 /opt/data/aoio-auth/aoio_auth.py disable editor@example.com
 python3 /opt/data/aoio-auth/aoio_auth.py verify owner@example.com 'password'   # test a login
 ```
 
-- Roles: `owner` = gallery **and** agent Web UI. `reviewer` = gallery only.
+- Roles: `owner` = studio **and** agent Web UI. `reviewer` = studio only.
 - **There is no password-reset email and there never will be** — the VPS runs no
   mail server (providers block outgoing mail ports), so a reset link could not be
   delivered. When the owner says "I forgot my password", run the `passwd` command
   above and tell them the new password. Never invent a reset link or claim an
   email was sent.
 - First run, before any account exists: the app prints a RANDOM one-time setup
-  code to `gallery.log` (`grep setup- /opt/data/studio/gallery.log`). It dies the
+  code to `studio.log` (`grep setup- /opt/data/studio/studio.log`). It dies the
   moment an account exists. There is NO default password in the source (the repo is
   public) — never look for one, never invent one.
 - Both login surfaces throttle failures: 10 per IP per 5 minutes → HTTP 429. If the
@@ -84,7 +84,7 @@ python3 /opt/data/aoio-auth/aoio_auth.py verify owner@example.com 'password'   #
 - `/projects` lists seasons (when present), each linking to its season page.
 - `/s/<season_id>` is the season page → episode cards + the Character Bible & Assets link.
 - `/p/<episode_id>` is the episode page (the shot cards).
-- Without seasons the gallery falls back to a flat project list (backward compatible).
+- Without seasons the studio falls back to a flat project list (backward compatible).
 
 ## Character Bible & Assets page (`/a/<scope>`)
 
@@ -231,14 +231,14 @@ field. Feedback on the script lives in that JSON's `feedback[]` too.
 
 ## The production loop (follow this order — it is the owner's workflow)
 
-The gallery starts EMPTY. Nothing in it is created by hand by the owner; you
+The studio starts EMPTY. Nothing in it is created by hand by the owner; you
 create it all. The loop:
 
 1. **Idea chat (Web UI).** The owner brings an idea; you ask questions and
    shape it with them. No files yet.
 2. **Write it up, then populate the studio.** When the owner says go: write the
    script, break it into 5–15 second shots (H3 Max's floor is 5s), build the character/location/prop
-   bible, then create everything in the gallery — the project (or season) in
+   bible, then create everything in the studio — the project (or season) in
    `projects.json`, the assets in `assets/<season>/…` (`/a/<season>`), the
    episode entries (`/s/<season>`) and every shot card (`/p/<episode>`), with
    the episode script in `_episode_script.json`. **Words only at this stage —
@@ -299,7 +299,7 @@ create it all. The loop:
   estimated cost and WAIT for an explicit yes to THAT message. Never
   announce a batch and its cost in the same message as launching it — the
   quote comes first, on its own, and the batch starts only after approval.
-- The moment you receive feedback (from the gallery, the watcher, or chat)
+- The moment you receive feedback (from the studio, the watcher, or chat)
   that requires generation, message the owner on **Telegram or WhatsApp** and
   ask ONE of these, then do exactly what they answer:
   1. *"Shall I generate the [N] shots now? It'll cost about US$X."* → wait for

@@ -29,7 +29,7 @@ defaults, not the number to quote.
 > You are my AI film studio assistant. From now on you help me produce short
 > AI films and micro-dramas. Your job covers: scriptwriting, shot planning,
 > generating character/set/keyframe images, generating video clips, reviewing
-> work in my gallery, and keeping every character and location consistent
+> work in my studio, and keeping every character and location consistent
 > across all my projects.
 >
 > Please acknowledge this role and tell me the first three things you'd like
@@ -48,7 +48,7 @@ defaults, not the number to quote.
 
 ## 3. Learn my studio
 
-> I have a review studio (gallery) running on this server (see the studio-ops
+> I have a studio running on this server (see the studio-ops
 > skill). Find it (check `projects.json`) and learn its four pages:
 > `/projects` (my films and seasons), `/s/<season>` (episode cards),
 > `/a/<season>` (Character Bible & Assets) and `/p/<episode>` (episode script +
@@ -147,7 +147,7 @@ defaults, not the number to quote.
 ## House rules (follow these on every project)
 
 0. **If an instruction is ambiguous, ask before acting.** In chat or in the
-   gallery review loop, if I say something that could mean more than one thing —
+   studio review loop, if I say something that could mean more than one thing —
    which assets I mean, whether "finished reviewing" means "approved, go
    ahead", or which step "generate" refers to — ask me what I mean and WAIT
    for my answer. Never guess, never pick a reasonable default. A clarifying

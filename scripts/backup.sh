@@ -18,13 +18,13 @@ cd "$BACKUP_DIR" || exit 1
 cp /opt/data/config.yaml ./config.yaml 2>/dev/null
 cp -r /opt/data/skills/* ./skills/ 2>/dev/null
 cp /opt/data/memories/* ./memories/ 2>/dev/null
-rm -rf ./gallery-data && mkdir -p ./gallery-data
-if [ -d "$STUDIO_DIR/data" ]; then cp -r "$STUDIO_DIR/data" ./gallery-data/data; fi
+rm -rf ./studio-data && mkdir -p ./studio-data
+if [ -d "$STUDIO_DIR/data" ]; then cp -r "$STUDIO_DIR/data" ./studio-data/data; fi
 if [ -d "$STUDIO_DIR/shots" ]; then
   find "$STUDIO_DIR/shots" -name '*.json' 2>/dev/null | while read -r f; do
     rel="${f#$STUDIO_DIR/}"
-    mkdir -p "./gallery-data/$(dirname "$rel")"
-    cp "$f" "./gallery-data/$rel"
+    mkdir -p "./studio-data/$(dirname "$rel")"
+    cp "$f" "./studio-data/$rel"
   done
 fi
 
