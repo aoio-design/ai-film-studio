@@ -18,7 +18,10 @@ paid API call that returns finished files.*
   or, if they prefer, in `$HERMES_HOME/.env` through the app's file browser — that
   file sits in a dot-folder, so the workspace must be switched to the agent's home
   path and "Show hidden files" switched on first (guide Ch4 §4.4). Never ask for the
-  key in chat.
+  key in chat. **Do not send the owner into the app's file browser for this, and do not
+  quote your own `$HERMES_HOME` path to them:** the app runs in a different container and
+  sees the same folder under a different path, so a path that is correct for you will
+  not exist for them.
   **fal is not an LLM provider, so it never appears on the app's Providers page —
   if the owner says it isn't there, that is correct, not a bug.** Confirm it with:
   ```bash
