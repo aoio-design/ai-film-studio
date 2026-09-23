@@ -157,6 +157,7 @@ Pattern: `<scope-id>_<Entity>_<Kind>_v<N>[<_option>].<ext>`
 | Keyframe image | `<episode-id>_<ShotID>_v1.png` |
 | Video clip | `<episode-id>_<ShotID>_v1.mp4` (same v-number as its keyframe) |
 | 4K master | same name as the approved clip, in `masters/<film>/` |
+| Downloaded master | after upscaling, ALSO copy the master into the shot folder as `master-1080p.mp4` / `master-4k.mp4` — the studio serves any file in a shot's folder, so this is how the owner downloads their finished clip (never overwrite the clip itself) |
 | Voice reference | `<season-id>_<CharacterName>_Audio_Reference_v1.wav` |
 | `metadata.json` | Script, prompts, feedback notes (with timestamps) |
 
