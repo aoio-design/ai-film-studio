@@ -53,7 +53,8 @@ if ! curl -sf --max-time 5 http://127.0.0.1:8790/health >/dev/null 2>&1; then
 fi
 
 # 6. AI Film Studio on 80 (own email + password login)
-STUDIO_DIR="${STUDIO_DIR:-${GALLERY_DIR:-/opt/data/studio}}"
+HERMES_HOME="${HERMES_HOME:-/opt/data}"
+STUDIO_DIR="${STUDIO_DIR:-${GALLERY_DIR:-$HERMES_HOME/studio}}"
 if ! curl -sf --max-time 5 http://127.0.0.1:80/login >/dev/null 2>&1; then
   (cd "$STUDIO_DIR" && nohup bash start.sh >> /opt/data/logs/studio-restart.log 2>&1 &)
   OUT="$OUT restarted studio"

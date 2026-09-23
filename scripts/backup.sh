@@ -4,11 +4,12 @@
 #   1. Create a PRIVATE GitHub repo (e.g. "my-agent-backup") and a personal access token.
 #      (Guide Method A: the token is stored on the owner's Keys page as GITHUB_TOKEN —
 #      never ask for it in a chat.)
-#   2. git clone https://<TOKEN>@github.com/YOU/my-agent-backup.git /opt/data/hermes-backup
+#   2. git clone https://<TOKEN>@github.com/YOU/my-agent-backup.git $HERMES_HOME/hermes-backup
 #   3. The script below copies your data in, commits and pushes.
 # If your paths differ from the defaults, set BACKUP_DIR / STUDIO_DIR at the top.
-BACKUP_DIR="${BACKUP_DIR:-/opt/data/hermes-backup}"
-STUDIO_DIR="${STUDIO_DIR:-/opt/data/studio}"
+HERMES_HOME="${HERMES_HOME:-/opt/data}"
+BACKUP_DIR="${BACKUP_DIR:-$HERMES_HOME/hermes-backup}"
+STUDIO_DIR="${STUDIO_DIR:-$HERMES_HOME/studio}"
 cd "$BACKUP_DIR" || exit 1
 
 # Copy the small, irreplaceable things: your agent's config, skills and memories,

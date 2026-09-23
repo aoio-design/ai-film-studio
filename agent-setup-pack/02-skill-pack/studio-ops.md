@@ -4,6 +4,10 @@
 generated assets into shot folders, populating the Character Bible & Assets
 page, reading and acting on feedback.*
 
+> **By-hand commands for anything in this skill** (install, restart, the free browser,
+> the fal key) live in `references/manual-fallbacks.md`. Only `$HERMES_HOME` survives an
+> app update — never install outside it.
+
 ## What the studio is
 
 A private web app (Flask) on the VPS, behind an email + password login, that
@@ -25,51 +29,46 @@ choice is remembered per browser.
 
 | Path | What it is |
 |---|---|
-| `/opt/data/studio/` | The app (edit nothing except `start.sh`) |
-| `/opt/data/studio/data/projects.json` | The list of seasons, films and their shots |
-| `/opt/data/studio/shots/<film>/<shot>/` | One folder per shot, media inside |
-| `/opt/data/studio/assets/<season>/<asset>/` | Character/Location/Prop folders for the Bible & Assets page |
-| `/opt/data/studio/masters/<film>/<shot_id>.mp4` | Approved clips upscaled to 4K — the owner's finished footage |
-| `studio.YOUR-DOMAIN.com` | The public address (Cloudflare tunnel) |
+| `$HERMES_HOME/studio/` | The app (edit nothing except `start.sh`) |
+| `$HERMES_HOME/studio/data/projects.json` | The list of seasons, films and their shots |
+| `$HERMES_HOME/studio/shots/<film>/<shot>/` | One folder per shot, media inside |
+| `$HERMES_HOME/studio/assets/<season>/<asset>/` | Character/Location/Prop folders for the Bible & Assets page |
+| `$HERMES_HOME/studio/masters/<film>/<shot_id>.mp4` | Approved clips upscaled to 4K — the owner's finished footage |
+| `studio.MY-DOMAIN` | The public address (Cloudflare tunnel) |
 
 ## Accounts & logins (email + password)
 
-The studio and the owner's agent Web UI share ONE account store — the
-stdlib-only program `aoio_auth.py`. It normally lives at
-`/opt/data/aoio-auth/aoio_auth.py` (the studio's `start.sh` points at it with
-`export AOIO_AUTH_DIR=/opt/data/aoio-auth`); a standalone copy also ships inside
-the app at `/opt/data/studio/accounts/aoio_auth.py`.
+The studio keeps its **own** account file, inside the app folder — which is also the
+folder that survives an app update:
 
 ```bash
-python3 /opt/data/aoio-auth/aoio_auth.py list                      # who can sign in
-python3 /opt/data/aoio-auth/aoio_auth.py passwd owner@example.com   # reset (prints a new password)
-python3 /opt/data/aoio-auth/aoio_auth.py add editor@example.com --role reviewer
-python3 /opt/data/aoio-auth/aoio_auth.py disable editor@example.com
-python3 /opt/data/aoio-auth/aoio_auth.py verify owner@example.com 'password'   # test a login
+python3 "$HERMES_HOME/studio/accounts/aoio_auth.py" list                      # who can sign in
+python3 "$HERMES_HOME/studio/accounts/aoio_auth.py" passwd owner@example.com   # reset (prints a new password)
+python3 "$HERMES_HOME/studio/accounts/aoio_auth.py" add editor@example.com --role reviewer
+python3 "$HERMES_HOME/studio/accounts/aoio_auth.py" disable editor@example.com
+python3 "$HERMES_HOME/studio/accounts/aoio_auth.py" verify owner@example.com 'password'
 ```
 
-- Roles: `owner` = studio **and** agent Web UI. `reviewer` = studio only.
+- Roles: `owner` = the full studio. `reviewer` = the studio only, never the agent's chat.
+- The agent's **own web app** has a separate password, set by the owner when they
+  deployed it (`HERMES_WEBUI_PASSWORD`). It is not in this account file and you do not
+  manage it here — if the owner is locked out of the app, point them at hpanel →
+  Docker Manager (their project's configuration), not at the studio's accounts.
 - **There is no password-reset email and there never will be** — the VPS runs no
   mail server (providers block outgoing mail ports), so a reset link could not be
   delivered. When the owner says "I forgot my password", run the `passwd` command
   above and tell them the new password. Never invent a reset link or claim an
   email was sent.
 - First run, before any account exists: the app prints a RANDOM one-time setup
-  code to `studio.log` (`grep setup- /opt/data/studio/studio.log`). It dies the
+  code to its log (`grep setup- $HERMES_HOME/studio/studio.log`). It dies the
   moment an account exists. There is NO default password in the source (the repo is
   public) — never look for one, never invent one.
-- Both login surfaces throttle failures: 10 per IP per 5 minutes → HTTP 429. If the
-  owner reports "Too many attempts", wait out the window instead of retrying; verify
-  the password out-of-band with
-  `AOIO_PASSWORD='…' python3 /opt/data/aoio-auth/aoio_auth.py verify <email>`
-  (env var keeps it out of shell history).
+- Login failures are throttled: 10 per IP per 5 minutes → HTTP 429. If the owner
+  reports "Too many attempts", wait out the window instead of retrying; verify a
+  password out-of-band with
+  `AOIO_PASSWORD='…' python3 "$HERMES_HOME/studio/accounts/aoio_auth.py" verify <email>`
+  (the env var keeps it out of shell history).
 - Minimum password length is 12 characters.
-- The agent Web UI login is served by the gate at
-  `/opt/data/agent-gate/gate.py` (port 8790). Health check:
-  `curl -s http://127.0.0.1:8790/health` → `ok`. If the gate is down, nobody can
-  sign in to the Web UI (`/login` returns 502) — restart it with
-  `nohup python3 /opt/data/agent-gate/gate.py >> /opt/data/logs/agent-gate.log 2>&1 &`
-  and confirm the tunnel still routes `^/(login|api/auth/login)/?$` to port 8790.
 - Never print a password into a shared channel other than the owner's own chat,
   and never write one into a file or a log.
 
@@ -278,7 +277,7 @@ create it all. The loop:
 6. **Approved video → 4K master.** When the owner approves a shot's video,
    upscale that clip to 4K with the fal.ai upscaler (see the `fal-ai-ops`
    skill), then save the master on the VPS as
-   `/opt/data/studio/masters/<film>/<shot_id>.mp4` (create the folder if it
+   `$HERMES_HOME/studio/masters/<film>/<shot_id>.mp4` (create the folder if it
    doesn't exist) and tell the owner the exact path. Never overwrite the
    review copy in the shot folder (`shots/<film>/<shot>/`) — the card keeps showing
    that one. If the owner ever asks where their finished clips are, answer
@@ -287,7 +286,7 @@ create it all. The loop:
 ## fal.ai key and spending rule (MANDATORY — never break this)
 
 > All generation runs through the owner's **fal.ai** account — the key is
-> stored as `FAL_KEY` in the Hermes app's Keys page (see the `fal-ai-ops`
+> stored as `FAL_KEY`, entered under Settings → Providers in the app (see the `fal-ai-ops`
 > skill) — and every successful output costs the owner money (roughly US$0.17
 > per character sheet at high quality, US$0.04 per location or prop at medium,
 > US$0.16 per keyframe, ~US$0.40 per 5-second clip, ~US$0.14 per 4K upscale).
@@ -331,7 +330,7 @@ Studio's Talk-to-your-agent drawer**:
 ```text
 hermes cron create 'every 5m' --name 'Studio feedback watcher' --deliver local \
   --monitor-script studio-feedback-watch.py \
-  --prompt 'New feedback appeared in the Studio (via the Talk-to-your-agent drawer). Open each reported file, read every feedback entry in full, and act on it: revise the referenced script lines, shots, or asset prompts. Then append a reply to /opt/data/studio/shots/_agent_replies.json as [{"timestamp": "...", "project": "<project id from the file path, or null>", "text": "what you changed"}] so the owner sees it in the drawer. Preserve existing records.
+  --prompt 'New feedback appeared in the Studio (via the Talk-to-your-agent drawer). Open each reported file, read every feedback entry in full, and act on it: revise the referenced script lines, shots, or asset prompts. Then append a reply to $HERMES_HOME/studio/shots/_agent_replies.json as [{"timestamp": "...", "project": "<project id from the file path, or null>", "text": "what you changed"}] so the owner sees it in the drawer. Preserve existing records.
 GENERATION / PAID WORK: this cron session has NO paid key and must NEVER attempt generation (no images, clips, upscaling). When the owner asks to generate: (1) look up and state the fal.ai cost, (2) do NOT generate — tell the owner to go back to the WebUI/Telegram/WhatsApp to run it with their paid session, and (3) if they forgot the flow, point them back to their live chat to trigger it. Report concisely what you changed.'
 ```
 
@@ -407,7 +406,7 @@ in order:
 
 ## Troubleshooting
 
-- `502 Bad Gateway` → the app stopped. Check `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:80/` — `302` means fine; no answer means restart with `bash /opt/data/studio/start.sh`.
+- `502 Bad Gateway` → the app stopped. Check `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:80/` — `302` means fine; no answer means restart with `bash $HERMES_HOME/studio/start.sh`.
 - Shot missing from the page → not in `projects.json` (rule 1).
 - `Address already in use` → already running; do nothing.
 - Light/dark toggle not remembered → check the browser's localStorage

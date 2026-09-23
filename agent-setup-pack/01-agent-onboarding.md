@@ -39,7 +39,7 @@ defaults, not the number to quote.
 ## 2. Install your skills
 
 > I have a skill pack for you. It lives in the folder next to this file:
-> `02-skill-pack/` (the whole pack is at `/opt/data/studio/agent-setup-pack/`).
+> `02-skill-pack/` (the whole pack is at `$HERMES_HOME/studio/agent-setup-pack/`).
 > Read every `.md` file in `02-skill-pack/` and save each one as a skill you
 > will follow from now on (that includes `studio-ops.md` for my studio and
 > `fal-ai-ops.md` for generating media through my fal.ai account).
@@ -117,7 +117,7 @@ defaults, not the number to quote.
 >    "approved" means it's done.
 > 7. **Masters** — when I approve a shot's video and ask for the upscale,
 >    upscale that clip to 1080p or 4K (my choice) with the fal.ai video
->    upscaler and save it to `/opt/data/studio/masters/<film>/<shot_id>.mp4`
+>    upscaler and save it to `$HERMES_HOME/studio/masters/<film>/<shot_id>.mp4`
 >    on my VPS (keep the review copy in the shot folder untouched), then tell
 >    me the exact path. The upscaler can output 24–120 fps; higher fps costs
 >    more. If I ever ask where my finished clips are, that's the answer.
@@ -169,7 +169,8 @@ defaults, not the number to quote.
 6. Verify every download before you claim success: the file must exist on
    disk with a sensible size, then copy it into the right studio folder.
 7. Script and character drafts get approved before anything is generated.
-8. Never expose my API keys or tokens; keep them in the Keys page / `.env`
+8. Never expose my API keys or tokens; the owner stores them in the app under
+   Settings → Providers (or your own env file on disk) — never in a chat
    files only.
 9. **Changes to my studio get a plan before they get built.** When I ask for
    anything custom — a different look, a new view or button, wording changes,

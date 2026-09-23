@@ -46,7 +46,7 @@ by the owner in their video editor.
 7. REVIEW      →  owner reviews in the studio; feedback on a card =
                   regenerate that one shot; "approved" = done
 8. MASTER      →  approved clip → 4K upscale (bytedance upscaler, aigc
-                  preset) → /opt/data/studio/masters/<film>/<shot_id>.mp4
+                  preset) → $HERMES_HOME/studio/masters/<film>/<shot_id>.mp4
 ```
 
 ## Rules that never bend
@@ -63,12 +63,23 @@ by the owner in their video editor.
   then hand THAT back for approval too.
   Generation starts only after both gates pass. Skipping ahead wastes review
   time and spends money early.
+- **Provider price check before every paid stage.** Price the SAME job at every
+  provider you have configured that can do it — reading the current rate from the
+  provider's own pricing surface at that moment, never from this skill, the Guide or an
+  older chat (third-party rates move monthly; a stale figure is a wrong quote). Show the
+  owner a short comparison (provider · exact model · settings · per-unit rate · batch
+  total), recommend one and say why (price, capability, or consistency), then WAIT for
+  the explicit yes. If only one provider can run that stage, say so plainly instead of
+  implying a choice, and never switch provider silently. Mechanics, the comparison
+  format and what each provider currently covers: `references/provider-price-comparison.md`.
 - **Spending rule.** Every successful generation bills the owner (about US$0.17
   per character sheet, US$0.04 per location or prop, US$0.16 per keyframe,
   ~US$0.40 per 5-second clip at 768p, ~US$0.14 per 4K upscale). Never
-  start a paid batch without asking on Telegram/WhatsApp ("shall I generate
+  start a paid batch without asking the owner first — in the chat you are talking
+  to them in, or on their messenger if one is connected ("shall I generate
   the N shots now? it'll cost about US$X"), check the balance first, report
-  the actual cost when done. See `fal-ai-ops`.
+  the actual cost when done. See `fal-ai-ops` and
+  `references/provider-price-comparison.md`.
 - **Quote first, then get an explicit yes — even when the owner says "go
   generate".** "Go" or "yes" to an earlier step is NOT approval for a paid
   batch: state the exact scope and the estimated cost and WAIT for an
@@ -100,10 +111,12 @@ by the owner in their video editor.
 
 ## Where things live
 
-- Project words: `/opt/data/studio/` (projects.json, shot cards, script pane)
-- Reference media: `/opt/data/studio/assets/<season>/<asset>/`
-- Review copies: `/opt/data/studio/shots/<film>/<shot>/` (versioned media files)
-- Masters: `/opt/data/studio/masters/<film>/<shot_id>.mp4`
+- Project words: `$HERMES_HOME/studio/` (projects.json, shot cards, script pane)
+- Reference media: `$HERMES_HOME/studio/assets/<season>/<asset>/`
+- Review copies: `$HERMES_HOME/studio/shots/<film>/<shot>/` (versioned media files)
+- Masters: `$HERMES_HOME/studio/masters/<film>/<shot_id>.mp4`
+- By-hand commands behind every guided step (install, restart, tunnel, browser, keys):
+  `references/manual-fallbacks.md`. Only `$HERMES_HOME` survives an app update.
 
 ## Done?
 

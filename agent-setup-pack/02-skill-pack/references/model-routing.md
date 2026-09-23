@@ -29,7 +29,7 @@ The `reference_images` stage now has two profiles — **`new-sheet-from-prompt`*
 - **Words changed** — the description/prompt on the card was edited (wrong jawline, wrong era, "make it a bookshop, not a cafe") → re-draft the sheet prompt and re-run the **whole sheet** (txt2img profile, same AR/quality tier).
 - **The existing image is the instruction** — the owner points at an image they can see ("using image-2.png, extract the top-left panel and go wider", "re-light this one") → **edit that image** with the `gpt-image-2-asset-edit` profile: upload the image, pass it as `image_urls`, describe the change in the prompt, deliver a SINGLE image at the asset's AR/quality tier. Never re-run the whole-sheet text prompt for an image-driven change.
 - **Deliver under a NEW versioned filename** — the old take stays on the card until the owner stars the new one (never overwrite).
-- **Quote the fal price before running** (≈ US$0.04 at 1536×864 medium, US$0.158 at 1920×1080 high — check the live table).
+- **Quote the live price before running** (≈ US$0.04 at 1536×864 medium, US$0.158 at 1920×1080 high — always check the live table, and price every configured provider that can do the job: `provider-price-comparison.md`).
 
 ## Binding scope — precedence (resolved highest → lowest at generation time)
 
@@ -41,6 +41,12 @@ The `reference_images` stage now has two profiles — **`new-sheet-from-prompt`*
 
 A shot's `model: <id>` + `resolved_at: <ts>` records what produced it (**provenance**). Adding an
 alternative profile NEVER touches the default — selection is additive.
+
+**A binding is a (provider, model) pair.** The global default currently names one provider
+because it is the only one that can run every stage; when a second provider is configured, the
+price check runs across providers for that stage BEFORE a paid run (`provider-price-comparison.md`),
+and a binding that names a provider with no key configured is not a valid binding — say so instead
+of silently falling back.
 
 ## Mapping protocol — for a recognized/unknown model
 

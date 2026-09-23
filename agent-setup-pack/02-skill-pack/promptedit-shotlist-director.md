@@ -25,7 +25,7 @@ This is **cinema, not a clip**. You are not chopping a script into beats — you
 
 ## What you're producing
 
-A single HTML file (`shotlist.html`) saved next to the project's other prompt docs (e.g. `/opt/data/studio/shots/<film>/shotlist.html`) and presented to the user. Structure:
+A single HTML file (`shotlist.html`) saved next to the project's other prompt docs (e.g. `$HERMES_HOME/studio/shots/<film>/shotlist.html`) and presented to the user. Structure:
 
 1. **Title bar** — project name (infer from script context, or use "Untitled" if unclear)
 2. **Global Style Prefix block** — collapsible, shown at top, applies to every prompt
@@ -180,7 +180,7 @@ When the user gives you a script (or scene, or idea):
 4. **Decide prompt count per scene.** Each prompt is one 15-second beat (Seedance convention). A 12-second moment still gets one full prompt — fill the 15 seconds with the breath, the look, the held silence after the line. A 40-second confession = 3 prompts (e.g., 5a, 5b, 5c). Honest assessment: how many beats does this moment actually need to land? (For H3 Max, each prompt is a 5–15s clip — see the adaptation section.)
 5. **Write each prompt** following the strict structure above. Style Prefix, Characters, Scene + Geo-spatial, CUT 1, CUT 2, etc.
 6. **Generate the HTML** using the template approach below.
-7. **Save to the project's prompts folder (e.g. `/opt/data/studio/shots/<film>/shotlist.html`)** and present it.
+7. **Save to the project's prompts folder (e.g. `$HERMES_HOME/studio/shots/<film>/shotlist.html`)** and present it.
 
 ---
 

@@ -12,6 +12,11 @@ metadata:
 
 # Cloudflared Tunnel Operations
 
+> **Exact by-hand sequence for this stack:** `references/manual-fallbacks.md` §2 — the
+> binary and its config live inside `$HERMES_HOME/.cloudflared`, one tunnel serves two
+> hostnames, the app is reached by its container service name (`http://hermes-webui:8787`)
+> and the studio on `localhost`.
+
 ## When to Use
 
 - A subdomain (e.g. `agent.[YOUR_SECRET]`, `studio.[YOUR_SECRET]`) is down / 502 / unreachable
@@ -27,7 +32,7 @@ metadata:
 Diagnostic order:
 1. `curl -sS -m 5 -o /dev/null -w "local:PORT -> HTTP %{http_code}\n" http://127.0.0.1:PORT/health` — if this fails to connect, the origin is down. That's the root cause.
 2. `ps aux | grep cloudflared` — tunnel process alive? (It will still be running when you get 502; the tunnel doesn't die when the origin does.)
-3. Check the service log tail for the crash: `tail -30 /opt/data/logs/webui.log` — look for `[crash-visibility] process exit pid=NNNN` (Hermes WebUI logs this when it dies).
+3. Check the service log tail for the crash: `tail -30 $HERMES_HOME/logs/webui.log` — look for `[crash-visibility] process exit pid=NNNN` (Hermes WebUI logs this when it dies).
 4. If origin is up but tunnel is down → restart tunnel (see Lifecycle).
 
 **Connection refused / DNS failure on the subdomain itself** = tunnel or DNS record problem. Verify the CNAME: `cloudflared tunnel route dns <TUNNEL> <hostname>`.
@@ -57,15 +62,15 @@ if [ ! -x "$CF" ]; then
   chmod +x "$CF"
 fi
 ln -sf "$CF" /tmp/cloudflared
-"$CF" tunnel run <TUNNEL_NAME> >> /opt/data/logs/cloudflared.log 2>&1 </dev/null &
+"$CF" tunnel run <TUNNEL_NAME> >> $HERMES_HOME/logs/cloudflared.log 2>&1 </dev/null &
 ```
 GitHub release downloads return 200 from this VPS (redirect to objects.githubusercontent.com works even though api.github.com is blocked).
 
 ### Restart Hermes WebUI (port 8787)
 ```
-cd /opt/data/hermes-webui
+cd $HERMES_HOME/hermes-webui
 HERMES_WEBUI_PYTHON=/opt/hermes/.venv/bin/python3 nohup python3 bootstrap.py \
-  --skip-agent-install --no-browser --foreground 8787 >> /opt/data/logs/webui.log 2>&1 &
+  --skip-agent-install --no-browser --foreground 8787 >> $HERMES_HOME/logs/webui.log 2>&1 &
 ```
 Wait ~8-10s, then verify: local `/health` returns 200, subdomain returns 302 (login redirect = working).
 

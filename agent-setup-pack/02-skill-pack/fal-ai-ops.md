@@ -5,15 +5,20 @@ first-frame keyframes, video clips, or 4K masters — through the owner's fal.ai
 account. There is no GPU to rent, no pod to start or stop: generation is a
 paid API call that returns finished files.*
 
+> **By-hand fallbacks** (where the key belongs on disk, how to re-check it) are in
+> `references/manual-fallbacks.md`. Before quoting anything, price every configured
+> provider with live rates: `references/provider-price-comparison.md`.
+
 ## The account and the key
 
 - The owner has a **fal.ai** account (prepaid credits) and an **API key**
-  stored as **`FAL_KEY`** in the Hermes app's **Keys** page — which puts it in
-  your process environment. Confirm it with:
+  stored as **`FAL_KEY`**, entered by the owner in the app under **Settings →
+  Providers** (which writes it on the server, so it reaches your process
+  environment). Confirm it with:
   ```bash
   echo ${FAL_KEY:+FAL_KEY is set}
   ```
-  If it prints nothing, tell the owner to add `FAL_KEY` on the Keys page of
+  If it prints nothing, tell the owner to add `FAL_KEY` under Settings → Providers in
   their Hermes app (guide Chapter 4, Section 4.4) — **never** ask them to
   paste the key in chat.
 - **Never print, log, or echo the key itself.** Secrets live in the
@@ -63,7 +68,7 @@ genmedia run openai/gpt-image-2 \
 Upload the owner's reference images first, then reference them by URL:
 
 ```bash
-genmedia upload /opt/data/studio/assets/<season>/<asset>/<file>.png
+genmedia upload $HERMES_HOME/studio/assets/<season>/<asset>/<file>.png
 # → prints a cdn_url like https://v3b.fal.media/files/b/...
 genmedia run openai/gpt-image-2/edit \
   --prompt "<composition prompt: put the subject from image 1 in the setting from image 2…>" \
@@ -92,9 +97,9 @@ genmedia run fal-ai/elevenlabs/tts/eleven-v3 \
 Everything goes in **one request** — the keyframe first (Image 1), then the character sheets of everyone on screen (Images 2, 3, …), then the speaker's voice reference (Audio 1). References are named in the prompt **by modality and list order**.
 
 ```bash
-genmedia upload /opt/data/studio/shots/<film>/<shot>/<film>_<shot>_v1.png
-genmedia upload /opt/data/studio/assets/<season>/<char>/<sheet>.png
-genmedia upload /opt/data/studio/assets/<season>/<char>/<char>_Audio_Reference_v1.wav
+genmedia upload $HERMES_HOME/studio/shots/<film>/<shot>/<film>_<shot>_v1.png
+genmedia upload $HERMES_HOME/studio/assets/<season>/<char>/<sheet>.png
+genmedia upload $HERMES_HOME/studio/assets/<season>/<char>/<char>_Audio_Reference_v1.wav
 # → three cdn_urls
 genmedia run minimax/h3-max/reference-to-video \
   --prompt "Image 1 is the keyframe — the shot opens on this exact composition: match its framing, blocking and lighting. Image 2 is <Char>'s identity reference — preserve the face, hair, build and outfit exactly; <Char> is the speaker. Audio 1 is <Char>'s voice reference — the line is delivered in this voice. <scene + action + camera + soundscape> <Char> says, <delivery>: \"<line>\"" \
@@ -117,14 +122,14 @@ Rules:
 ### 4K master (approved clip → upscaled)
 
 ```bash
-genmedia upload /opt/data/studio/shots/<film>/<shot>/<film>_<shot>_v1.mp4
+genmedia upload $HERMES_HOME/studio/shots/<film>/<shot>/<film>_<shot>_v1.mp4
 genmedia run fal-ai/bytedance-upscaler/upscale/video \
   --video_url "<cdn_url>" \
   --target_resolution 4k --enhancement_preset aigc --target_fps 24 --download
 ```
 
 (`--target_resolution 1080p` is the cheaper social option; 4K is the master
-the owner stores in `/opt/data/studio/masters/<film>/`. `--target_fps 24`
+the owner stores in `$HERMES_HOME/studio/masters/<film>/`. `--target_fps 24`
 matches H3 Max's 24 fps clips — the upscaler defaults to 30 fps and would
 otherwise re-time them.)
 
@@ -170,7 +175,7 @@ upscale — check `genmedia pricing <model-id>` for live rates).
 
 | Symptom | Action |
 |---|---|
-| `FAL_KEY is set` prints nothing | Key not stored — tell the owner to add it on the Keys page (guide Ch4 §4.4). Stop. |
+| `FAL_KEY is set` prints nothing | Key not stored — tell the owner to add it under Settings → Providers in their app (guide Ch4 §4.4). Stop. |
 | `401 Unauthorized` / `403` | Key wrong or scope not **API** — ask the owner to check the key on fal.ai. |
 | `429` or queue waits long | Platform is busy or out of credit — check the balance; wait and retry, or ask the owner to top up. |
 | Model error in the response | Re-read `genmedia run <model> --help`, fix the parameter, retry. One retry, then report. |
@@ -180,5 +185,5 @@ upscale — check `genmedia pricing <model-id>` for live rates).
 
 There is no pod to stop, no volume to lose, no hourly meter. When a batch is
 done, copy everything to the owner's VPS (`shots/…` for review copies,
-`/opt/data/studio/masters/<film>/` for approved 4K masters), verify the
+`$HERMES_HOME/studio/masters/<film>/` for approved 4K masters), verify the
 copies, and report the cost. Done.

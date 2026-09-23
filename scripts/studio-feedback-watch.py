@@ -12,7 +12,8 @@ import json
 import os
 from datetime import datetime, timezone
 
-STUDIO_DIR = os.environ.get("STUDIO_DIR") or os.environ.get("GALLERY_DIR") or "/opt/data/studio"
+HERMES_HOME = os.environ.get("HERMES_HOME") or "/opt/data"
+STUDIO_DIR = os.environ.get("STUDIO_DIR") or os.environ.get("GALLERY_DIR") or os.path.join(HERMES_HOME, "studio")
 STATE = os.path.join(STUDIO_DIR, ".feedback-watch-state")
 
 
