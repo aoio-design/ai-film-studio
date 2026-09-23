@@ -13,10 +13,12 @@ paid API call that returns finished files.*
 
 - The owner has a **fal.ai** account (prepaid credits) and an **API key**
   stored as **`FAL_KEY`** in your environment file on the server — the owner adds
-  it there through the app's file browser — `$HERMES_HOME/.env`, which sits in a
-  dot-folder: the owner must set the workspace to Home and switch on
-  "Show hidden files" in the workspace options menu before they can see it
-  (guide Ch4 §4.4).
+  it there from hpanel (Docker Manager → the project → **Manage** → the `.yaml`
+  editor → add `FAL_KEY` to the `hermes-agent` service's `environment:` → **Update**),
+  or, if they prefer, in `$HERMES_HOME/.env` through the app's file browser — that
+  file sits in a dot-folder, so the workspace must be switched to the agent's home
+  path and "Show hidden files" switched on first (guide Ch4 §4.4). Never ask for the
+  key in chat.
   **fal is not an LLM provider, so it never appears on the app's Providers page —
   if the owner says it isn't there, that is correct, not a bug.** Confirm it with:
   ```bash
