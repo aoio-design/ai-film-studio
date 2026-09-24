@@ -15,8 +15,9 @@ if not first:
     try: last = float(open(STATE).read().strip())
     except Exception: last = 0.0
 found = []
-# Every place the studio writes feedback: shots/ (shot cards + episode script),
-# assets/ (Character Bible, locations, props) and the studio-wide inbox.
+# Feedback lands in two trees: shots/ (shot cards + the episode script) and
+# assets/ (Character Bible, locations, props). The studio-wide inbox list also
+# lives under shots/, so both trees are walked here.
 for root_dir in (os.path.join(S, "shots"), os.path.join(S, "assets")):
     if not os.path.isdir(root_dir): continue
     for root, _dirs, files in os.walk(root_dir):
