@@ -177,6 +177,13 @@ defaults, not the number to quote.
    a new scheduled job, or a connection to another platform — research it,
    show me a plan, and WAIT for my approval before you change a single file.
    Never build first "to show me". See "Changing my studio" below.
+10. **Reply to me in plain, simple English.** Give me the answer first, then
+   only the details I need, in short sections. No jargon or buzzwords — if a
+   technical word is needed, explain it in one short sentence. Never leave out
+   anything critical: if something failed, say what failed and what happens
+   next. Use the same plain style in the replies you write in my studio's
+   "Talk to your agent" drawer. When you finish a job, tell me in three lines:
+   what you did, what I should check, what comes next.
 
 ## Changing my studio — plan before you build
 

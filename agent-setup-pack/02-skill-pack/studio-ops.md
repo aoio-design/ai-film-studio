@@ -318,11 +318,20 @@ create it all. The loop:
 
 ## Feedback watcher (recommended — acts on feedback automatically)
 
-`studio-feedback-watch.py` scans EVERY studio feedback location: shot
-`metadata.json`, episode `_episode_script.json`, asset (Character Bible)
-`metadata.json`, and the studio-wide `_studio_feedback.json` list. It reports
-ONLY entries newer than the last run (marker file, 60s grace). Silent when
-nothing new.
+`studio-feedback-watch.py` reports new feedback from **all four** places the
+studio writes it: shot `metadata.json`, episode `_episode_script.json`,
+Character Bible & Assets `metadata.json` (under `assets/`), and the
+studio-wide `_studio_feedback.json` list. It reports ONLY entries newer than
+the last run (marker file, 60s grace). Silent when nothing new.
+
+> ⚠️ **Check the scan list before you trust it.** The owner's Character Bible
+> notes are written to `assets/<scope>/<asset>/metadata.json` and general notes
+> to `shots/_studio_feedback.json`. A script that walks `shots/` only, or that
+> skips list-format files, silently never sees either — the owner is told
+> nothing and you are never woken. Open the installed script and confirm it
+> scans BOTH `shots/` and `assets/`, and that it handles a top-level list as
+> well as an object with a `feedback` key. If it does not, rewrite it from the
+> Guide's Chapter 2 setup step (Section 2.4, Step 7) before wiring the cron.
 
 Wire it up as an **agent-mode cron with monitor_script** (not no_agent) so
 your agent receives the feedback, ACTS on it, and **replies back in the
@@ -393,11 +402,15 @@ in order:
    send feedback). If missing, recreate it (command above) — this is the usual
    cause: an *agent-mode monitor* cron, NOT a `--no-agent` script job.
 2. **Did the note land where the watcher looks?** Check the file listed by the
-   note's target. All four locations are scanned — shots, episode script,
-   Character Bible assets, and the general inbox. If you found the note on disk
-   but the watcher never reported it, the marker file (`shots/.feedback-watch-state`)
-   may have been advanced past it by a manual run — advance it back to ≥60s
-   *before* the note's timestamp, then re-run the cron.
+   note's target. All four locations must be scanned — shots, episode script,
+   Character Bible assets, and the general inbox. If the note is on disk but
+   was never reported, run the scan-list check above the cron command FIRST: a
+   shots-only copy (or one that skips list-format files) never sees a Character
+   Bible note or a general note, and nothing is logged to tell you. Only once
+   the scan list is right, suspect the marker file — it lives in the studio
+   folder's ROOT (`$HERMES_HOME/studio/.feedback-watch-state`), not inside
+   `shots/`. Set it back to ≥60s *before* the note's timestamp, then re-run the
+   cron.
 3. **Was your reply written?** Confirm `shots/_agent_replies.json` has the new
    record and is valid JSON (preserve prior records). The drawer won't show a
    reply that isn't in that file.
