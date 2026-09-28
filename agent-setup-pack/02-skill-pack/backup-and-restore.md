@@ -36,6 +36,12 @@ write a plan, a doc or a new directory that matters, add it to the script in the
 run the job and confirm the file is in the commit. A plan that only exists on the box is lost
 exactly when it is needed.
 
+**Rule — a backup job that cannot reach the owner is not a backup job.** The run is only as good as
+its reporting: the wrapper logs every run to `/config/cron-notify.log` and every non-zero exit to
+`/config/hermes-cron.log`, and delivers the output to the owner's chat **only when a chat channel is
+connected**. So after you create the job, prove the path with one test message (see `01-agent-onboarding`
+§3c) and answer "is it still running?" by reading those two logs — not by assuming.
+
 ## Rule 1 — edit only the script the job actually runs
 
 - A relative `script:` name in a cron job resolves under **`$HERMES_HOME/scripts/`**. A same-named

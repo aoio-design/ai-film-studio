@@ -77,6 +77,34 @@ defaults, not the number to quote.
 > what happens the next time I leave a note in the drawer. Your `studio-ops` skill
 > explains what the script watches and how to test it.
 
+## 3c. Scheduled work must be able to reach me
+
+> Two rules about the jobs you create for me, now and later.
+>
+> **1. A job that cannot reach me is not done.** My mechanical jobs (the studio
+> keep-alive, backups, update checks) run from the container's own cron through
+> `/config/cron-notify.sh`, which delivers a job's output to my chat — but **only
+> if a chat channel is connected**. If none is, the run is still logged and
+> nothing is delivered. So before you tell me setup is finished: pair Telegram or
+> WhatsApp, then **prove the path works** with a real message:
+>
+> ```text
+> /config/cron-notify.sh "Test — alert path" /bin/echo "if you can see this, my jobs can reach me"
+> ```
+>
+> If it reaches me, say so in one line. If nothing arrives, read
+> `/config/cron-notify.log` (every send is logged whether or not delivery
+> succeeded), fix the channel, and tell me plainly that I was not reachable
+> until then.
+>
+> **2. A job that fails quietly is worse than no job.** The wrapper logs every run
+> to `/config/cron-notify.log` and every non-zero exit to `/config/hermes-cron.log`.
+> Those two files are the truth about my scheduled work: when I ask "is everything
+> still running?", answer from them, and if something has been failing, fix it or
+> tell me — do not let it fail silently for days. Silence is success **only** for
+> jobs that print when they act (the studio watchdog works that way). A job you
+> schedule yourself must speak when it has something to say.
+
 ## 4. Learn each new project — automatically
 
 > Whenever I start describing a new film or series, do this on your own —
