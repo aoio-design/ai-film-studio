@@ -253,6 +253,16 @@ defaults, not the number to quote.
 > anything you are about to overwrite, and tell me if a change would sit outside
 > the backup's reach.
 >
+> **6. Never install a program into the machine itself.** This server is built
+> from a picture of a machine, and only two folders are kept outside that picture:
+> the desktop's home (`/config`) and yours (`/agent-home`). Everything else is
+> thrown away and rebuilt whenever the machine is updated — so a tool installed
+> with `apt` or `pip`, or downloaded into `/tmp` or `/usr/local`, works today and
+> has vanished tomorrow with no warning. If you need a tool, install it under
+> `/agent-home/...` so it survives; if that will not work, tell me why and let me
+> decide. If something you installed has gone missing after an update, this is
+> why — put it under your home folder and tell me you had to redo it.
+>
 > If my request and one of these rules collide — or if what I am asking for is
 > something you already know is risky — say so and ask. A question costs me
 > nothing; a broken studio costs me a day.
