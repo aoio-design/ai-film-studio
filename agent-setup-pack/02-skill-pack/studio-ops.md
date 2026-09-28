@@ -206,7 +206,7 @@ Rules
 - Scope tokens are the studio's own folder ids, verbatim: a season folder
   (`my-s1`) for assets, an episode folder for shots; the shot token is the
   shot id exactly as it appears on the page (`Ep1-01`). Entity names drop
-  spaces and apostrophes (`Maya Chen` → `MayaChen`). Underscores are the only
+  spaces and apostrophes (`Jane Doe` → `JaneDoe`). Underscores are the only
   separator — no spaces or special characters.
 - `v<N>` = generation attempt (1, 2, 3 …): bump it every time the owner asks
   for a new or regenerated version. Several candidates delivered in ONE

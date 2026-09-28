@@ -219,7 +219,7 @@ Rules:
 - **Voice consistency across shots = the same Audio ref file** every time that character speaks.
 - **The first frame already carries the setting** — no location sheet at the clip stage.
 - Dialogue goes inside the prompt in quotes with a delivery tone
-  (`NOVA says: "It's everything." — tired, flat, quiet`), matched to the
+  (`DANA says: "It's everything." — tired, flat, quiet`), matched to the
   voice reference. The clip comes back with the voice and room sound baked in —
   there are no separate audio files.
 

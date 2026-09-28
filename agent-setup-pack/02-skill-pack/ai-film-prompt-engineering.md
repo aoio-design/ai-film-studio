@@ -155,7 +155,7 @@ frame-accurate cut.
 syncs the lips:
 
 ```
-Slow push-in over her shoulder. NOVA says: "It's everything. The whole
+Slow push-in over her shoulder. DANA says: "It's everything. The whole
 ledger." — tired, flat, quiet. Quiet cafe ambience, distant city traffic.
 ```
 
