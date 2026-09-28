@@ -105,7 +105,7 @@ over-shoulder / insert / POV.
 Plan against the lane the batch is running on, and remember that the choice of lane is
 made (and quoted) per batch, not per shot:
 
-- **Premium lane — Seedance 2.5: 4–30 seconds, plan 4–6s.** Its minimum clip length is
+- **Premium lane — Seedance 2.5: 4–30 seconds, plan 5–6s.** Its minimum clip length is
   **4 whole seconds** (maximum 30). Never plan a shorter clip than 4s.
 - **Budget lane — the MiniMax H3 family: 5–15 seconds, 5-second minimum.** A
   **3-second or 4-second shot cannot be generated on this lane at all** — the 4-second

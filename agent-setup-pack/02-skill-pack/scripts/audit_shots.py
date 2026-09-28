@@ -129,8 +129,17 @@ def main(argv=None):
                 "%s: 4s is premium-lane only (H3's floor is 5s) -- if this batch may run on "
                 "the budget lane, write it at 5s+" % label
             )
-        elif dur > 7:
-            issues.append("%s: %ds is long -- 6-7s is the reveal allowance" % (label, dur))
+        elif dur > 30:
+            issues.append(
+                "%s: %ds is ABOVE the 30s ceiling -- Seedance 2.5 caps at 30s and the budget "
+                "H3 lane caps at 15s, so this shot cannot be generated on any lane; split it"
+                % (label, dur)
+            )
+        elif dur > 15:
+            issues.append(
+                "%s: %ds is PREMIUM-lane only (the budget H3 lane caps at 15s) -- legal, but it "
+                "forces the premium lane for this batch" % (label, dur)
+            )
 
     if not shots:
         print(

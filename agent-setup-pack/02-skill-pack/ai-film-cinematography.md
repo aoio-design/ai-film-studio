@@ -362,7 +362,7 @@ The camera direction should describe the **progression within the shot**, e.g.:
 
 ### Why This Format Works for AI
 
-1. **The video model generates 4-second-minimum clips on the premium lane, 5-second-minimum on the budget lane (plan 4–6s on Seedance 2.5; the budget lane's MiniMax H3 floor is 5s, so a 3s or 4s shot cannot be made there)** — each sub-scene maps to one generation
+1. **The video model generates 4-second-minimum clips on the premium lane, 5-second-minimum on the budget lane (plan 5–6s, so the plan works on either lane — the range is 5–30s; the budget lane's MiniMax H3 floor is 5s, so a 3s or 4s shot cannot be made there)** — each sub-scene maps to one generation
 2. **Consistent framing within a clip** — easier for the model than a scene that mixes wide and closeup
 3. **Clear approval workflow** — approve/reject individual shots without redoing the whole scene
 4. **Each card gets 2 attachments** (first + last frame) and produces 1 video — clean mapping

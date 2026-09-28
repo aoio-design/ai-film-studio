@@ -213,7 +213,7 @@ cost nothing extra on this model** — you pay for the clip's seconds (plus any 
 
 Rules:
 
-- **Minimum clip length on this lane is 4 whole seconds** (maximum 30) and the practical shot length is 4–6s. The budget lane's floor is 5s — a 3s or 4s shot exists only here, on the premium lane.
+- **Minimum clip length on this lane is 4 whole seconds** (maximum 30) and the practical shot length is 5–6s (the plan's range is 5–30s — 5s is the minimum precisely because the budget lane cannot go below it). The budget lane's floor is 5s — a 3s or 4s shot exists only here, on the premium lane.
 - **AR is explicit per project** — 16:9 in this Guide (pass `--aspect_ratio`; vertical-shorts projects use 9:16, keyframes 1152×2048).
 - **One speaker per clip, lines ≤ 5 seconds.** Multi-speaker exchanges are generated as separate clips (shot/reverse-shot); a multi-speaker clip is a legitimate experiment on this model, not the default.
 - **Voice consistency across shots = the same Audio ref file** every time that character speaks.

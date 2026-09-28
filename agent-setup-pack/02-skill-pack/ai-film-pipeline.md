@@ -145,7 +145,7 @@ owner in their video editor.
   explicit yes to THAT message. Never announce a batch and its cost in the
   same message as launching it — the quote comes first, on its own.
 - **Clip length depends on the lane.** On the premium lane the minimum is **4 whole
-  seconds** (maximum 30) and the practical shot length is 4–6s; on the budget lane the
+  seconds** (maximum 30) and the practical shot length is 5–6s (the plan's range is 5–30s — 5s because the budget lane cannot go below it); on the budget lane the
   minimum is **5 seconds** (maximum 15), so a 3s or 4s shot simply cannot be generated
   on that lane — plan 5–6s or put the beat on the premium lane. Never plan a clip
   shorter than the chosen lane's floor, and don't stretch a beat to fill a

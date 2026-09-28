@@ -521,7 +521,7 @@ Shot size: [Progression of shot sizes]
 
 ### Why Break Into Sub-Scenes?
 
-1. **The video model generates 4-second-minimum clips on the premium lane, 5-second-minimum on the budget lane (plan 4–6s on Seedance 2.5; the budget lane's MiniMax H3 floor is 5s, so a 3s or 4s shot cannot be made there)** — each sub-scene is one clip
+1. **The video model generates 4-second-minimum clips on the premium lane, 5-second-minimum on the budget lane (plan 5–6s, so the plan works on either lane — the range is 5–30s; the budget lane's MiniMax H3 floor is 5s, so a 3s or 4s shot cannot be made there)** — each sub-scene is one clip
 2. **Different shot sizes = different prompts** — wide establishing shots need different composition than closeups
 3. **Review granularity** — the user can approve/reject individual camera angles without redoing the whole scene
 4. **Consistency** — each sub-scene references the same approved character + set assets from the consistency tracker
