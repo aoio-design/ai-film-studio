@@ -14,14 +14,14 @@ metadata:
 
 ## Overview
 
-Cinematography decisions translated for AI generation. When directing FLUX (image) and MiniMax H3 Max (video) prompts, you can't "set up a camera" — but you CAN encode every cinematography choice into the prompt. This skill maps filmmaking craft to AI-prompt language.
+Cinematography decisions translated for AI generation. When directing image (GPT Image 2.5 Sunburst) and video (Seedance 2.5) prompts, you can't "set up a camera" — but you CAN encode every cinematography choice into the prompt. This skill maps filmmaking craft to AI-prompt language.
 
 ## When to Use
 
 - The user needs shot-by-shot camera direction for a scene
 - Writing first-frame prompts for video clips
 - Determining lighting design for a scene
-- Composing scenes within Flux's strengths (and avoiding its weaknesses)
+- Composing scenes within the image model's strengths (and avoiding its weaknesses)
 - Any visual direction task in the pipeline
 
 ## Camera Shot Sizes
@@ -36,8 +36,8 @@ Cinematography decisions translated for AI generation. When directing FLUX (imag
 | **Closeup (CU)** | Face fills frame | Emotion, reaction | "closeup, face filling frame" |
 | **Extreme Closeup (ECU)** | Eyes, hands, detail | Dramatic emphasis | "extreme closeup of eyes/hands" |
 
-### AI-Reality: Flux is best at Medium to Medium Closeup
-FLUX produces the most photorealistic faces at **MCU to MS** range. Extreme closeups can look waxy. Wide shots often have garbled background details. Plan your "hero shots" (the frames you'll use as keyframes) in the MCU-MS range.
+### AI-Reality: the image model is best at Medium to Medium Closeup
+It produces the most photorealistic faces at **MCU to MS** range. Extreme closeups can look waxy. Wide shots often have garbled background details. Plan your "hero shots" (the frames you'll use as keyframes) in the MCU-MS range.
 
 ## Camera Angles
 
@@ -58,10 +58,10 @@ Camera movement in AI video models is controlled via **prompt description**, not
 | Model | Camera Control Method | Reliability |
 |-------|----------------------|-------------|
 | **Wan 2.2 14B** | ✅ Prompt-only — best-in-class motion understanding | High — Wan reads camera language well |
-| **MiniMax H3 Max** | Prompt only | High — plain-language camera moves work natively |
+| **Seedance 2.5** (current default) | Prompt only | High — plain-language camera moves work natively |
 | **HunyuanVideo** | Prompt-only | Medium |
 
-> **For our pipeline (MiniMax H3 Max):** Camera movement is handled by prompt language only. "Camera slowly pushes in" produces a dolly-in effect; plain-language camera moves work natively. No add-ons needed.
+> **For our pipeline (Seedance 2.5):** Camera movement is handled by prompt language only. "Camera slowly pushes in" produces a dolly-in effect; plain-language camera moves work natively. No add-ons needed.
 
 ### Movement Reference Table
 
@@ -162,10 +162,10 @@ STRONG: "camera slowly dollies in on the character's face,
 
 ### AI Film Lighting Tips
 
-1. **Flux handles dramatic lighting beautifully** — chiaroscuro, neon, and silhouette are where it shines. Flat "office lighting" produces the worst results.
+1. **The image model handles dramatic lighting beautifully** — chiaroscuro, neon, and silhouette are where it shines. Flat "office lighting" produces the worst results.
 2. **Describe the light SOURCE** — not just "dim" but "lit by a single bare bulb hanging from the ceiling, harsh shadows, spiderweb of cracks in the plaster"
 3. **The video model struggles with flickering/changing lights** — if the light changes mid-clip, the result looks unnatural. Keep lighting consistent within a clip unless it's a dramatic reveal.
-4. **"Cinematic lighting" is a real prompt phrase** that Flux understands. Use it as a quality booster.
+4. **"Cinematic lighting" is a real prompt phrase** that the image model understands. Use it as a quality booster.
 
 ## Color Palette (Film Look)
 
@@ -233,15 +233,19 @@ For multi-shot sequences, specify cut types between shots to control energy and 
 
 ## Aspect Ratios
 
-| Ratio | Name | Use | Flux Generation Size |
-|-------|------|-----|---------------------|
-| **16:9** | Widescreen | Standard video | 1024×576 or 1216×684 |
-| **2.35:1** | Cinemascope | Epic film look | 1216×512 or 1344×576 |
-| **4:3** | Academy | Vintage, surveillance | 1024×768 |
+| Ratio | Name | Use | Frame Size |
+|-------|------|-----|-----------|
+| **16:9** | Widescreen | Standard video | 2048×1152 (the pipeline's default) |
+| **2.35:1** | Cinemascope | Epic film look | 2400×1024 |
+| **4:3** | Academy | Vintage, surveillance | 1536×1152 |
 | **1:1** | Square | Social media | 1024×1024 |
-| **9:16** | Vertical | TikTok/Reels/Shorts | 576×1024 |
+| **9:16** | Vertical | TikTok/Reels/Shorts | 1152×2048 (vertical projects) |
 
-> **Recommendation for micro-dramas:** 16:9 for YouTube, 9:16 for TikTok/Reels distribution. Flux produces best quality at resolutions divisible by 64 (e.g., 1024×576, 1216×684).
+> **Recommendation for micro-dramas:** 16:9 for YouTube, 9:16 for TikTok/Reels distribution.
+> **Both edges of any custom size must be multiples of 16** (max edge 3840, aspect ratio up to
+> 3:1, total pixels 655,360–8,294,400) — an invalid pair is snapped silently rather than
+> rejected, so a request for 1920×1080 comes back 1920×1072 with no error. Use the sizes above,
+> and treat only 16:9 and 9:16 as pipeline standards.
 
 ## Shot List Template (for Pipeline)
 
@@ -358,7 +362,7 @@ The camera direction should describe the **progression within the shot**, e.g.:
 
 ### Why This Format Works for AI
 
-1. **The video model generates 5–15 second clips (5s floor)** — each sub-scene maps to one generation
+1. **The video model generates 4-second-minimum clips on the premium lane, 5-second-minimum on the budget lane (plan 4–6s on Seedance 2.5; the budget lane's MiniMax H3 floor is 5s, so a 3s or 4s shot cannot be made there)** — each sub-scene maps to one generation
 2. **Consistent framing within a clip** — easier for the model than a scene that mixes wide and closeup
 3. **Clear approval workflow** — approve/reject individual shots without redoing the whole scene
 4. **Each card gets 2 attachments** (first + last frame) and produces 1 video — clean mapping
@@ -973,7 +977,7 @@ This skill has support files in the `references/` directory:
 
 ## Common Pitfalls
 
-1. **Asking Flux for shots it can't do** — Wide shots with multiple characters often have garbled anatomy. If you need a wide shot, describe it abstractly or use silhouette. Save closeups for &quot;hero&quot; images.
+1. **Asking the image model for shots it can't do** — Wide shots with multiple characters often have garbled anatomy. If you need a wide shot, describe it abstractly or use silhouette. Save closeups for &quot;hero&quot; images.
 2. **The video model can't do rapid camera moves** — a whip pan or crash zoom will look like a glitch. Stick to slow dollying, trucking, or subtle pushes.
 3. **Mixing lighting in one clip** — If the keyframe is &quot;golden hour&quot; but the prompt asks for a &quot;moonlit&quot; shift mid-clip, the model produces weird semi-lit frames. Keep lighting consistent within a clip.
 4. **Aspect ratio consistency** — Keep your keyframes 16:9 from the start; the clip inherits the keyframe's aspect ratio, so a mixed set of ratios breaks the edit.

@@ -626,6 +626,14 @@ def add_feedback(project_id, shot_id):
 
 APP_ASSETS_DIR = BASE_DIR / "assets"
 
+# The project's Style Reference set (the look the film is generated in). A
+# leading underscore keeps it out of the character/location/prop lists and sorts
+# it first on disk. The agent writes the user's style images here; the approved
+# one is recorded under the usual primary_image key, so the star control and the
+# /a/<scope>/<asset>/update endpoint work on it unchanged.
+STYLE_REF_ID = "_style-reference"
+STYLE_IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".webp")
+
 def get_asset_meta(project_id, asset_id):
     f = APP_ASSETS_DIR / project_id / asset_id / "metadata.json"
     if f.exists():
@@ -682,7 +690,7 @@ def assets_page(assets_scope):
     adir = APP_ASSETS_DIR / assets_scope
     if adir.exists():
         for d in sorted(adir.iterdir()):
-            if not d.is_dir() or d.name.startswith("."):
+            if not d.is_dir() or d.name.startswith(".") or d.name.startswith("_"):
                 continue
             meta = get_asset_meta(assets_scope, d.name)
             files = sorted(f.name for f in d.iterdir() if f.is_file() and f.name != "metadata.json")
@@ -725,7 +733,22 @@ def assets_page(assets_scope):
     # Leads/main characters first, then supporting, then non-characters (stable, so
     # the Location/Prop table keeps its alphabetical order).
     assets.sort(key=lambda a: (a["billing"], a["name"].lower()))
-    return render_template("assets.html", scope_id=assets_scope, scope_title=scope_title, assets=assets, season=season)
+    style_ref = {"images": [], "primary_image": None}
+    sr_dir = APP_ASSETS_DIR / assets_scope / STYLE_REF_ID
+    if sr_dir.is_dir():
+        sr_meta = get_asset_meta(assets_scope, STYLE_REF_ID)
+        sr_images = sorted(f.name for f in sr_dir.iterdir()
+                           if f.is_file() and f.name.lower().endswith(STYLE_IMAGE_EXTS))
+        # Same approval rule as any other asset: a regeneration voids the pick.
+        if sr_meta.get("primary_image") and (sr_meta["primary_image"] not in sr_images
+                or not _primary_valid(sr_meta, "primary_image", sr_images, sr_dir)):
+            sr_meta.pop("primary_image", None)
+            sr_meta.pop("primary_image_at", None)
+            save_asset_meta(assets_scope, STYLE_REF_ID, sr_meta)
+        sr_pi = sr_meta.get("primary_image")
+        style_ref = {"images": sr_images, "primary_image": sr_pi if sr_pi in sr_images else None}
+    return render_template("assets.html", scope_id=assets_scope, scope_title=scope_title,
+                           assets=assets, style_ref=style_ref, season=season)
 
 def _asset_status(pi, images):
     """Pill label = image-approval state ONLY (derived from the star):

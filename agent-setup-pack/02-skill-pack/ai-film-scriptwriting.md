@@ -14,7 +14,7 @@ metadata:
 
 ## Overview
 
-Scriptwriting for **short form** content (30 seconds to 5 minutes), **short films** (5–15 minutes), and **drama series** (3–6 episodes × 10–12 minutes each) produced via AI generation. Unlike feature films, micro-dramas need **every second to count** — minimal scenes, maximum impact. Series work needs **reveal architecture** — carefully controlling what the audience learns when. This skill covers ideation through finished screenplay, optimized for the AI film pipeline (FLUX images → MiniMax H3 Max clips with dialogue).
+Scriptwriting for **short form** content (30 seconds to 5 minutes), **short films** (5–15 minutes), and **drama series** (3–6 episodes × 10–12 minutes each) produced via AI generation. Unlike feature films, micro-dramas need **every second to count** — minimal scenes, maximum impact. Series work needs **reveal architecture** — carefully controlling what the audience learns when. This skill covers ideation through finished screenplay, optimized for the AI film pipeline (GPT Image 2.5 Sunburst images → Seedance 2.5 clips with dialogue).
 
 ## When to Use
 
@@ -175,7 +175,7 @@ Are you sure it's the right one?
 ### Key Rules for AI-Produced Scripts
 
 1. **Dialogue must sound natural when spoken aloud** — short sentences, avoid homophones, spell out numbers ("twenty-four" not "24")
-2. **Scene descriptions are ALSO image prompts** — each description must be visual enough to feed directly into FLUX
+2. **Scene descriptions are ALSO image prompts** — each description must be visual enough to feed directly into the image model (GPT Image 2.5 Sunburst)
 3. **Camera direction is mandatory per scene** — the video model needs to know what kind of camera movement to generate
 4. **Keep dialogue minimal in action-heavy scenes** — the model lip-syncs one speaker per clip, so dialogue works best in static close-ups, or as voiceover over scenes where the character is not speaking on-screen
 
@@ -191,7 +191,7 @@ Are you sure it's the right one?
 
 ## Dialogue Writing for the Video Model
 
-Since dialogue is spoken by the video model itself (MiniMax H3 Max — the line
+Since dialogue is spoken by the video model itself (Seedance 2.5 — the line
 goes in quotes inside the clip's video prompt, with a delivery tone):
 
 **DO:**
@@ -521,14 +521,14 @@ Shot size: [Progression of shot sizes]
 
 ### Why Break Into Sub-Scenes?
 
-1. **The video model generates 5–15 second clips (5s floor)** — each sub-scene is one clip
+1. **The video model generates 4-second-minimum clips on the premium lane, 5-second-minimum on the budget lane (plan 4–6s on Seedance 2.5; the budget lane's MiniMax H3 floor is 5s, so a 3s or 4s shot cannot be made there)** — each sub-scene is one clip
 2. **Different shot sizes = different prompts** — wide establishing shots need different composition than closeups
 3. **Review granularity** — the user can approve/reject individual camera angles without redoing the whole scene
 4. **Consistency** — each sub-scene references the same approved character + set assets from the consistency tracker
 
 | Trope | Why It Shines | Example Prompt Angle |
 |-------|--------------|---------------------|
-| **Neon noir cityscapes** | Flux excels at cyberpunk environments | "Rain-slicked streets, holographic billboards" |
+| **Neon noir cityscapes** | Cyberpunk environments generate strongly | "Rain-slicked streets, holographic billboards" |
 | **Android / AI characters** | Uncanny valley works in your favor | "Flawless synthetic skin, LED iris" |
 | **Alien landscapes** | No real-world reference needed | "Bioluminescent flora, twin suns" |
 | **Memory / VR sequences** | Abstract visuals are forgiven | "Glitchy reality, digital artifacts" |
@@ -541,7 +541,7 @@ Shot size: [Progression of shot sizes]
 | **Clues as visual objects** | Strong first/last frame contrast: find → reveal |
 | **Interrogation scenes** | Static two-shot = easy for the video model, dialogue-heavy |
 | **Surveillance footage aesthetic** | Grainy low-res hides AI imperfections |
-| **Red herrings in background** | Flux puts unexpected details in frame naturally |
+| **Red herrings in background** | The image model puts unexpected details in frame naturally |
 
 ## Cheeky Romance Tropes
 
@@ -635,7 +635,7 @@ Lessons from one of cinema's most respected directors, applied to AI film produc
 ### 1. Trust the Audience
 Don't hold hands. Don't over-explain. Viewers don't need constant reminders of every plot point.
 
-**In our pipeline:** If a character's motivation is clear from their actions, don't add dialogue explaining it. Let the FLUX-generated expression and body language carry the meaning.
+**In our pipeline:** If a character's motivation is clear from their actions, don't add dialogue explaining it. Let the generated expression and body language carry the meaning.
 
 ### 2. Deliberate Ambiguity — "No Answers on Purpose"
 The most powerful mysteries don't solve themselves. Leave deliberate gaps.
@@ -1247,6 +1247,6 @@ Before delivering a scene or episode, run this targeted plausibility check. Thes
 - Does the threat target what the character cares about, or the character directly? (Threats through loved ones are more effective than threats to self.)
 - Is the threat visual (photos, evidence of capability) or textual (a letter saying "we know where you live")? Visual threats cannot be dismissed as bluffs.
 
-- Write scripts to **`/opt/data/`** NOT `/opt/hermes/` (system directory, write-protected)
+- Write scripts to **`$HERMES_HOME/`** (your own home folder — the only path that survives an app update) NOT `/opt/hermes/` (system directory, write-protected)
 - The user can access files from the workspace panel
 - Confirm the final path in your response so the user knows where to find it

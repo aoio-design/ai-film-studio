@@ -1,8 +1,8 @@
 # Studio Operations Skill
 
 *Use when: managing the review studio — creating projects and seasons, saving
-generated assets into shot folders, populating the Character Bible & Assets
-page, reading and acting on feedback.*
+the owner's Style Reference images, populating the Character Bible & Assets
+page, saving generated assets into shot folders, reading and acting on feedback.*
 
 > **By-hand commands for anything in this skill** (install, restart, the free browser,
 > the fal key) live in `references/manual-fallbacks.md`. Only `$HERMES_HOME` survives an
@@ -15,7 +15,9 @@ displays every shot of a film as a card: image → audio → video prompt → vi
 + feedback. Every project uses `"format": "director"` — that is the only
 layout in use. It also has a **Character Bible & Assets** page where
 characters, locations and props (with voices, references and full character
-notes) are reviewed.
+notes) are reviewed — and that page now opens with a **Style Reference**
+section above the character bible, which is where the project's look is
+approved (see below).
 
 Pages: `/projects` (seasons/films landing) · `/s/<season>` (episode cards) ·
 `/a/<season>` (Character Bible & Assets) · `/p/<episode>` (script pane + shot
@@ -85,6 +87,44 @@ python3 "$HERMES_HOME/studio/accounts/aoio_auth.py" verify owner@example.com 'pa
 - `/p/<episode_id>` is the episode page (the shot cards).
 - Without seasons the studio falls back to a flat project list (backward compatible).
 
+## Style Reference — the look the whole project is generated in
+
+The assets page (`/a/<scope>`) opens with a **Style Reference** section, ABOVE the
+character bible. It is how a project gets one consistent look without the owner
+having to describe that look in every prompt.
+
+**How it works, end to end:**
+
+1. **The owner sends you a few images** of the look they want — whichever channel
+   they are in (chat, Telegram, WhatsApp). A handful is enough: they are showing
+   you a palette and a light, not a shot list.
+2. **You save them into the Style Reference section** of that project's assets
+   page the same way you save any other asset image — the section lists whatever
+   is in it, so the files just need to land there with their `metadata.json`,
+   under the standard versioned name (`<season-id>_Style_Reference_v1.png`).
+   Nothing is generated to create this section; they are the owner's own images.
+3. **The owner stars the one they want** — the same **★** control used to approve
+   any other image on the page. The starred image(s) are the approved look, and
+   only the owner stars them: never click ★ for them.
+4. **From then on every image you generate carries it.** The approved Style
+   Reference goes **FIRST** in `image_urls` on every image request — character
+   sheets, location and prop images, and every shot's first frame — and you also
+   state the look in words inside the prompt (palette, contrast, light quality,
+   lens feel) so the generations cannot drift apart. Reference order and the exact
+   command: `fal-ai-ops`.
+
+**Rules that matter:**
+
+- **Nothing already generated changes.** A style reference applies from the next
+  generation onwards — it never re-renders existing assets or frames. Never offer
+  to "redo the sheets in the new look" unless the owner asks for that.
+- **The section holds several images and more than one may be starred.** Pass
+  every approved image, in the order the section lists them.
+- **It belongs to the page's scope** (a season or a project): everything generated
+  under that scope carries the approved look.
+- **No approved style reference yet?** Generate without one and say so — don't
+  invent a look and don't block the batch waiting for one.
+
 ## Character Bible & Assets page (`/a/<scope>`)
 
 The scope is a season id (preferred) or a project id. Assets live in
@@ -151,6 +191,7 @@ Pattern: `<scope-id>_<Entity>_<Kind>_v<N>[<_option>].<ext>`
 
 | Media | File name |
 |---|---|
+| Style Reference image | `<season-id>_Style_Reference_v1.png` |
 | Character sheet | `<season-id>_<CharacterName>_Reference_Sheet_v1.png` |
 | Location sheet | `<season-id>_<LocationName>_v1.png` |
 | Prop sheet | `<season-id>_<PropName>_v1.png` |
@@ -179,12 +220,14 @@ Rules
   or regenerate them elsewhere unless the owner asks for a new version.
 - **Image-driven vs word-driven change.** When the owner asks to change an
   image they can see ("using image-2, extract the top-left panel and go
-  wider", "re-light this one"), EDIT that image with `openai/gpt-image-2/edit`
-  — the image itself is the reference (`--image_urls '["<cdn>"]'`) — never
-  re-run the whole-sheet text prompt. When the owner changed the *words*
+  wider", "re-light this one"), EDIT that image with
+  `openai/gpt-image-2.5/sunburst/edit` — the image itself is the reference
+  (`--image_urls '["<style_ref>","<cdn>"]'`, the approved look still first) —
+  never re-run the whole-sheet text prompt. When the owner changed the *words*
   instead (description/prompt edited on the card), re-run the whole sheet
-  from the amended prompt. Registry: `gpt-image-2-asset-edit`
-  (task `edit-existing-image`) vs `gpt-image-2` (task `new-sheet-from-prompt`).
+  from the amended prompt. Registry: `sunburst-asset-edit`
+  (task `edit-existing-image`) vs `sunburst-asset-sheet`
+  (task `new-sheet-from-prompt`).
 
 ## Episode script pane
 
@@ -205,9 +248,9 @@ field. Feedback on the script lives in that JSON's `feedback[]` too.
    the shot's last regeneration; act on those, then regenerate.
 4. **One layout only:** always set `"format": "director"` on a new project.
    The 5-row "standard" layout is retired — never offer it to the owner.
-5. **The agent uploads assets** (characters, locations, props) into
-   `assets/<season>/<asset_id>/` so the owner can review and leave feedback
-   on them — same feedback loop as shots.
+5. **The agent uploads assets** (characters, locations, props — and the Style
+   Reference images the owner sends) into `assets/<season>/<asset_id>/` so the
+   owner can review and leave feedback on them — same feedback loop as shots.
 6. **The prompt you see on the card IS what the next run will send — and
    what actually ran is recorded, not displayed.** A shot's
    `image_prompt`/`video_prompt` (in `shots/<project>/<shot>/metadata.json`)
@@ -237,7 +280,10 @@ create it all. The loop:
 1. **Idea chat (Web UI).** The owner brings an idea; you ask questions and
    shape it with them. No files yet.
 2. **Write it up, then populate the studio.** When the owner says go: write the
-   script, break it into 5–15 second shots (H3 Max's floor is 5s), build the character/location/prop
+   script, break it into 4–6 second shots (the premium lane's floor is 4s; the
+   budget lane's floor is 5s — see the clip step below), save any look
+   images the owner has sent into the **Style Reference** section (so the look is
+   locked before anything is generated), build the character/location/prop
    bible, then create everything in the studio — the project (or season) in
    `projects.json`, the assets in `assets/<season>/…` (`/a/<season>`), the
    episode entries (`/s/<season>`) and every shot card (`/p/<episode>`), with
@@ -253,23 +299,39 @@ create it all. The loop:
    newer than your last revision, amend the drafts, re-upload, and say what
    changed. Loop until the owner approves the words — they signal that in
    chat (e.g. "generate the reference images").
-4. **Generation — ASK ABOUT THE COST FIRST (see the rule below), and run the
+4. **Generation — QUOTE BOTH PROVIDERS FIRST (and, for clips, both LANES — see the
+   rule below), and run the
    project's phases in order.** Each phase runs through the owner's fal.ai
-   account (see the `fal-ai-ops` skill); save outputs into the right folders
+   account (and Higgsfield, once it is configured — see the `fal-ai-ops` skill);
+   save outputs into the right folders
    with the exact filenames; tell the owner what is ready to review and what
    the batch cost. Never start a phase before the owner has finished
    reviewing the previous one:
    a. **Reference images** for the approved assets (character sheets,
-      locations, props) — quote the cost and wait for an explicit yes, then
-      generate. The owner reviews on `/a/<season>`, approves each image with
+      locations, props). Every request carries the approved **Style Reference**
+      first in `image_urls`. Quote the price on BOTH providers and wait for an
+      explicit yes, then generate. The owner reviews on `/a/<season>`, approves each image with
       its **★**, and says in chat when the review is complete (e.g. "I've
       completed the review of the images in /a/<season>").
    b. **First frames** — only after the owner has reviewed the reference
-      images: quote, wait for yes, then generate one first frame per shot
-      from the approved references (see the keyframe-authoring skill).
-   c. **Clips** — only after the owner has reviewed and **★**-approved the
-      frames: quote, wait for yes, then generate one clip per shot from its
-      approved frame (the video model speaks the dialogue).
+      images: quote (both providers), wait for yes, then generate one first frame
+      per shot from the approved references — Style Reference first, then the
+      character sheet, then the location still (see the keyframe-authoring
+      skill). A 16:9 frame is 2048×1152; a vertical project's frame is 1152×2048.
+   c. **Clips — pick the LANE first.** Only after the owner has reviewed and
+      **★**-approved the frames: price the same shots on both lanes and let the owner
+      choose — **premium** (Seedance 2.5: ~US$0.57/s at 720p on fal.ai, ~US$0.46/s on
+      Higgsfield, clips 4–30s, native audio + lip-sync in one pass, image and audio
+      refs free) or **budget** (MiniMax H3 family: `minimax/h3` ~US$0.06/s, `minimax/h3-max`
+      ~US$0.08/s at 768p; clips 5–15s with a **5-second minimum**, so a 3s or 4s shot
+      can only be made on the premium lane; the platforms match at 2K and below 2K only
+      fal.ai sells it). State the trade-off in one line, **ask ONCE for the whole batch**
+      and remember the choice for the project — never re-ask per clip. List prices
+      only: quote the live model page, never a promo rate. Then wait for the explicit
+      yes and generate one clip per shot from its approved frame, one speaker per clip,
+      in the chosen lane's own prompt format (the video model speaks the dialogue).
+      Across a 70-second film the two lanes are ~7–9× apart (~US$32–40 vs ~US$4–6) —
+      the biggest single cost decision in the production.
 5. **Media review.** The owner approves a take by clicking its **★** on the
    card; a note on a card (via the drawer) = regenerate that ONE shot or
    asset — quote the cost, get a yes, save the new take under the next `v<N>`
@@ -284,14 +346,36 @@ create it all. The loop:
    that one. If the owner ever asks where their finished clips are, answer
    with this folder.
 
-## fal.ai key and spending rule (MANDATORY — never break this)
+## Keys and the spending rule (MANDATORY — never break this)
 
-> All generation runs through the owner's **fal.ai** account — the key is
-> stored as `FAL_KEY`, entered under Settings → Providers in the app (see the `fal-ai-ops`
-> skill) — and every successful output costs the owner money (roughly US$0.17
-> per character sheet at high quality, US$0.04 per location or prop at medium,
-> US$0.16 per keyframe, ~US$0.40 per 5-second clip, ~US$0.14 per 4K upscale).
+> All generation runs through the owner's **fal.ai** account (the key lives in the
+> agent's environment file as `FAL_KEY` — fal is not an LLM provider, so it is **not**
+> on the app's Providers page) and through **Higgsfield** (`HIGGSFIELD_API_KEY`) once
+> that is configured. Every successful output costs the owner money (roughly US$0.04
+> per character sheet at high quality, US$0.01 per location or prop at medium,
+> US$0.045 per first frame, ~US$0.01 per character for the one-time voice reference,
+> ~US$2.31–2.84 per 5-second clip at 720p on the premium lane depending on host,
+> ~US$0.30–0.40 per 5-second clip at 768p on the budget lane, ~US$0.14 per 4K
+> upscale). Key setup and the live-rate commands: the `fal-ai-ops` skill.
 
+- **Quote BOTH providers, then wait — before every image and every video.** Look up
+  the current price on fal.ai and on Higgsfield for that exact job, show both numbers,
+  name the cheaper one, and WAIT for the yes. Never generate on an unquoted price. Say
+  plainly when the two come out equal — **for images they normally do** (the clip stage
+  is where they differ, about 19% cheaper on Higgsfield at 720p).
+- **On video there is a second choice — the LANE — before any clip is generated.**
+  Price the same shots on the **premium lane** (Seedance 2.5: ~US$0.57/s at 720p on
+  fal.ai, ~US$0.46/s on Higgsfield, 4–30s clips, image and audio refs free) and the
+  **budget lane** (MiniMax H3 family: `minimax/h3` ~US$0.06/s and `minimax/h3-max`
+  ~US$0.08/s at 768p, 5–15s clips with a **5-second minimum**, so a 3s or 4s shot is
+  impossible on that lane). State the trade-off in one line, **ask ONCE per batch**, and
+  hold the owner's answer for the project. Across a 70-second film the lanes are
+  ~7–9× apart (~US$32–40 vs ~US$4–6). Where both platforms sell the model you are
+  quoting, compare both platform prices: Higgsfield sells the H3 family at **2K only**
+  at fal's own 2K rate (~US$0.13/s, so the platforms match there), and below 2K only
+  fal.ai sells it.
+- **List prices only.** Quote the live model page every time — a promo or discounted
+  rate must never be quoted, repeated or stored anywhere.
 - **Never** start a paid batch, assume one was approved, or silently wait.
   **Quote the cost, then get an explicit yes — even when the owner says
   "go generate".** "Go" or "yes" to an earlier step is NOT approval for a

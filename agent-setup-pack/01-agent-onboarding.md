@@ -102,15 +102,18 @@ defaults, not the number to quote.
 >    drafts, re-upload, and tell me what changed. Repeat until I approve the
 >    words.
 > 4. **Reference images** — after I approve the words AND approve the cost:
->    generate the character sheets, key props and location scenes through my
->    fal.ai account, upload them to the assets page, and wait for my review.
+ >    generate the character sheets, key props and location scenes through my
+>    fal.ai account — carrying the approved Style Reference into every one of
+>    them — upload them to the assets page, and wait for my review.
 >    I approve or give feedback on each one.
 > 5. **First frames** — after the reference images are approved (cost approved
 >    first): compose each shot's first frame from the approved character
 >    sheets, location images and key props (where the shot features one),
 >    upload them to the shot cards, and wait for my review.
 > 6. **Clips** — after the first frames are approved (cost approved first):
->    generate one clip per shot through MiniMax H3 Max on fal.ai — the motion
+ >    price the two clip models for me first (the higher-quality one and the
+>    lower-cost one, on both fal.ai and Higgsfield), then generate one clip per
+>    shot on the model I pick — the motion
 >    prompt, the dialogue and the soundscape are your job, written from your
 >    prompting skills — upload each clip to its shot card, and wait for my
 >    review. A note on a card means regenerate that one shot; a note saying

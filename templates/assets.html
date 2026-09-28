@@ -80,6 +80,14 @@ audio.voice {
 }
 .fb-history .msg { margin-bottom:5px; }
 
+/* Style Reference — the look every generated image inherits. Sits above the
+   Character Bible: it is the first thing to settle on a project. */
+.style-ref { padding:16px 18px; }
+.style-ref .note {
+  color:var(--mut); font-size:12.5px; line-height:1.55; margin:0 0 12px; max-width:900px;
+}
+.style-ref .strip { min-height:76px; }
+
 /* Expand / collapse all */
 .bulk-row { display:flex; gap:8px; margin-bottom:14px; }
 
@@ -112,6 +120,24 @@ audio.voice {
     <button class="pill ghost" onclick="document.querySelectorAll('.asset').forEach(a=>a.classList.add('open'))">Expand all</button>
     <button class="pill ghost" onclick="document.querySelectorAll('.asset').forEach(a=>a.classList.remove('open'))">Collapse all</button>
   </div>
+
+  <h2>Style Reference <span class="count">({{ style_ref.images|length }})</span></h2>
+  <section class="card style-ref" id="asset-_style-reference" data-asset="_style-reference">
+    <p class="note">
+      The look your film is generated in. Send your style images to your agent in chat — it saves them here.
+      Star the one you want as the approved look, and every image the agent makes from then on
+      (character sheets, location and prop images, first frames) carries it forward as a reference.
+      {% if not style_ref.images %}<strong>No style images yet.</strong>{% endif %}
+    </p>
+    <div class="strip">
+      {% for im in style_ref.images %}
+      <div class="thumb {{ 'sel' if im == style_ref.primary_image else '' }}" data-file="{{ im }}" style="cursor:zoom-in" onclick="openLightbox('/a/{{ scope_id }}/_style-reference/file/{{ im|urlencode }}')">
+        <img src="/a/{{ scope_id }}/_style-reference/file/{{ im|urlencode }}" alt="Style reference" title="{{ im }}">
+        <button class="star {{ 'on' if im == style_ref.primary_image else '' }}" title="{{ '✓ Approved look — click to unapprove' if im == style_ref.primary_image else 'Mark as the approved look' }}" onclick="event.stopPropagation();selectAssetMedia('{{ scope_id }}','_style-reference','{{ im }}',this.parentElement)">★</button>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
 
   <h2>Character Bible <span class="count">({{ chars|length }})</span></h2>
   {% for a in chars %}

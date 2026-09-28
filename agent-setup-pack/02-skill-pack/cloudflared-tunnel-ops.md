@@ -42,7 +42,7 @@ Diagnostic order:
 ## Tunnel Lifecycle
 
 ### Config
-- Tunnel config: `/opt/data/.cloudflared/config.yml` (ingress rules: hostname → local service, fallback 404)
+- Tunnel config: `$HERMES_HOME/.cloudflared/config.yml` (ingress rules: hostname → local service, fallback 404)
 - Validate: `cloudflared tunnel ingress validate` (or parse with python yaml)
 - After editing config, restart the tunnel process (it reads config at startup)
 
@@ -51,13 +51,14 @@ Diagnostic order:
 cloudflared is a single static binary — never rely on a copy in `/tmp`. **Container
 recreates wipe `/tmp`** (this is exactly how the tunnel "mysteriously" died after a
 Hermes update: binary lived at `/tmp/cloudflared`, the recreate erased it, and
-nothing reinstalled it). Keep the real binary at `/opt/data/cloudflared/cloudflared`
+nothing reinstalled it). Keep the real binary under the home folder
+(`$HERMES_HOME/bin/cloudflared`, the layout `references/manual-fallbacks.md` installs)
 and symlink it so legacy scripts referencing `/tmp/cloudflared` keep working:
 
 ```bash
-CF=/opt/data/cloudflared/cloudflared
+CF=$HERMES_HOME/bin/cloudflared
 if [ ! -x "$CF" ]; then
-  mkdir -p /opt/data/cloudflared
+  mkdir -p "$(dirname "$CF")"
   curl -sL -o "$CF" https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
   chmod +x "$CF"
 fi
@@ -111,11 +112,12 @@ absent. Known-good example: the `keep-alive.sh` watchdog the Guide has the owner
 
 **Cron script-path quirk:** the cronjob tool validates script paths relative to
 `~/.hermes/scripts/` (rejects absolute paths), but the scheduler RUNNER resolves bare
-filenames under `/opt/data/scripts/` (observed: "Script not found:
-/opt/data/scripts/guide-health.sh" while the file sat in `~/.hermes/scripts/`).
+filenames under `$HERMES_HOME/scripts/` (observed: "Script not found:
+$HERMES_HOME/scripts/guide-health.sh" while the file sat in `~/.hermes/scripts/` —
+the same folder seen under two names).
 Keep every watchdog script in BOTH locations — copy after every edit.
 
-**A firing check can also FALSE-NEGATIVE.** Before restarting anything on a failed check, verify the check's port matches what the service actually serves on: read the ingress from `/opt/data/.cloudflared/config.yml` (`hostname → http://localhost:<PORT>`) and curl THAT port. A cron checking a stale port (e.g. 5001 after the service moved to 80) false-negatives every run; if the check's failure handler runs a start script, each false negative spawns another duplicate daemon/tunnel. Connection refused on the checked port + the service responding on the ingress port (or the public subdomain returning 302) = healthy, no action needed — report the check as stale rather than restarting.
+**A firing check can also FALSE-NEGATIVE.** Before restarting anything on a failed check, verify the check's port matches what the service actually serves on: read the ingress from `$HERMES_HOME/.cloudflared/config.yml` (`hostname → http://localhost:<PORT>`) and curl THAT port. A cron checking a stale port (e.g. 5001 after the service moved to 80) false-negatives every run; if the check's failure handler runs a start script, each false negative spawns another duplicate daemon/tunnel. Connection refused on the checked port + the service responding on the ingress port (or the public subdomain returning 302) = healthy, no action needed — report the check as stale rather than restarting.
 
 ## Pitfalls
 
@@ -124,7 +126,7 @@ Keep every watchdog script in BOTH locations — copy after every edit.
 3. **Forgetting the service is session-bound** — `nohup ... &` processes tied to a TUI session die when the session ends. Persist via entrypoint/systemd or a dedicated watchdog.
 4. **Editing tunnel config without validating** — a YAML typo breaks ALL ingress rules. Validate before restarting.
 5. **Duplicate instances of the same named tunnel** — each `cloudflared tunnel run <name>` spawns a competing instance; multiple racing instances cause edge routing flapping and log noise. They accumulate when a start script (e.g. `start.sh`, which launches the tunnel) gets invoked repeatedly by a health-check cron. Identify with `ps -o pid,lstart,cmd -C cloudflared`: keep the OLDEST instance (the known-good one that has been serving), kill only the recent duplicates by PID (`kill <pid>`), then re-verify the subdomain still returns 302. Avoid blanket `pkill -x cloudflared` unless a brief tunnel interruption is acceptable — it forces a full reconnect. NOTE: check for existing instances right before starting one — a "no tunnel running" verdict can be stale by seconds if a health-check cron is mid-recovery.
-6. **Any daemon binary in `/tmp` dies on container/image recreate** — cloudflared, etc. Persist binaries under `/opt/data/` and make every start script/watchdog re-download when missing (see Start tunnel).
+6. **Any daemon binary in `/tmp` dies on container/image recreate** — cloudflared, etc. Persist binaries under `$HERMES_HOME` and make every start script/watchdog re-download when missing (see Start tunnel).
 7. **`pkill -f "cloudflared tunnel run X"` kills your own shell** — `pkill -f` pattern-matches the full command line, which includes the bash wrapper running your command (observed: exit -15 and "nothing happened"). List with `pgrep -af "[c]loudflared"` (the `[c]` trick stops self-match) and kill by PID instead.
 8. **New subdomain returns 502 until the local server is up** — after adding an ingress rule + `tunnel route dns`, 502 is CORRECT until the origin service listens. That's a success signal for routing, not a fault; start the server, then re-check.
 9. **Host-Docker origin services need the HOST IP, not `localhost`, in ingress** — when cloudflared runs INSIDE a container (this deployment) and the target service is a separate docker-compose project on the HOST with a published port (e.g. a Hostinger Docker-catalog deploy, which picks a random 3276x–3279x host port), `service: http://localhost:<port>` yields permanent 502: from the tunnel's perspective `localhost` is the cloudflared container, and the service lives on the host. The docker bridge gateway (`172.17.0.1`) is often ALSO unreachable from inside the container — use the host's public IP in the ingress line (`service: http://<host-ip>:32779`). Verify reachability from inside the container first: `curl -s -o /dev/null -w "%{http_code}" http://<host-ip>:<port>/` — the ONLY address that answers is the one to put in the config. Note the random host port may change if the catalog project is recreated; re-check before assuming the ingress is stale.

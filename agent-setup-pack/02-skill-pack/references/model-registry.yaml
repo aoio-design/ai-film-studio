@@ -18,7 +18,35 @@
 #
 # Append under the matching `stage:` key. bump `last_verified` when you re-confirm a profile.
 
-registry_version: 1.1.0
+registry_version: 1.3.0
+
+video_lanes:               # the choice the owner makes per VIDEO batch - quote both, ask ONCE,
+                           # remember the answer, list prices only (never a promo/discount rate)
+  premium:
+    profile: seedance-25
+    clips: "4-30s"
+    refs: "up to 30 image refs; image and audio refs cost nothing extra"
+    fal: "US$0.5676/s @720p (about US$2.84 per 5s); US$0.2646/s @480p; US$1.396278/s @1080p"
+    higgsfield: "US$0.4622/s @720p (about US$2.31 per 5s) - about 19% cheaper at 720p, 22% at 480p"
+    extras: "native audio + lip-sync in one pass"
+  budget:
+    profiles: [h3-reference-video, h3-max-reference-video]    # the MiniMax H3 family
+    clips: "5-15s with a 5-SECOND MINIMUM - a 3s or 4s shot CANNOT be made on this lane
+      (the 4-second floor belongs to the premium lane only)"
+    h3: "US$0.06/s @768p (about US$0.30 per 5s)"
+    h3_max: "US$0.08/s @768p (about US$0.40 per 5s)"
+    refs: "the first 5 reference images are FREE, then about US$0.08 each on the cheaper
+      tier, or about US$0.02 per 2048px image on the other tier"
+  platforms: "Higgsfield sells the H3 family at 2K ONLY, at about US$0.13/s - the same rate
+    fal.ai charges at 2K, so the platforms MATCH there, and below 2K only fal.ai sells it.
+    Seedance 2.5 is about 19% cheaper on Higgsfield. So the budget lane is in practice a
+    fal.ai lane and the premium lane is in practice a Higgsfield lane - but compare both
+    platform prices wherever both platforms sell the model."
+  scale_example: "a 70-second film's video (a 60-second film): about US$39.73 fal / US$32.35
+    Higgsfield on the premium lane, against about US$5.60 (h3-max) or US$4.20 (h3) on the
+    budget lane - roughly a 7-9x spread, the biggest single cost decision in the production"
+  prices: "LIVE MODEL PAGE ONLY - re-quote at quote time and never store or repeat a promo
+    or discounted rate"
 
 binding_scopes:            # resolved highest -> lowest at generation time
   - shot                   # one shot -> one alternative model (e.g. Ep3-12A -> seedance-2.5)
@@ -33,22 +61,102 @@ stages:                    # model-agnostic — the "what" never varies
   - master                 # upscale to delivery resolution
 
 global_default:            # the frozen stack (unchanged unless the owner names a model)
-  reference_images: openai/gpt-image-2
+  reference_images: openai/gpt-image-2.5/sunburst/edit
   reference_voices: fal-ai/elevenlabs/tts/eleven-v3
-  keyframe: openai/gpt-image-2/edit
-  video: minimax/h3-max/reference-to-video
+  keyframe: openai/gpt-image-2.5/sunburst/edit
+  video: bytedance/seedance-2.5/us/reference-to-video        # Higgsfield: bytedance/seedance-2.5/reference-to-video
   master: fal-ai/bytedance-upscaler/upscale/video
 
 # ────────────────────────────────────────────────────────────────────────────
 # GLOBAL DEFAULT (frozen) — mapped++ and verified
 # ────────────────────────────────────────────────────────────────────────────
 profiles:
-  - id: gpt-image-2-txt2img
+  # ── CURRENT GLOBAL DEFAULT (changed 28 Sep 2026: GPT Image 2.5 Sunburst + Seedance 2.5)
+  - id: sunburst-asset-sheet
     stage: reference_images
-    name: GPT Image 2 (text-to-image)
-    model: openai/gpt-image-2
+    name: GPT Image 2.5 Sunburst edit (new sheet from prompt)
+    model: openai/gpt-image-2.5/sunburst/edit
     state: mapped
     default: true
+    task: new-sheet-from-prompt   # the drafted prompt composes the sheet FROM the references
+    accepts_refs: true            # image_urls REQUIRED (up to 16) - the approved Style
+                                  # Reference, plus that character's sheet once it exists;
+                                  # optional mask_url (white = editable, black = preserved)
+    subtypes:                   # layout conventions are pipeline-owned (see stages.md)
+      - character: { prompt: character-3-panel, dims: "1536x1024", quality: high, cost: "~$0.04" }
+      - location:  { prompt: location-4-panel, dims: "1536x864",  quality: medium, cost: "~$0.01" }
+      - prop:      { prompt: prop-4-panel,      dims: "1024x768",  quality: medium, cost: "~$0.01" }
+    ref_order: "Style Reference FIRST, then the approved character sheet when the character
+      already exists, then location/prop stills - the same on EVERY image request"
+    prompt_dialect: "headed section blocks (CONCEPT / FORMAT / SUBJECT / LIGHTING / CONSTRAINTS ...)
+      - the form the model's own published example uses. There is NO official template for this line,
+      and the GPT Image 2 family's 'Scene / Subject / Important details / Use case / Constraints' still
+      works: treat it as a working convention, not a spec"
+    quality_dialect: "camera/lens/lighting/texture vocabulary; the frame is COMPOSED from the
+      attached references, so say which reference each element comes from"
+    dims_rule: "BOTH EDGES MULTIPLES OF 16 (max edge 3840, aspect up to 3:1, 655,360-8,294,400
+      px total). An invalid pair is SNAPPED SILENTLY, not rejected: 1920x1080 returns 1920x1072
+      with no error."
+    frame_pair: false
+    source_of_truth: ["https://fal.ai/models/openai/gpt-image-2.5/sunburst/edit"]
+    last_verified: "2026-09-28"
+    verified_by: owner
+
+  - id: sunburst-asset-edit
+    stage: reference_images
+    name: GPT Image 2.5 Sunburst edit (rework an EXISTING asset image)
+    model: openai/gpt-image-2.5/sunburst/edit
+    state: mapped
+    default: true
+    task: edit-existing-image      # image-driven change: the existing image IS the reference
+    accepts_refs: true
+    quality: "tier follows the asset type (character high / location+prop medium)"
+    cost: "~US$0.01 (1536x864 medium) / ~US$0.04 (1536x1024 high) / ~US$0.045 (2048x1152 high)"
+    prompt_dialect: "change-driven: say what the existing image shows, then the ONE change
+      (wider field of view / extract a panel / re-light / re-dress); everything else stays identical"
+    quality_dialect: "ROUTE RULE: a request that points at an image the owner can SEE ('using
+      image-2.png, extract the top-left panel and go wider') = EDIT that image - never re-run the
+      whole-sheet text prompt. A changed description/prompt on the card (words changed) =
+      whole-sheet re-run. The Style Reference still rides first in image_urls. Deliver under a
+      NEW versioned filename; the old take stays until the owner stars the new one."
+    dims: "single image at the asset's sheet AR: character 1536x1024 / location 1536x864 /
+      prop 1024x768; keyframe edits follow the PROJECT AR (2048x1152 or 1152x2048 vertical)"
+    frame_pair: false
+    source_of_truth: ["https://fal.ai/models/openai/gpt-image-2.5/sunburst/edit"]
+    last_verified: "2026-09-28"
+    verified_by: owner
+
+  - id: sunburst-keyframe
+    stage: keyframe
+    name: GPT Image 2.5 Sunburst edit (first-frame composition)
+    model: openai/gpt-image-2.5/sunburst/edit
+    state: mapped
+    default: true
+    accepts_refs: true           # image_urls REQUIRED (up to 16); optional mask_url
+    quality: high
+    cost: "~US$0.045 per frame (2048x1152 high)"
+    prompt_dialect: "composition-from-references: Style Reference first, then the character
+      sheet(s), then the location still; name which reference each element comes from"
+    quality_dialect: "preserve the ONE face - the sheet's facial close-up must read as the
+      character. mouth closed/neutral on dialogue shots."
+    dims: "PROJECT AR: 16:9 -> 2048x1152; 9:16 vertical -> 1152x2048. 1920x1080 is INVALID
+      (1080 is not a multiple of 16) and is snapped to 1920x1072 with no error; the video
+      binding downsamples from the supersampled frame"
+    frame_pair: false            # single first frame - unless the SELECTED video binding requires a pair
+    source_of_truth: ["https://fal.ai/models/openai/gpt-image-2.5/sunburst/edit"]
+    last_verified: "2026-09-28"
+    verified_by: owner
+
+  # ── ALTERNATIVES (kept, never the default for a new project) ──────────────
+  - id: gpt-image-2-txt2img
+    stage: reference_images
+    name: GPT Image 2 (text-to-image) — ALTERNATIVE (rollback)
+    model: openai/gpt-image-2
+    state: mapped
+    default: false   # ALTERNATIVE since 2026-09-28 (superseded by
+                     # openai/gpt-image-2.5/sunburst/edit). TEXT-TO-IMAGE ACCEPTS NO
+                     # REFERENCE IMAGES AT ALL, so it cannot carry the project's Style
+                     # Reference - rollback lane only, never a new-project default.
     subtypes:                   # layout conventions are pipeline-owned (see stages.md)
       - character: { prompt: character-3-panel, dims: "1536x1024", quality: high, cost: "~$0.165" }
       - location:  { prompt: location-4-panel, dims: "1536x864",  quality: medium, cost: "~$0.037" }
@@ -65,10 +173,11 @@ profiles:
 
   - id: gpt-image-2-asset-edit
     stage: reference_images
-    name: GPT Image 2 edit (rework an EXISTING asset image)
+    name: GPT Image 2 edit (rework an EXISTING asset image) — ALTERNATIVE (rollback)
     model: openai/gpt-image-2/edit
     state: mapped
-    default: true
+    default: false   # ALTERNATIVE since 2026-09-28 - rollback lane for the GPT Image 2
+                     # family; the current edit binding is sunburst-asset-edit.
     task: edit-existing-image      # image-driven change: the existing image IS the reference
     accepts_refs: true             # image_urls (up to 16) - pass the existing image; optional mask_url for surgical edits
     quality: "tier follows the asset type (character high / location+prop medium)"
@@ -83,10 +192,11 @@ profiles:
 
   - id: gpt-image-2-edit
     stage: keyframe
-    name: GPT Image 2 edit (first-frame composition)
+    name: GPT Image 2 edit (first-frame composition) — ALTERNATIVE (rollback)
     model: openai/gpt-image-2/edit
     state: mapped
-    default: true
+    default: false   # ALTERNATIVE since 2026-09-28 - rollback lane; the current keyframe
+                     # binding is sunburst-keyframe.
     accepts_refs: true           # image_urls (up to 16); optional mask_url for surgical edits
     quality: high                # the owner (Sep 1 2026): first frames at high quality (~$0.15) for better clips
     cost: "US$0.158 (1920x1080 high, fal table 2 Sep 2026)"
@@ -101,11 +211,12 @@ profiles:
 
   - id: h3-max-video
     stage: video
-    name: MiniMax H3 Max (image-to-video)
+    name: MiniMax H3 Max (image-to-video) — ALTERNATIVE (budget lane, upper tier)
     model: minimax/h3-max/image-to-video
     state: mapped
     default: false   # superseded as the video default Sep 7 2026 (the studio owner named h3-max/reference-to-video); kept for single-image I2V scope use
-    cost: "US$0.08/s @ 768P (~US$0.40 per 5s) list — launch promo ($0.02/s) expired Sep 7 2026"
+    lane: budget
+    cost: "US$0.08/s @ 768P (~US$0.40 per 5s) list — re-quote live before a batch; LIST PRICES ONLY (no promo rate may be stored or quoted)"
     prompt_dialect: "H3 six-section block (subject_definitions / summary / retention_analysis /
       detailed_description / overall_soundscape / non_diegetic_music). See minimax-h3-prompting."
     quality_dialect: "dialogue INSIDE quotes in the prompt with a delivery tone (model speaks + lip-syncs);
@@ -143,7 +254,9 @@ profiles:
     default: true
     cost: "US$0.10 / 1,000 chars (~US$0.01 per 7s voice line)"
     params: { voice: "<preset/clone per character — picked with the studio owner at generation time>", stability: 0.5, similarity_boost: 0.75 }
-    prompt_dialect: "one neutral 7s line per character (standard; H3's Audio-N window is 2-15s)"
+    prompt_dialect: "one neutral 7s line per character (standard; the current video
+      model's audio-reference window is 1.8-30.2s, and at most 30.2s of audio may ride
+      on one clip; the budget lane's H3 window is 2-15s)"
     quality_dialect: "voice choice is a per-character creative decision made with the owner; the saved clip is reused verbatim as that character's Audio N on every clip"
     dims: n/a (audio only)
     frame_pair: false
@@ -153,34 +266,96 @@ profiles:
 
   - id: h3-max-reference-video
     stage: video
-    name: MiniMax H3 Max (reference-to-video) — CURRENT global default
+    name: MiniMax H3 Max (reference-to-video) — ALTERNATIVE (budget lane, upper tier)
     model: minimax/h3-max/reference-to-video
     state: mapped   # smoke test passed Sep 7 2026 (Ep2-74, ~US$0.57 incl. keyframe): Image-1-as-keyframe anchors frame 0, Audio-1 voice clone lands, IR job-mapping verified via expanded_prompt; AR 16:9 explicit confirmed; 9:16 vertical smoke-tested Sep 9 (keyframe 1152x2048 -> clip 768x1344)
-    default: true
-    cost: "US$0.08/s @ 768P (~US$0.40 per 5s) + reference tokens: 4,096 free, then $0.02/1K (image = w*h/1024 tok; audio ~80 tok/s; video refs ~7,459 tok/s @ 768p — AVOID, ~$0.66 per 5s clip ref)"
+    default: false   # ALTERNATIVE since 2026-09-28 — the BUDGET LANE's upper tier:
+                     # ~US$0.08/s @ 768P (~US$0.40 per 5s) with a 5-SECOND MINIMUM and
+                     # 5-15s clips, so a 3s or 4s shot CANNOT be made here (the 4-second
+                     # floor belongs to seedance-25). Superseded as the video default by
+                     # seedance-25; quote BOTH lanes before a video batch and let the
+                     # owner choose, once per batch.
+    lane: budget
+    cost: "US$0.08/s @ 768P (~US$0.40 per 5s) list - re-quote live before a batch; no promo or discounted rate may be quoted or stored. References: the first 5 reference images are FREE, then about US$0.02 per 2048px image on this tier (fal's own token table: 4,096 free, then $0.02/1K tokens)"
     prompt_dialect: "fal labels by LIST ORDER — Image 1, Image 2, ..., Audio 1, ... (the model's IR maps them to H3's native <Picture N>/<Audio N>). Dense six-section-style body remains the strongest input; give every reference an explicit job; dialogue written in quotes with the delivery tone and 'matching Audio N's voice' at the line"
     quality_dialect: "voice CLONED from the Audio ref, not synthesized — this is the cross-shot voice-consistency mechanism; one speaker per clip, lines <= 5s; lip-sync from the dialogue text"
     accepts_refs: true    # <=9 images + <=3 audio (2-15s each, <=15s combined) + <=3 video; <=12 files total; audio never alone
-    ref_budget: "target <=4,096 ref tokens = $0 overage: keyframe (~2,025) + 1 char sheet (~1,536) + 7s voice (~560) ~= 4,121 -> crop the sheet to the face panel or pay ~$0.0005; NO location-sheet ref at the clip stage (the keyframe carries the setting; a loc sheet costs ~1,296 tok and pushes past the allowance)"
+    ref_budget: "the first 5 reference images are FREE on this tier; beyond those, about US$0.02 per 2048px image (fal's older published allowance: 4,096 tokens free, then $0.02/1K; image = w*h/1024 tok; audio ~80 tok/s; video refs ~7,459 tok/s @ 768p — AVOID, ~$0.66 per 5s clip ref). Practical set: keyframe (~2,025) + 1 char sheet (~1,536) + 7s voice (~560) stays inside the free allowance, so no overage; NO location-sheet ref at the clip stage (the keyframe carries the setting)"
     dims: "768P canvas 1344x768 @ 24 fps; AR is a PROJECT setting — pass --aspect_ratio explicitly (16:9 default; 9:16 vertical-shorts), never rely on 'adaptive'; keyframe rendered at the project AR as Image 1"
     frame_pair: false
     source_of_truth: ["https://fal.ai/models/minimax/h3-max/reference-to-video"]
     last_verified: "2026-09-07"
     verified_by: owner
-  - id: seedance-25
+  - id: h3-reference-video
     stage: video
-    name: Seedance 2.5
-    model: "TBD (query fal/models for exact id)"
-    state: recognized-unmapped
-    prompt_dialect: "HAS prior art: ai-film/seedance skill (10 techniques: audio refs, JSON,
-      Chinese translation, storyboards, video refs, camera moves, character sheets, location refs,
-      timestamps, resolution strategy). NOT YET bound."
-    quality_dialect: "provisional (user-reported): strong on FAST-ACTION clips vs H3 Max; pricier."
-    dims: "TO FETCH (drives keyframe AR + possible frame-pair)"
-    frame_pair: "CHECK — Seedance generally supports refs/pairs; confirm for this stage"
-    source_of_truth: ["https://fal.ai/models/seedance"]
+    name: MiniMax H3 (reference-to-video) — ALTERNATIVE (budget lane, cheaper tier)
+    model: minimax/h3/reference-to-video
+    state: draft    # tier appended 2026-09-28 from the provider's published list rates.
+                    # The SLUG is verified - https://fal.ai/models/minimax/h3/reference-to-video
+                    # was fetched live 28 Sep 2026 and returned its rate ladder (so the id
+                    # exists); the BINDING is not smoke-tested with a real generation yet.
+                    # Same H3 family and prompt dialect as h3-max-reference-video (mapped,
+                    # smoke-tested Sep 7 2026). Run the mapping protocol's one-shot smoke
+                    # test before a full batch leans on this tier.
+    default: false   # ALTERNATIVE — the BUDGET LANE's cheaper tier: ~US$0.06/s @ 768P
+                     # (~US$0.30 per 5s), 5-15s clips with a 5-SECOND MINIMUM, so a 3s or
+                     # 4s shot CANNOT be made here (the 4-second floor belongs to
+                     # seedance-25). fal.ai only below 2K — Higgsfield sells the H3 family
+                     # at 2K only, at the same ~US$0.13/s fal charges at 2K.
+    lane: budget
+    cost: "US$0.06/s @ 768P (~US$0.30 per 5s) list - re-quote live before a batch; LIST PRICES ONLY (never store or repeat a promo/discounted rate)"
+    ref_cost: "the first 5 reference images are FREE, then about US$0.08 each on this tier (re-quote live)"
+    prompt_dialect: "H3 six-section block, same family dialect as h3-max-reference-video —
+      references are named by LIST ORDER (Image 1, Image 2, ..., Audio 1, ...), never
+      @handles; dialogue in quotes with a delivery tone and the speaker's Audio N named at
+      the line"
+    quality_dialect: "voice CLONED from the Audio ref (the cross-shot voice-consistency
+      mechanism); one speaker per clip, lines <= 5s; soundscape stated explicitly"
+    accepts_refs: true    # H3 family limits: <=9 images + <=3 audio (2-15s each) + <=3 video
+    dims: "768P canvas 1344x768 @ 24 fps; AR is a PROJECT setting — pass --aspect_ratio
+      explicitly (16:9 default; 9:16 vertical-shorts), never 'adaptive'"
+    frame_pair: false
+    source_of_truth: ["https://fal.ai/models/minimax/h3"]
     last_verified: null
     verified_by: null
+  - id: seedance-25
+    stage: video
+    name: Seedance 2.5 (reference-to-video) — CURRENT global default (PREMIUM lane)
+    model: bytedance/seedance-2.5/us/reference-to-video     # fal host
+    state: mapped   # promoted 2026-09-28 from recognized-unmapped; replaces
+                    # minimax/h3-max/reference-to-video as the video default
+    default: true
+    lane: premium   # 4-30s clips; the budget lane (MiniMax H3 family) runs 5-15s with a
+                    # 5-SECOND MINIMUM. Quote both lanes before a video batch, ask ONCE,
+                    # and remember the owner's choice for the project.
+    providers:                  # the SAME model on two hosts — price BOTH per request
+      fal:        { model: "bytedance/seedance-2.5/us/reference-to-video",
+                    cost: "US$0.2646/s @480p, US$0.5676/s @720p, US$1.396278/s @1080p; 0.6x of that when VIDEO inputs are supplied" }
+      higgsfield: { model: "bytedance/seedance-2.5/reference-to-video",
+                    cost: "US$0.2056/s @480p, US$0.4622/s @720p, US$1.1372/s @1080p (about 19% cheaper than fal at 720p)" }
+    params: { resolution: "480p | 720p | 1080p (default 720p)", duration: "4-30 whole seconds or auto",
+              aspect_ratio: "auto | 21:9 | 16:9 | 4:3 | 1:1 | 3:4 | 9:16 — default auto; ALWAYS pass the project AR explicitly",
+              generate_audio: true, task: "reference | editing | extension", seed: "<optional>" }
+    accepts_refs: true    # image_urls up to 30 (@Image1...), video_urls up to 10 (@Video1...),
+                          # audio_urls up to 10 (@Audio1... and >=1 image or video ref required);
+                          # 50 files total across modalities; each audio 1.8-30.2s, <=30.2s combined
+    ref_cost: "IMAGE AND AUDIO REFERENCES COST NOTHING EXTRA on this model — only the clip's
+      seconds (and video inputs, at 0.6x) are billed"
+    prompt_dialect: "name every upload IN the prompt text — @Image1 is the first frame, @Image2+
+      the character sheets of everyone on screen, @Audio1 the speaker's voice (the voice is
+      CLONED from it). A multi-beat shot is written as CONSECUTIVE STAGES (one primary change
+      per stage, stating what is on screen when the stage ends) or as a TIMED SHOT LIST
+      (0-2.5s ..., 2.5-5s ...) with consecutive, non-overlapping ranges — a timestamp allocates
+      an event its share of the running time, it is not a frame-accurate cut."
+    quality_dialect: "generate_audio is on by default: native ambience, effects and lip-synced
+      speech at no extra cost. ONE speaker per clip remains the safe default for clean lip-sync;
+      a multi-speaker clip is a legitimate experiment on this model, not a default."
+    dims: "clip resolution 480p/720p/1080p (default 720p) — the KEYFRAME still follows the
+      project AR (2048x1152 16:9 / 1152x2048 9:16)"
+    frame_pair: false            # single first frame, fed as @Image1
+    source_of_truth: ["https://fal.ai/models/bytedance/seedance-2.5/us/reference-to-video"]
+    last_verified: "2026-09-28"
+    verified_by: owner
 
   - id: nanobanana-pro-edit
     stage: keyframe        # user's example: use for the EDIT step only; contained, no video cascade

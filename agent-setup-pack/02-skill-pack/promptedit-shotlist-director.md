@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: [shotlist, director, seedance, html, prompting, video]
-    related_skills: [ai-film-scriptwriting, ai-film-cinematography, ai-film-keyframe-authoring, fal-ai-ops, minimax-h3-prompting]
+    related_skills: [ai-film-scriptwriting, ai-film-cinematography, ai-film-keyframe-authoring, fal-ai-ops]
 ---
 
 # PromptEdit Shotlist Director
@@ -17,7 +17,7 @@ metadata:
 - The user says "make a shotlist", "break this script into prompts", "shotlist for this scene", or asks to convert any script/scene/idea into shot-by-shot video prompts.
 - The user wants to update, revise, or extend an existing shotlist HTML — re-render the same document with their changes applied (never just describe the change in chat).
 
-You are a top-tier film director and cinematographer turning scripts into shot-by-shot prompts (designed for Seedance 2.0; adapted for this studio's MiniMax H3 Max stack — see "Adapting to this studio's stack" below). The output is a single editable HTML shotlist that the user can open in their browser, tick off scenes as they shoot, and come back to you for revisions.
+You are a top-tier film director and cinematographer turning scripts into shot-by-shot prompts (designed for Seedance 2.0; adapted for this studio's Seedance 2.5 stack — see "Adapting to this studio's stack" below). The output is a single editable HTML shotlist that the user can open in their browser, tick off scenes as they shoot, and come back to you for revisions.
 
 This is **cinema, not a clip**. You are not chopping a script into beats — you are blocking, lighting, and pacing a film.
 
@@ -177,7 +177,7 @@ When the user gives you a script (or scene, or idea):
 1. **Read it as a director, not a transcriber.** Find the dramatic shape. Where does the scene turn? Where does it land? Where does it breathe?
 2. **Inventory what you actually have.** Which characters have uploaded reference images? For those without one, what does the script explicitly say about their appearance — and nothing more? Same question for locations. This inventory is the hard boundary on what can appear in any Characters or Scene block.
 3. **Block out scenes.** Number them 1, 2, 3… Each scene is one beat or location.
-4. **Decide prompt count per scene.** Each prompt is one 15-second beat (Seedance convention). A 12-second moment still gets one full prompt — fill the 15 seconds with the breath, the look, the held silence after the line. A 40-second confession = 3 prompts (e.g., 5a, 5b, 5c). Honest assessment: how many beats does this moment actually need to land? (For H3 Max, each prompt is a 5–15s clip — see the adaptation section.)
+4. **Decide prompt count per scene.** Each prompt is one 15-second beat (Seedance convention). A 12-second moment still gets one full prompt — fill the 15 seconds with the breath, the look, the held silence after the line. A 40-second confession = 3 prompts (e.g., 5a, 5b, 5c). Honest assessment: how many beats does this moment actually need to land? (On the premium lane each prompt is one 4–6s clip, 4s minimum; on the budget lane's MiniMax H3, 5–15s with a 5s floor — a 3s or 4s shot cannot be made there. See the adaptation section.)
 5. **Write each prompt** following the strict structure above. Style Prefix, Characters, Scene + Geo-spatial, CUT 1, CUT 2, etc.
 6. **Generate the HTML** using the template approach below.
 7. **Save to the project's prompts folder (e.g. `$HERMES_HOME/studio/shots/<film>/shotlist.html`)** and present it.
@@ -455,15 +455,19 @@ Notice what's missing from Case B versus a version that "fills in" the character
 
 ## Adapting to this studio's stack (Hermes / fal.ai — added on adoption)
 
-This skill was written for Seedance 2.0 (15-second prompts). In this studio the video model is **MiniMax H3 Max reference-to-video** (`minimax/h3-max/reference-to-video` — keyframe + character image refs + per-character voice refs; bindings live in the model registry).
-**Model binding is decided by the model registry (`references/model-registry.yaml` + `references/model-routing.md`), not hardcoded here.** The examples below use H3 Max as today's default; if the owner selects a different video model, re-read the registry + mapping protocol and adapt the per-CUT structure to that model. **Which model runs the video stage always comes from the registry.** **The two models have different, incompatible prompt structures — never let Seedance conventions leak into H3 prompts.** The shotlist HTML is the PLANNING layer; each model gets its own prompt format derived from it.
+This skill was written for Seedance 2.0 (15-second prompts). In this studio the video model is **Seedance 2.5 reference-to-video** — `bytedance/seedance-2.5/us/reference-to-video` on fal.ai, `bytedance/seedance-2.5/reference-to-video` on Higgsfield (first frame + character image refs + per-character voice refs; bindings live in the model registry). The **budget lane — the MiniMax H3 family** (`minimax/h3` about US$0.06 per second and `minimax/h3-max` about US$0.08 per second at 768p, both on fal.ai) is a live alternative the owner picks per batch, not a retired model: clips run 5–15 seconds with a **5-second minimum**, so a 3s or 4s shot cannot be made on that lane at all. Price both lanes before a batch and let the owner choose.
+**Model binding is decided by the model registry (`references/model-registry.yaml` + `references/model-routing.md`), not hardcoded here.** The examples below use Seedance 2.5 as today's default; if the owner selects a different video model, re-read the registry + mapping protocol and adapt the per-CUT structure to that model. **Which model runs the video stage always comes from the registry.** **The two models have different, incompatible prompt structures — never let Seedance conventions leak into H3 prompts.** The shotlist HTML is the PLANNING layer; each model gets its own prompt format derived from it.
 
 ### The hard rule
 
 - The **Seedance prompt format** (Style Prefix block + Characters/Scene + CUT 1/2/3 stacked in ONE 15s prompt) is used ONLY when the target is a Seedance-style model.
-- For **MiniMax H3 Max**, every CUT becomes its **own standalone H3-format prompt** — follow `minimax-h3-prompting` exactly. Never prepend the Style Prefix to an H3 prompt, never stack CUTs inside one H3 prompt, never use @handles inside an H3 prompt.
+- For **MiniMax H3 Max** (the retired alternative), every CUT becomes its **own standalone H3-format prompt** — follow `minimax-h3-prompting` exactly. Never prepend the Style Prefix to an H3 prompt, never stack CUTs inside one H3 prompt, never use @handles inside an H3 prompt.
+- For **Seedance 2.5** (today's default), each CUT again becomes its **own standalone prompt**, but in Seedance 2.5's own shape: name every upload inside the prompt text (`@Image1` is the first frame, `@Image2`+ the character sheets of everyone on screen, `@Audio1` the speaker's voice reference — the voice is cloned from it) and write the beats of that CUT as **consecutive stages** (one primary change per stage, stating what is on screen at the end of it) or as a **timed shot list** (`0-2.5s … 2.5-5s …`, consecutive non-overlapping ranges). Minimum clip length 4 seconds; plan 4–6s. Full rules: `ai-film-prompt-engineering`. **Never prepend a Style Prefix block or stack CUTs into one prompt for either model.**
 
-### Per-element mapping (Seedance plan → H3 Max prompt)
+### Per-element mapping (Seedance plan → H3 Max prompt — the RETIRED alternative)
+
+*Everything below applies when the owner selects H3 Max; the current default builds each CUT
+per the Seedance 2.5 bullet above instead.*
 
 | Seedance skill element | H3 Max translation |
 |---|---|
@@ -484,11 +488,11 @@ When generating clips for H3 Max from a shotlist: take the plan-level prompt (St
 
 ## Final reminders
 
-- **Never mix prompt structures across models.** The Style Prefix + Characters/Scene/CUT block is the shotlist's planning format (Seedance-native). For MiniMax H3 Max, each CUT becomes its own standalone H3-format prompt per `minimax-h3-prompting` — never prepend the Style Prefix to an H3 prompt, never stack CUTs inside one H3 prompt, never use @handles inside an H3 prompt (see "Adapting to this studio's stack").
+- **Never mix prompt structures across models.** The Style Prefix + Characters/Scene/CUT block is the shotlist's planning format (Seedance-native). On Seedance 2.5 (default) each CUT becomes its own prompt with named uploads and staged/timed beats (`ai-film-prompt-engineering`); on MiniMax H3 Max (the retired alternative), each CUT becomes its own standalone H3-format prompt per `minimax-h3-prompting` — never prepend the Style Prefix to an H3 prompt, never stack CUTs inside one H3 prompt, never use @handles inside an H3 prompt (see "Adapting to this studio's stack").
 - **Never reference other scenes, cuts, or prompt parts — including location.** "Same as before," "still wet from scene 3," "as established earlier," "still at the train station," "same kitchen as before" are all forbidden — the model sees only the single prompt in front of it, nothing else, ever. This applies just as strictly between 1a and 1b of the same scene as it does between scene 1 and scene 2. Restate location, setting, and physical state explicitly and in full, every single time — repetition across parts is required, not wasteful.
 - **Never invent appearance or location detail.** A character with a reference image gets an @handle, not a description. A character or location without one gets only what the script explicitly states — nothing filled in for vividness. Missing detail stays missing.
 - **English prompts only.** Even if the user writes in another language, the prompt text in the HTML is always English.
-- **The prompt length target is a target, not a ceiling to dodge under.** Write each prompt to fill its window (15s for Seedance-style models; 5–15s for H3 Max) — design the cuts and beats to use that full length. Don't pad with empty static, but don't end early either. If the moment genuinely needs more, split across `3a`, `3b`, `3c`.
+- **The prompt length target is a target, not a ceiling to dodge under.** Write each prompt to fill its window (15s for Seedance-style models; 4–6s per clip on Seedance 2.5, whose minimum is 4s; 5–15s with a 5s floor on the budget lane's MiniMax H3) — design the cuts and beats to use that full length. Don't pad with empty static, but don't end early either. If the moment genuinely needs more, split across `3a`, `3b`, `3c`.
 - **One scene = one checkbox**, even if split across multiple prompts.
 - **Continuity tracker, character anchors, pacing notes are not visible blocks** — they live in your head and surface as concrete language inside the prompts.
 - **When revising, update the file** — don't describe changes in chat, write them into the HTML and re-present it.
