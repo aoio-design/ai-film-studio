@@ -57,11 +57,11 @@ Camera movement in AI video models is controlled via **prompt description**, not
 
 | Model | Camera Control Method | Reliability |
 |-------|----------------------|-------------|
-| **Wan 2.2 14B** | ✅ Prompt-only — best-in-class motion understanding | High — Wan reads camera language well |
-| **Seedance 2.5** (current default) | Prompt only | High — plain-language camera moves work natively |
-| **HunyuanVideo** | Prompt-only | Medium |
+| **Seedance 2.5** (the premium lane) | Prompt only | High — plain-language camera moves work natively |
+| **MiniMax H3** (the budget lane) | Prompt only | High — the same plain-language moves, at 768p |
+| **HunyuanVideo** (not a model you generate on) | Prompt-only | Medium |
 
-> **For our pipeline (Seedance 2.5):** Camera movement is handled by prompt language only. "Camera slowly pushes in" produces a dolly-in effect; plain-language camera moves work natively. No add-ons needed.
+> **In practice:** on both of your lanes, camera movement is handled by prompt language only. "Camera slowly pushes in" produces a dolly-in effect; plain-language camera moves work natively. No add-ons needed.
 
 ### Movement Reference Table
 

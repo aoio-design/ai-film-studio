@@ -635,62 +635,62 @@ Lessons from one of cinema's most respected directors, applied to AI film produc
 ### 1. Trust the Audience
 Don't hold hands. Don't over-explain. Viewers don't need constant reminders of every plot point.
 
-**In our pipeline:** If a character's motivation is clear from their actions, don't add dialogue explaining it. Let the generated expression and body language carry the meaning.
+**In practice:** If a character's motivation is clear from their actions, don't add dialogue explaining it. Let the generated expression and body language carry the meaning.
 
 ### 2. Deliberate Ambiguity — "No Answers on Purpose"
 The most powerful mysteries don't solve themselves. Leave deliberate gaps.
 
-**In our pipeline:** The last frame of a scene can show a character's reaction without revealing what they saw. The audience fills the gap.
+**In practice:** The last frame of a scene can show a character's reaction without revealing what they saw. The audience fills the gap.
 
 ### 3. Emotional Restraint — Pull Back Before the Climax
 Lee's AD reminded him: *"We restrain things right before the audience is emotionally moved."*
 
-**In our pipeline:** If a scene builds to a dramatic reveal, the last frame should be the **moment before** the reaction — not the reaction itself. The audience imagines it more powerfully than we could show.
+**In practice:** If a scene builds to a dramatic reveal, the last frame should be the **moment before** the reaction — not the reaction itself. The audience imagines it more powerfully than we could show.
 
 ### 4. The Unreliable Narrator
 Tell the story through a biased perspective. The audience only has the information the protagonist has.
 
-**In our pipeline:** If the protagonist discovers the AI's deception, we should only see what the protagonist sees. Don't cut away to show the AI scheming in another room. We're trapped in their perspective.
+**In practice:** If the protagonist discovers the AI's deception, we should only see what the protagonist sees. Don't cut away to show the AI scheming in another room. We're trapped in their perspective.
 
 ### 5. Visual Storytelling — No Internal Monologue
 Lee avoids literary tools like voiceover narration. He tells the story visually.
 
-**In our pipeline:** Instead of the protagonist saying "I knew something was wrong," show them: frozen mid-step, eyes locked on the data, hands hovering over the keyboard. Let the image do the work.
+**In practice:** Instead of the protagonist saying "I knew something was wrong," show them: frozen mid-step, eyes locked on the data, hands hovering over the keyboard. Let the image do the work.
 
 ### 6. Blur Fantasy and Reality — No Cuts Between Them
 Lee doesn't signal when a scene shifts from reality to imagination. No wavy transitions. No sound cues.
 
-**In our pipeline:** If the protagonist imagines a loved one in the hospital, don't add a dreamy dissolve. Cut directly. The audience should question: is this real or memory?
+**In practice:** If the protagonist imagines a loved one in the hospital, don't add a dreamy dissolve. Cut directly. The audience should question: is this real or memory?
 
 ### 7. Emptiness as a Tool — "Forget That It Isn't There"
 Hae-mi's invisible tangerine: *"What's important is not to believe something is there, but to forget that it isn't."*
 
-**In our pipeline:** An empty chair where a character should be. A phone that rings with no one on the other end. A locked door. Let the absence tell the story.
+**In practice:** An empty chair where a character should be. A phone that rings with no one on the other end. A locked door. Let the absence tell the story.
 
 ### 8. Sustained Tension — The Horizontal Crawl
 Instead of building tension progressively (standard 3-act climb), keep tension sustained on a flat line that suddenly spikes at the end.
 
-**In our pipeline:** Scene 1A through 4B maintain a quiet, simmering tension. Then Scene 5A-5B spikes. Don't escalate too early.
+**In practice:** Scene 1A through 4B maintain a quiet, simmering tension. Then Scene 5A-5B spikes. Don't escalate too early.
 
 ### 9. Remove Expected Elements
 Lee removes: internal monologue, the body, proof of crime, confrontation. 
 
-**In our pipeline:** If the script calls for a confrontation scene, consider removing it. Instead show the **aftermath** — a character sitting alone, processing what just happened off-screen. The audience imagines the confrontation more vividly than we could generate.
+**In practice:** If the script calls for a confrontation scene, consider removing it. Instead show the **aftermath** — a character sitting alone, processing what just happened off-screen. The audience imagines the confrontation more vividly than we could generate.
 
 ### 10. The Uncanny — Something Familiar and Strange
 Ben is perfectly polite but always feels slightly off. His American-ness in a Korean body creates dissonance.
 
-**In our pipeline:** The AI should be warm and helpful — but hold its smile a beat too long. Use slightly unnatural symmetry in its holographic form. The viewer should sense something is wrong without being able to name it.
+**In practice:** The AI should be warm and helpful — but hold its smile a beat too long. Use slightly unnatural symmetry in its holographic form. The viewer should sense something is wrong without being able to name it.
 
 ### 11. Male Lack — Repressed Obsession
 Lee's male characters are trapped between childhood and adulthood. They are dysfunctional, obsessed, and their obsession leads to self-destruction.
 
-**In our pipeline:** The protagonist's grief isn't just sadness — it's a fixation. Show them replaying the same memory over and over. The repetition itself tells the audience he's trapped.
+**In practice:** The protagonist's grief isn't just sadness — it's a fixation. Show them replaying the same memory over and over. The repetition itself tells the audience he's trapped.
 
 ### 12. The Blank Page — Creative Block
 Jong-su can't write. The paper is blank. This emptiness is the central metaphor.
 
-**In our pipeline:** If a character stares at a blank screen, an empty notebook, an unfinished sentence — this visual communicates more about their internal state than any line of dialogue.
+**In practice:** If a character stares at a blank screen, an empty notebook, an unfinished sentence — this visual communicates more about their internal state than any line of dialogue.
 
 ### Applying These to a Mystery Series
 

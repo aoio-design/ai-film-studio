@@ -113,8 +113,8 @@ as two *hosts*. Price both lanes on the same shots and let them decide:
 - **Higgsfield API** is real and self-serve (keys from the console, async requests with
   polling or webhooks, pay-as-you-go in USD, no subscription, failed requests not
   billed). Base `https://api.higgsfield.ai`; the console copies ONE combined credential
-  to paste as-is into the auth header. A new account runs 2 jobs at once (more once about
-  US$25 has been funded), and generated files stay available about 7 days — pull finished
+  to paste as-is into the auth header. A new account runs 2 jobs at once (the limit rises as
+  your balance does), and generated files stay available about 7 days — pull finished
   clips into the studio promptly.
 - Consequence: "is X cheaper?" is a two-row question now, and the answer differs by
   stage — normally identical for images, roughly 19% off for clips at 720p on

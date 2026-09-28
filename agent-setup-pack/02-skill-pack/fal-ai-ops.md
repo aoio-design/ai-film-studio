@@ -27,8 +27,9 @@ finished files.*
   rebuild it from parts, or paste it anywhere but the header.
 - **Submit → poll → download.** Submit a job to the model's path, poll the status URL
   the submit call returns until the job has finished, then download the result.
-- A brand-new account runs **2 jobs at once**; more concurrency unlocks once about
-  US$25 has been funded. On a busy batch, submit in small waves rather than all at once.
+- A brand-new account runs **2 jobs at once**; the concurrency limit rises as your balance
+  does (the account page states the current rule). On a busy batch, submit in small waves
+  rather than all at once.
 - Generated files stay available for **at least 7 days** — pull finished media into the
   owner's studio promptly; never leave the only copy of a clip on the provider.
 
@@ -330,7 +331,7 @@ lane, ~US$0.14 per 4K upscale — these figures are orientation only; check
 | `429` or queue waits long | Platform is busy or out of credit — check the balance; wait and retry, or ask the owner to top up. |
 | Model error in the response | Re-read `genmedia run <model> --help`, fix the parameter, retry. One retry, then report. |
 | Output file missing/empty after `--download` | The request may have failed — check the JSON output for an error before assuming success. |
-| Higgsfield job stays queued / `429` | The account's concurrency limit (a new account runs 2 jobs at once; more once about US$25 is funded) — submit fewer jobs per wave, keep polling the status URL, and don't resubmit the same job. |
+| Higgsfield job stays queued / `429` | The account's concurrency limit (a new account runs 2 jobs at once; the limit rises as the balance does) — submit fewer jobs per wave, keep polling the status URL, and don't resubmit the same job. |
 | A Higgsfield download has expired | Generated files stay available about 7 days — re-run the job, then pull the file into the studio immediately. |
 
 ## No teardown
