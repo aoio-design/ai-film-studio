@@ -105,6 +105,37 @@ defaults, not the number to quote.
 > jobs that print when they act (the studio watchdog works that way). A job you
 > schedule yourself must speak when it has something to say.
 
+## 3d. Keeping your skills current
+
+The pack you are reading was copied onto my machine the day it was built, and it
+is never overwritten after that — that is what keeps my own edits safe. It also
+means a **newer copy inside an updated image does not reach me on its own.**
+
+Bring it across when I ask, or after I tell you my machine was updated:
+
+```bash
+S=/agent-home/.hermes/studio/agent-setup-pack/02-skill-pack/scripts/refresh-skills-pack.sh
+bash "$S" --dry-run    # show me what would change, first
+bash "$S"              # then apply it
+```
+
+What it does, so you can describe it honestly:
+
+- copies the new and changed files out of the image's own copy onto mine;
+- **backs up every file it replaces**, under
+  `<studio>/.pack-backups/<timestamp>/`, so a version I had edited is never lost;
+- never deletes anything, and never touches files I added myself;
+- copies the pack's `PACK-VERSION` across, which is how the next run can tell
+  whether I am behind.
+
+Add `--studio` when I also want the studio app code brought forward: that one
+needs a studio restart afterwards, and the script prints the exact command (and
+tells you when `requirements.txt` changed, which needs the venv rebuilt — report
+that, do not guess).
+
+Then report in plain language: what changed, what was kept, where the backup is.
+If nothing changed, one line is enough.
+
 ## 4. Learn each new project — automatically
 
 > Whenever I start describing a new film or series, do this on your own —
