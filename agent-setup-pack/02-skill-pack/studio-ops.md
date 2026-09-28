@@ -507,6 +507,29 @@ in order:
    a reply written with `project: null` shows on every page, one with a project
    id shows only on that project's pages. Match the project id.
 
+## Updating the studio and this pack
+
+The studio and this pack are copied onto the machine **once**, at first boot, and
+never overwritten after that — that is what keeps the owner's shots, accounts and
+edits safe. The consequence to remember: a newer copy inside an updated image
+does **not** arrive by itself.
+
+When the owner says their machine was updated, or asks whether their skills are
+current:
+
+```bash
+P=/agent-home/.hermes/studio/agent-setup-pack/02-skill-pack/scripts/refresh-skills-pack.sh
+bash "$P" --dry-run     # what would change — show this first
+bash "$P"               # apply it (every replaced file is backed up)
+bash "$P" --studio      # also the app code; then restart the studio, and rebuild
+                        # the venv if requirements.txt was among the changes
+```
+
+It never deletes anything and never touches files the owner added. Report what
+changed, and where the backup went. The pack's `PACK-VERSION` file records which
+build it came from, which is how the script answers "am I behind?" offline. Full
+rules: `01-agent-onboarding.md` §3d.
+
 ## Troubleshooting
 
 - `502 Bad Gateway` → the app stopped. Check `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:80/` — `302` means fine; no answer means restart with `bash $HERMES_HOME/studio/start.sh`.
