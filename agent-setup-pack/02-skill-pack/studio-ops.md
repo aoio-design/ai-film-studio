@@ -10,8 +10,10 @@ page, saving generated assets into shot folders, reading and acting on feedback.
 
 ## What the studio is
 
-A private web app (Flask) on the VPS, behind an email + password login, that
-displays every shot of a film as a card: image → audio → video prompt → video
+A private web app (Flask) on the VPS that displays every shot of a film as a
+card. It needs no login from the machine itself and sits behind the owner's
+Cloudflare Access gate from other devices, with its own email + password login
+as the fallback when no gate covers it (see *Accounts & logins*): image → audio → video prompt → video
 + feedback. Every project uses `"format": "director"` — that is the only
 layout in use. It also has a **Character Bible & Assets** page where
 characters, locations and props (with voices, references and full character
@@ -39,6 +41,21 @@ choice is remembered per browser.
 | `studio.MY-DOMAIN` | The public address (Cloudflare tunnel) |
 
 ## Accounts & logins (email + password)
+
+**Who gets asked to log in — read this first.** The studio trusts a request in
+exactly two cases: it never left the machine (no `CF-Connecting-IP` header, i.e.
+a browser on the server itself), or Cloudflare Access signed it (a valid
+`Cf-Access-Jwt-Assertion`). Anything else — traffic arriving through the tunnel
+that no gate signed — falls back to the studio's own login below. So:
+
+- the owner working on the server is never asked for a password;
+- on the owner's phone, the **Cloudflare Access** gate is the door once an Access
+  application covers the studio's address — not the studio login;
+- an install with **no** gate in front of the studio address still has the studio
+  login as its only protection: never remove accounts or disable the gate in that
+  case, and never tell the owner the studio is safe to expose;
+- `AOIO_TRUST_LOCAL=0` in `start.sh` turns the "on the machine" case off, if the
+  owner wants the login even there.
 
 The studio keeps its **own** account file, inside the app folder — which is also the
 folder that survives an app update:
