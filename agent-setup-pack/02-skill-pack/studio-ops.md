@@ -11,9 +11,9 @@ page, saving generated assets into shot folders, reading and acting on feedback.
 ## What the studio is
 
 A private web app (Flask) on the VPS that displays every shot of a film as a
-card. It needs no login from the machine itself and sits behind the owner's
-Cloudflare Access gate from other devices, with its own email + password login
-as the fallback when no gate covers it (see *Accounts & logins*): image → audio → video prompt → video
+card. It needs no login from the machine itself; from any other device it is behind
+the owner's Cloudflare Access gate **and** its own email + password login (see
+*Accounts & logins*): image → audio → video prompt → video
 + feedback. Every project uses `"format": "director"` — that is the only
 layout in use. It also has a **Character Bible & Assets** page where
 characters, locations and props (with voices, references and full character
@@ -42,18 +42,19 @@ choice is remembered per browser.
 
 ## Accounts & logins (email + password)
 
-**Who gets asked to log in — read this first.** The studio trusts a request in
-exactly two cases: it never left the machine (no `CF-Connecting-IP` header, i.e.
-a browser on the server itself), or Cloudflare Access signed it (a valid
-`Cf-Access-Jwt-Assertion`). Anything else — traffic arriving through the tunnel
-that no gate signed — falls back to the studio's own login below. So:
+**Who gets asked to log in — read this first.** Exactly one case is trusted: the
+request never left the machine (no `CF-Connecting-IP` header, i.e. a browser on
+the server itself). Anything arriving through the tunnel always meets the
+studio's own login below, whatever gate sits in front of it. So:
 
 - the owner working on the server is never asked for a password;
-- on the owner's phone, the **Cloudflare Access** gate is the door once an Access
-  application covers the studio's address — not the studio login;
-- an install with **no** gate in front of the studio address still has the studio
-  login as its only protection: never remove accounts or disable the gate in that
-  case, and never tell the owner the studio is safe to expose;
+- from the owner's own devices there are **two doors** — the **Cloudflare Access**
+  gate (once an Access application covers the studio's address) and then the
+  studio's own email + password login. Both are expected: the desktop address
+  behaves the same way (the gate, then the machine's own password);
+- an install with **no** gate in front of the studio address has the studio login
+  as its only protection: never remove accounts, and never tell the owner the
+  studio is safe to expose;
 - `AOIO_TRUST_LOCAL=0` in `start.sh` turns the "on the machine" case off, if the
   owner wants the login even there.
 

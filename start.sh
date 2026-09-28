@@ -29,19 +29,12 @@ export STUDIO_PORT=80
 # Use port 8080 instead if port 80 is unavailable on your server.
 
 # Who may use the studio without its own login (see the "Trust" section in app.py):
-#   1. a request that never left this machine - no CF-Connecting-IP header, i.e.
-#      a browser on the server itself; and
-#   2. a request Cloudflare Access signed (a valid Cf-Access-Jwt-Assertion), so
-#      once an Access application covers the studio's address, your own devices
-#      go through that gate and never see the studio's login.
-# Anything else gets the studio's own login, so the studio is never left open to
-# the internet when no gate is in front of it. Set AOIO_TRUST_LOCAL=0 to require
-# the login on this machine too.
+# exactly one case - a request that never left this machine (no CF-Connecting-IP
+# header), i.e. a browser on the server itself. Anything arriving through the
+# tunnel always meets the studio's own login below, so with a Cloudflare Access
+# gate in front of the address your devices pass TWO doors (the gate, then this
+# login), and with no gate the login is still the thing protecting the studio.
+# Set AOIO_TRUST_LOCAL=0 to require the login on this machine too.
 export AOIO_TRUST_LOCAL=1
-
-# Optional, tighter: pin the audience tag of the Access application protecting
-# the studio's address (Zero Trust -> Access controls -> Applications -> the app
-# -> Overview -> Application Audience (AUD)). Unset = signature + issuer + expiry.
-#export AOIO_ACCESS_AUD=
 .venv/bin/python app.py > studio.log 2>&1 &
 echo "Studio started"

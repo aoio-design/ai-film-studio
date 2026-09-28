@@ -11,7 +11,7 @@ Rows per shot:
 
 Auth: email + password (AOIO account store) via session cookie.
 """
-import json, os, re, sys, uuid, shutil, secrets, time, hmac, base64, hashlib, urllib.request
+import json, os, re, sys, uuid, shutil, secrets, time, hmac
 from pathlib import Path
 from datetime import datetime, timezone
 from functools import wraps
@@ -110,107 +110,30 @@ SHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # --- Auth ---
 # Trust: who may use the studio without its own login.
-# Two cases, and nothing else:
-#   1. the request never left this machine - no CF-Connecting-IP, i.e. the
-#      desktop's own browser or a script on the box. Cloudflare always sets that
-#      header, so a request through the tunnel can never look local; and
-#   2. Cloudflare Access signed it - a valid Cf-Access-Jwt-Assertion.
-# Anything else (tunnel traffic that Access did not sign) still gets the studio's
-# own login, so an install whose owner never put a gate in front of the studio
-# address is never left open by accident.
+# Exactly one case: the request never left this machine - no CF-Connecting-IP
+# header, i.e. the desktop's own browser or a script on the box. Cloudflare
+# always sets that header, so a request through the tunnel can never look local
+# and always meets the studio's login below, whatever gate Cloudflare puts in
+# front of it (the tunnel's gate and this login are two separate doors).
+# Set AOIO_TRUST_LOCAL=0 to require the login on this machine too.
 TRUST_LOCAL = os.environ.get("AOIO_TRUST_LOCAL", "1") == "1"
-ACCESS_AUD = os.environ.get("AOIO_ACCESS_AUD", "").strip()
-ACCESS_CERTS_URL = os.environ.get("AOIO_ACCESS_CERTS_URL", "").strip()   # tests / self-hosted
-TEAM_SUFFIX = ".cloudflareaccess.com"
-SHA256_DER = bytes.fromhex("3031300d060960864801650304020105000420")
-_jwks = {"keys": [], "at": 0.0}
 
 
-def _b64d(seg):
-    return base64.urlsafe_b64decode(seg + "=" * (-len(seg) % 4))
-
-
-def _rs256_ok(jwk, signing_input, sig):
-    """RSASSA-PKCS1-v1_5 with SHA-256, in plain integer arithmetic: verification
-    only, no secret, no extra dependency to install on a buyer's machine."""
-    n = int.from_bytes(_b64d(jwk["n"]), "big")
-    e = int.from_bytes(_b64d(jwk["e"]), "big")
-    k = (n.bit_length() + 7) // 8
-    if len(sig) != k:
-        return False
-    m = pow(int.from_bytes(sig, "big"), e, n).to_bytes(k, "big")
-    digest = hashlib.sha256(signing_input).digest()
-    pad = k - 3 - len(SHA256_DER) - len(digest)
-    if pad < 8:
-        return False
-    return hmac.compare_digest(m, b"\x00\x01" + b"\xff" * pad + b"\x00" + SHA256_DER + digest)
-
-
-def _jwks_for(iss, kid):
-    """Cloudflare's signing keys for this team, cached for an hour."""
-    url = ACCESS_CERTS_URL or iss.rstrip("/") + "/cdn-cgi/access/certs"
-    now = time.time()
-    if now - _jwks["at"] > 3600 or not any(k.get("kid") == kid for k in _jwks["keys"]):
-        with urllib.request.urlopen(url, timeout=5) as r:
-            _jwks["keys"] = (json.loads(r.read().decode()) or {}).get("keys", [])
-            _jwks["at"] = now
-    return _jwks["keys"]
-
-
-def access_email():
-    """The Cloudflare Access email on this request, or None when there is no
-    valid assertion. Signature, issuer, expiry and (when AOIO_ACCESS_AUD is set)
-    audience are all verified; anything unverifiable returns None."""
-    tok = request.headers.get("Cf-Access-Jwt-Assertion", "")
-    if tok.count(".") != 2:
-        return None
-    try:
-        h, p, s = tok.split(".")
-        head, claims = json.loads(_b64d(h)), json.loads(_b64d(p))
-        if head.get("alg") != "RS256":
-            return None
-        iss = (claims.get("iss") or "").rstrip("/")
-        if not iss.endswith(TEAM_SUFFIX):      # never fetch keys from anywhere else
-            return None
-        if float(claims.get("exp", 0)) < time.time():
-            return None
-        if ACCESS_AUD:
-            aud = claims.get("aud")
-            aud = aud if isinstance(aud, list) else [aud]
-            if ACCESS_AUD not in aud:
-                return None
-        kid = head.get("kid")
-        keys = _jwks_for(iss, kid)
-        jwk = next((k for k in keys if k.get("kid") == kid), None)
-        if not jwk or not _rs256_ok(jwk, ("%s.%s" % (h, p)).encode(), _b64d(s)):
-            return None
-        return (claims.get("email") or "").strip().lower() or None
-    except Exception:
-        return None
-
-
-def trusted_identity():
-    """(email, how) when this request is already authenticated, else (None, None)."""
-    email = access_email()
-    if email:
-        return email, "Cloudflare Access"
-    if TRUST_LOCAL and not request.headers.get("CF-Connecting-IP"):
-        return "local", "this machine"
-    return None, None
+def trusted_local():
+    return TRUST_LOCAL and not request.headers.get("CF-Connecting-IP")
 
 
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if not session.get("logged_in"):
-            email, how = trusted_identity()
-            if not email:
+            if trusted_local():
+                session["logged_in"] = True
+                session["email"] = "local"
+                session["name"] = "This machine"
+                session["role"] = "owner"
+            else:
                 return redirect(url_for("login_page"))
-            session["logged_in"] = True
-            session["email"] = email
-            session["name"] = email if how == "Cloudflare Access" else "This machine"
-            session["role"] = "owner"
-            session["trusted_by"] = how
         return f(*args, **kwargs)
     return decorated
 
