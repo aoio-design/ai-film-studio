@@ -230,11 +230,16 @@ Script the end to feed back into the beginning. No "thanks for watching" — bre
 
 ### Production Workflow That Works (Under $200)
 
+*Context, not instruction: this is how **other** solo creators have done it, with
+**their** tools. Your own stage-by-stage rates, the model lanes you actually use
+and how to read your bill live in `fal-ai-ops` and `ai-film-cost-benchmarking` —
+never plan a batch off this table.*
+
 | Stage | Tool | Cost |
 |-------|------|------|
 | Script & shot list | AI-assisted | ~$15 |
 | Visual bible / style frames | Imagen 3 / Midjourney | ~$20 |
-| Video generation | Hailuo, Kling, Runway, Wan 2.2 | ~$80 |
+| Video generation | Hailuo, Kling, Runway | ~$80 |
 | Music | Suno Pro | ~$15 |
 | Voiceover | ElevenLabs | ~$10 |
 | Editing | DaVinci Resolve (free) | $0 |

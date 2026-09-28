@@ -12,7 +12,7 @@ binding is living data** ("which model" changes — and appends instead of overr
 
 | Stage | Deliverable | Layout convention / method | Downstream dependency |
 |---|---|---|---|
-| **Reference images** | character sheets / set stills / prop sheets | char **3-panel** (face close-up ‖ front/back, ONE-face rule) · loc **4-panel** 2×2 · prop 2-view | consistency for the video model |
+| **Reference images** | character sheets / set stills / prop sheets | char **3-panel** (face close-up ‖ front/back, ONE-face rule) · loc **4-panel** 2×2 · prop **4-panel** grid | consistency for the video model |
 | **Keyframe** (first-frame edit) | one frozen frame per shot — opening+closing **if the video binding demands a pair** | single opening frame, mouth closed/neutral on dialogue shots | **AR inherited from the VIDEO binding** |
 | **Video clip** | clip with dialogue + sound | motion + dialogue-in-quotes, one speaker ≤5s, soundscape stated; clip length follows the chosen LANE — premium 4–30s, budget 5–15s (5-second minimum) | master |
 | **Master** | 4K (or 1080p social) upscale | aigc preset | output |

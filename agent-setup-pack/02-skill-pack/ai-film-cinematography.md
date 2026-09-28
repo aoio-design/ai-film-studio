@@ -53,7 +53,7 @@ It produces the most photorealistic faces at **MCU to MS** range. Extreme closeu
 
 ## Camera Movement (For Video Prompts)
 
-Camera movement in AI video models is controlled via **prompt description**, not physical camera rigging. Different models handle this differently:
+Camera movement in AI video models is controlled via **prompt description**, not physical camera rigging. Different models handle this differently *(reference survey — the two lanes you actually generate on, and their camera behaviour, are in `fal-ai-ops`)*:
 
 | Model | Camera Control Method | Reliability |
 |-------|----------------------|-------------|

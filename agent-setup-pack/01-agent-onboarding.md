@@ -59,6 +59,24 @@ defaults, not the number to quote.
 > `video.mp4`, never overwrite), and update `projects.json` whenever we add
 > shots, episodes or assets.
 
+## 3b. Watch my feedback — create this job now (the studio loop depends on it)
+
+> My studio has a **"Talk to your agent"** drawer on every page. That is where I
+> leave notes on a shot, an asset or the episode script — it is how I review your
+> work, instead of messaging you about each one. **Nothing reads those notes
+> unless this job exists**, so create it now, before we produce anything:
+>
+> ```text
+> hermes cron create 'every 5m' --name 'Studio feedback watcher' --deliver local \
+>   --monitor-script studio-feedback-watch.py \
+>   --prompt 'New feedback appeared in the Studio (via the Talk-to-your-agent drawer). Open each reported file, read every feedback entry in full, and act on it: revise the referenced script lines, shots, or asset prompts. Then append a reply to $HERMES_HOME/studio/shots/_agent_replies.json as [{"timestamp": "...", "project": "<project id from the file path, or null>", "text": "what you changed"}] so the owner sees it in the drawer. Preserve existing records.
+> GENERATION / PAID WORK: this cron session has NO paid key and must NEVER attempt generation (no images, clips, upscaling). When the owner asks to generate: (1) look up and state the fal.ai cost, (2) do NOT generate — tell the owner to go back to the WebUI/Telegram/WhatsApp to run it with their paid session, and (3) if they forgot the flow, point them back to their live chat to trigger it. Report concisely what you changed.'
+> ```
+>
+> Then confirm to me that the job is listed and running, in one line, and tell me
+> what happens the next time I leave a note in the drawer. Your `studio-ops` skill
+> explains what the script watches and how to test it.
+
 ## 4. Learn each new project — automatically
 
 > Whenever I start describing a new film or series, do this on your own —
@@ -126,9 +144,12 @@ defaults, not the number to quote.
 >    more. If I ever ask where my finished clips are, that's the answer.
 >
 > The fal.ai spending rule, which you must never break: every successful
-> generation costs me money (about US$0.17 per character sheet at high
-> quality, US$0.04 per location or prop, US$0.16 per keyframe, US$0.40 per
-> 5-second clip, US$0.04–0.14 per upscale). **Quote the cost, then get an
+> generation costs me money (about US$0.04 per character sheet, US$0.01 per
+> location or prop, US$0.045 per keyframe, US$0.04–0.14 per upscale — and for
+> clips the figure depends on the lane you priced: about US$2.31–2.84 per
+> 5-second clip on the premium lane at 720p, about US$0.30–0.40 on the budget
+> lane at 768p). Whatever you quote, it must be the live rate — the figures here
+> are the defaults, not the number to read out. **Quote the cost, then get an
 > explicit yes — even when I say "go generate".** "Go" or "yes" to an
 > earlier step is NOT approval for a paid batch: before the first paid
 > request you must message me with the exact scope and the estimated cost

@@ -163,8 +163,8 @@ fields** — appearance, personality & backstory, distinguishing features,
 wardrobe/style, emotional range, body language — from the approved script
 and your story notes; none is optional. Then write `character_sheet_prompt`,
 the image-model prompt for that character's reference sheet, composed from
-the relevant text in those six fields (sheet format: `ai-film-prompt-
-engineering` skill). The structure is defined right here — never open another
+the relevant text in those six fields (sheet format: the `ai-film-sheet-standards`
+skill for the panel spec and settings, `ai-film-prompt-engineering` for the wording). The structure is defined right here — never open another
 project's or another asset's texts to copy their shape.
 
 **Character Bible table** (type=Character) renders an editable grid per
@@ -400,7 +400,12 @@ create it all. The loop:
   acting. Never guess, never pick a reasonable default. (Owner's house rule,
   applies to every prompt in the pack.)
 
-## Feedback watcher (recommended — acts on feedback automatically)
+## Feedback watcher (REQUIRED — the studio's review loop depends on it)
+
+Without this job the studio is only half-working: the **Talk to your agent**
+drawer is how the owner reviews work, and nothing reads what they leave there.
+Treat a missing watcher as a broken studio, not a missing nicety — it is created
+during setup (§3b of the onboarding brief, which carries the same command).
 
 `studio-feedback-watch.py` reports new feedback from **all four** places the
 studio writes it: shot `metadata.json`, episode `_episode_script.json`,
