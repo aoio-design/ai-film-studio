@@ -1,24 +1,27 @@
 #!/bin/bash
-# Weekly Hermes Agent update check — SILENT when nothing new; prints a reminder
-# (with the Hostinger UI steps) only when a newer build exists.
-# Wire it up: hermes cron create '0 1 * * 1' --name 'Hermes update check' --no-agent --script hermes-update-check.sh
+# Weekly Hermes Agent update check — SILENT when there is nothing new; prints a short
+# reminder, and how to run the update from the app, only when a newer build exists.
+#
+# The check is the agent's own: `hermes update --check` compares what is installed against
+# the branch it updates from. Do NOT compare against a container registry — this machine
+# installs the agent from source, so a registry tag is a different channel and would report
+# the wrong answer.
+#
+# Wire it up on the machine's own schedule, /config/crontabs/abc:
+#   0 9 * * 1 HERMES_HOME=/agent-home/.hermes HOME=/config PATH=/config/.local/bin:/usr/local/bin:/usr/bin:/bin /config/cron-notify.sh "Update check" /agent-home/.hermes/studio/scripts/hermes-update-check.sh
 
-INSTALLED=$(hermes --version 2>/dev/null | grep -oE '[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]+)?' | head -1)
-[ -z "$INSTALLED" ] && exit 0
+OUT=$(hermes update --check 2>&1)
 
-LATEST=$(curl -s --max-time 20 "https://hub.docker.com/v2/repositories/nousresearch/hermes-agent/tags?page_size=25&ordering=last_updated" \
-  | grep -oE '"name":"v20[0-9]{2}\.[0-9]+\.[0-9]+(\.[0-9]+)?"' \
-  | head -1 | grep -oE '20[0-9]{2}\.[0-9]+\.[0-9]+(\.[0-9]+)?')
-[ -z "$LATEST" ] && exit 0
-
-norm() { echo "$1" | awk -F. '{for(i=1;i<=NF;i++) printf "%04d", $i}'; }
-
-if [ "$(norm "$LATEST")" \> "$(norm "$INSTALLED")" ]; then
-  echo "🆕 A new Hermes Agent version is available: $LATEST (you are on $INSTALLED)."
-  echo ""
-  echo "Update it in Hostinger (no terminal needed):"
-  echo "  hpanel.hostinger.com → VPS → Docker Manager → Applications →"
-  echo "  hermes-agent → ⋮ (three-dots icon) → Update."
-  echo ""
-  echo "Chats, memory and settings survive the update (they live outside the app container)."
-fi
+case "$OUT" in
+  *"Update available"*)
+    echo "🆕 A newer version of your Hermes Agent is available."
+    echo ""
+    echo "Update it from inside your cloud computer — no terminal needed:"
+    echo "  open the Hermes Agent app → Settings → About → Updates →"
+    echo "  click Check now, then click Update now."
+    echo "  An update can take about 10 minutes or more, and the app comes back by itself."
+    echo ""
+    echo "Your chats, memory, skills and studio all survive the update."
+    ;;
+esac
+exit 0
