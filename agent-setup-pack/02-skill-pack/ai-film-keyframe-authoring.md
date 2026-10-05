@@ -76,6 +76,11 @@ from ("the woman from reference 2", "the setting from reference 3").
 4. **The same references everywhere = the same face everywhere.** Never
    describe the character's face from scratch in a keyframe prompt — always
    anchor it to the approved sheet.
+5. **Never generate a frame with no subject** — a pure black frame, or any beat
+   written as "nothing lit". A blank frame is editorial: make it in post. An
+   image model has nothing to render, so it returns noise or invents a texture,
+   and you are billed for it either way. Keep the beat in the plan as an
+   editorial mark, and leave that shot out of the generation batch.
 
 ## Camera language (usable in any image or video prompt)
 
