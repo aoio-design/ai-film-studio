@@ -357,8 +357,9 @@ create it all. The loop:
       fal.ai sells it). State the trade-off in one line, **ask ONCE for the whole batch**
       and remember the choice for the project — never re-ask per clip. List prices
       only: quote the live model page, never a promo rate. Then wait for the explicit
-      yes and generate one clip per shot from its approved frame, one speaker per clip,
-      in the chosen lane's own prompt format (the video model speaks the dialogue).
+      yes and generate one clip per shot from its approved frame, in the chosen lane's
+      own prompt format (the video model speaks the dialogue; a clip may carry one
+      speaker or two).
       Across a 70-second film the two lanes are ~7–9× apart (~US$32–40 vs ~US$4–6) —
       the biggest single cost decision in the production.
 5. **Media review.** The owner approves a take by clicking its **★** on the

@@ -2,12 +2,12 @@
 """Audit a markdown-Hybrid script draft before it goes to the words-gate.
 
 Run this INSTEAD of adding shot durations up by hand. It reports the numbers the
-budget depends on, and enforces the one rule that silently breaks a shoot:
+budget depends on:
 
   * shot count and runtime per episode, plus the season total
   * a generation + master cost range
-  * ONE SPEAKER PER CLIP -- any shot block naming two speakers cannot be
-    generated as written (the video model syncs one mouth to one voice per clip)
+  * how many clips carry dialogue (one speaker per block is no longer required --
+    the one-speaker-per-clip rule was retired Oct 2026)
 
 Usage
 -----
@@ -108,13 +108,9 @@ def main(argv=None):
         bucket["shots"] += 1
         bucket["sec"] += dur
 
-        spk = speakers_in(body)
-        if len(spk) > 1:
-            issues.append(
-                "%s: %d speakers in one clip (%s) -- a dialogue exchange must be "
-                "written as reverse-shot, two shots" % (label, len(spk), ", ".join(spk))
-            )
-        elif spk:
+        # Two speakers in one block are allowed (the one-speaker-per-clip rule was
+        # retired Oct 2026); the scan only counts how many clips carry dialogue.
+        if speakers_in(body):
             bucket["talk"] += 1
 
         if dur < 4:
@@ -182,7 +178,7 @@ def main(argv=None):
             print("  - %s" % i)
         return 1
 
-    print("\nClean: one speaker per clip, all durations in range.")
+    print("\nClean: every shot inside its lane floor and ceiling.")
     return 0
 
 

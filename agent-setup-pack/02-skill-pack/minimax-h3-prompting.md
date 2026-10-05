@@ -154,8 +154,9 @@ The man (S1) says in an off-screen voiceover: <d>[English] I still remember that
   in **both** parts and say the audio continues across the cut (`continues
   seamlessly across the cut`, `carries over from the previous shot`, `remains
   audible across the transition`). Speech cut off by the end of the clip: `<cutoff>`.
-- **One speaker per clip** keeps the spoken timeline clean — split an exchange
-  into shot/reverse-shot clips.
+- **A clip may carry one speaker or two** — the one-speaker rule was retired in
+  Oct 2026. H3 documents nothing about separating two voices, so A/B the first
+  two-hander rather than defaulting to it.
 
 ### 6. On-screen text
 
@@ -374,8 +375,9 @@ rule and the verification steps).
 7. `detailed_description` stays 350–500 words; it is the shot, not a summary.
 8. Invent no new labels in `summary`, and write no `(Sx)` in
    `retention_analysis`.
-9. One speaker per clip, and one prompt convention per batch — the premium
-   lane's `@Image1` handles never appear here.
+9. Two speakers per clip are allowed (the one-speaker rule was retired in Oct
+   2026), and one prompt convention per batch — the premium lane's `@Image1`
+   handles never appear here.
 10. Nothing generates before the lane is chosen and the live price is quoted.
 
 ## Sources

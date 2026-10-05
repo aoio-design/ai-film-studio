@@ -159,9 +159,11 @@ Slow push-in over her shoulder. DANA says: "It's everything. The whole
 ledger." — tired, flat, quiet. Quiet cafe ambience, distant city traffic.
 ```
 
-**One speaker per clip, lines ≤ 5 seconds.** Two voices in one clip = muddy
-mouths. Break dialogue into shot/reverse-shot close-ups. A multi-speaker clip
-is a legitimate experiment on this model, never the default.
+**Two speakers per clip are allowed, and there is no per-line length cap.** The
+one-speaker-per-clip / "lines ≤ 5 seconds" rule was retired in Oct 2026. Write the
+scene as it plays and let the clip's duration carry the line. The untested part is
+voice separation: the model advertises multi-character voice retention, so A/B the
+first two-hander and review the voices closely before building on it.
 
 **Soundscape:** always state the audio environment, even for "silent" scenes.
 Ambience, effects and lip-synced speech come back with the clip at no extra
@@ -183,7 +185,7 @@ look broken.
 
 ## The eight key rules (print these)
 
-1. One speaker per clip, dialogue ≤ 5 seconds
+1. Two speakers per clip are allowed and lines have no length cap (one-speaker rule retired Oct 2026; two-voice separation is untested — A/B it)
 2. The keyframe sets the scene; the prompt owns motion, time and dialogue
 3. Dialogue in quotes with a delivery tone
 4. Generate at 720p (480p for drafts), upscale later

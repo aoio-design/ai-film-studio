@@ -160,10 +160,12 @@ each, one keyframe each, one clip each. The working convention:
 - **Three sizes per scene that has a turn.** A/wide, B/medium, C/close is the minimum
   shape that gives you something to cut. A scene with only one camera position has no
   edit, no rhythm, and no reaction.
-- **Dialogue is reverse-shot, one speaker per clip.** The video model syncs one mouth to
-  one voice per clip, so an exchange is written as pairs of shots (a single on A, then a
-  single on B from the opposite side of the axis), each with its own keyframe. Lines stay
-  short. Never plan a shot that names two speakers — it cannot be generated as written.
+- **Dialogue is written for the shot that carries it.** One clip may hold one speaker or
+  two, and a line may run the length of the clip (5–15s on the budget lane, 4–30s on the
+  premium lane) — the one-speaker-per-clip and "no line over 5 seconds" rules were retired in
+  Oct 2026. The reverse-shot pair stays the default shape of an exchange (a single on A, then
+  a single on B from the opposite side of the axis), each with its own keyframe, but a
+  two-hander is allowed whenever the scene wants both faces in frame.
 - **The master + singles pattern.** Generate one generous wide that holds the whole beat
   (a safety and an establishing shot you can cut back to), then singles for the
   performance. The wide is your insurance if a single comes back unusable.
@@ -379,7 +381,7 @@ Cheap, and it prevents the expensive kind of rework:
 3. The scene has at least three sizes (wide / medium / close) and, if it's about objects,
    a cutaway or two.
 4. The axis is chosen and the eyelines oppose across the dialogue pairs.
-5. One speaker per clip on every shot; no line over ~5 seconds.
+5. Dialogue fits the clip that carries it: no word cap, no 5-second limit, and a clip may carry two speakers.
 6. Each shot changes exactly one thing from its keyframe to its last frame.
 7. Palette, light logic and lens feel are stated per scene and held across its shots.
 8. Every shot's action sits in the middle of its length, with usable head and tail either

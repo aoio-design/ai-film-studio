@@ -220,7 +220,7 @@ profiles:
     prompt_dialect: "H3 six-section block (subject_definitions / summary / retention_analysis /
       detailed_description / overall_soundscape / non_diegetic_music). See minimax-h3-prompting."
     quality_dialect: "dialogue INSIDE quotes in the prompt with a delivery tone (model speaks + lip-syncs);
-      one speaker per clip, lines <= 5s; soundscape stated explicitly; motion-only complement to the keyframe."
+      two speakers allowed, no line-length cap (one-speaker rule retired Oct 2026); soundscape stated explicitly; motion-only complement to the keyframe."
     dims: "768P canvas = 1344x768 @ 24 fps; AR follows fed frame — feed the 1920x1080 keyframe as-is"
     frame_pair: false
     source_of_truth: ["https://fal.ai/models/minimax/h3-max", "https://platform.minimaxi.com"]
@@ -278,7 +278,7 @@ profiles:
     lane: budget
     cost: "US$0.08/s @ 768P (~US$0.40 per 5s) list - re-quote live before a batch; no promo or discounted rate may be quoted or stored. References: the first 5 reference images are FREE, then about US$0.02 per 2048px image on this tier (fal's own token table: 4,096 free, then $0.02/1K tokens)"
     prompt_dialect: "fal labels by LIST ORDER — Image 1, Image 2, ..., Audio 1, ... (the model's IR maps them to H3's native <Picture N>/<Audio N>). Dense six-section-style body remains the strongest input; give every reference an explicit job; dialogue written in quotes with the delivery tone and 'matching Audio N's voice' at the line"
-    quality_dialect: "voice CLONED from the Audio ref, not synthesized — this is the cross-shot voice-consistency mechanism; one speaker per clip, lines <= 5s; lip-sync from the dialogue text"
+    quality_dialect: "voice CLONED from the Audio ref, not synthesized — this is the cross-shot voice-consistency mechanism; two speakers allowed, no line-length cap (one-speaker rule retired Oct 2026); lip-sync from the dialogue text"
     accepts_refs: true    # <=9 images + <=3 audio (2-15s each, <=15s combined) + <=3 video; <=12 files total; audio never alone
     ref_budget: "the first 5 reference images are FREE on this tier; beyond those, about US$0.02 per 2048px image (fal's older published allowance: 4,096 tokens free, then $0.02/1K; image = w*h/1024 tok; audio ~80 tok/s; video refs ~7,459 tok/s @ 768p — AVOID, ~$0.66 per 5s clip ref). Practical set: keyframe (~2,025) + 1 char sheet (~1,536) + 7s voice (~560) stays inside the free allowance, so no overage; NO location-sheet ref at the clip stage (the keyframe carries the setting)"
     dims: "768P canvas 1344x768 @ 24 fps; AR is a PROJECT setting — pass --aspect_ratio explicitly (16:9 default; 9:16 vertical-shorts), never rely on 'adaptive'; keyframe rendered at the project AR as Image 1"
@@ -310,7 +310,7 @@ profiles:
       @handles; dialogue in quotes with a delivery tone and the speaker's Audio N named at
       the line"
     quality_dialect: "voice CLONED from the Audio ref (the cross-shot voice-consistency
-      mechanism); one speaker per clip, lines <= 5s; soundscape stated explicitly"
+      mechanism); two speakers allowed, no line-length cap (one-speaker rule retired Oct 2026); soundscape stated explicitly"
     accepts_refs: true    # H3 family limits: <=9 images + <=3 audio (2-15s each) + <=3 video
     dims: "768P canvas 1344x768 @ 24 fps; AR is a PROJECT setting — pass --aspect_ratio
       explicitly (16:9 default; 9:16 vertical-shorts), never 'adaptive'"
@@ -348,8 +348,9 @@ profiles:
       (0-2.5s ..., 2.5-5s ...) with consecutive, non-overlapping ranges — a timestamp allocates
       an event its share of the running time, it is not a frame-accurate cut."
     quality_dialect: "generate_audio is on by default: native ambience, effects and lip-synced
-      speech at no extra cost. ONE speaker per clip remains the safe default for clean lip-sync;
-      a multi-speaker clip is a legitimate experiment on this model, not a default."
+      speech at no extra cost. Two speakers per clip are allowed (the one-speaker rule was
+      retired Oct 2026); voice separation inside one clip is the untested part, so A/B the
+      first two-hander rather than defaulting to it."
     dims: "clip resolution 480p/720p/1080p (default 720p) — the KEYFRAME still follows the
       project AR (2048x1152 16:9 / 1152x2048 9:16)"
     frame_pair: false            # single first frame, fed as @Image1

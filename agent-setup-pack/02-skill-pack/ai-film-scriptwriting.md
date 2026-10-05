@@ -177,7 +177,7 @@ Are you sure it's the right one?
 1. **Dialogue must sound natural when spoken aloud** — short sentences, avoid homophones, spell out numbers ("twenty-four" not "24")
 2. **Scene descriptions are ALSO image prompts** — each description must be visual enough to feed directly into the image model (GPT Image 2.5 Sunburst)
 3. **Camera direction is mandatory per scene** — the video model needs to know what kind of camera movement to generate
-4. **Keep dialogue minimal in action-heavy scenes** — the model lip-syncs one speaker per clip, so dialogue works best in static close-ups, or as voiceover over scenes where the character is not speaking on-screen
+4. **Write dialogue for the shot, not for a word count** — naturalistic delivery runs ~3-4 words/sec, so delivery speed is what decides how long a shot needs to be, not a cap on the line. A full speech can run the length of one clip, and a clip may carry two speakers.
 
 ## 5-Beat Structure for Micro-Dramas
 
@@ -195,17 +195,16 @@ Since dialogue is spoken by the video model itself (Seedance 2.5 — the line
 goes in quotes inside the clip's video prompt, with a delivery tone):
 
 **DO:**
-- Short sentences (15 words or fewer per line)
+- Write the line the scene needs — there is no per-line word cap; a character may hold the floor for as long as the shot runs
 - Contractions → "I'm" not "I am", "can't" not "cannot"
 - Spell out numbers → "thirty seven" not "37"
 - Use phonetic spelling for unusual names → "Ky-ra" for Kyra
 - Add parentheticals for tone → (whispering), (sarcastic), (urgent)
 
 **DON'T:**
-- Avoid long monologues (>30 words without a break)
 - Avoid dense dialect or heavy accents (the model will mangle them)
 - Avoid puns that require visual timing (the model can't pause comedically)
-- Avoid characters talking over each other (one speaker per clip)
+- Avoid two characters talking over each other inside one line (one voice per line)
 
 ## Character Archetype System (Shorthand)
 

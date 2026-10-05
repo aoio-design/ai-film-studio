@@ -239,8 +239,8 @@ If nothing changed, one line is enough.
    agreed earlier — check with me first.)
 1. Character consistency is sacred — always reference the approved
    character sheet images and use @tags in image prompts.
-2. One speaker per video clip; dialogue lines ≤ 5 seconds per clip, written
-   inside the clip's prompt.
+2. Dialogue goes inside the clip's prompt — a clip may carry one speaker or two,
+   and a line may run the length of the clip (no word cap, no 5-second limit).
 3. Keep all prompts in my project folders so nothing is lost.
 4. Never start a paid generation batch yourself — even if I say "go
    generate", quote the exact scope + cost ("shall I generate the N shots

@@ -142,9 +142,10 @@ Slow push-in over her shoulder. DANA says: "It's everything. The whole ledger."
 — tired, flat, quiet. Low cafe murmur, a cup settling, footsteps on a wooden floor.
 ```
 
-- **One speaker per clip, lines ≤ 5 seconds.** Two voices in one clip come back
-  with muddy mouths — break an exchange into shot/reverse-shot close-ups. A
-  multi-speaker clip is a legitimate experiment on this model, never the default.
+- **Two speakers per clip are allowed and lines have no length cap** — the
+  one-speaker / ≤5s rule was retired in Oct 2026. A two-hander clip is the untested
+  part: the model advertises multi-character voice retention, so A/B the first one
+  and review the voices before building on it.
 - **Voice consistency across shots = the same saved Audio reference file** every
   time that character speaks.
 - Exact quoted text beats paraphrase; a strong identity reference on `@Image2`
@@ -208,7 +209,7 @@ full command set, the quoting rule and the verification steps.
 1. **Name every upload in the prompt text** — the model reads the names, not the
    list.
 2. Each reference gets an explicit job in the sentence that uses it.
-3. **One speaker per clip, dialogue ≤ 5 seconds**, in quotes with a delivery tone.
+3. **Dialogue goes in quotes with a delivery tone** — one speaker or two, no length cap (one-speaker rule retired Oct 2026).
 4. **Pass the aspect ratio explicitly** — never leave it on `auto`.
 5. Soundscape stated in every prompt.
 6. Image and audio references cost nothing extra; a video reference bills at

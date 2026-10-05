@@ -70,8 +70,7 @@ owner in their video editor.
 - **Run the shot auditor before you hand a script back — don't add durations up by hand.**
   `scripts/audit_shots.py` (shipped in this pack) reads a shot-plan markdown and reports what the
   budget depends on: shot count, runtime per episode, the season total, and a generation + master
-  cost range. It also enforces the two rules that silently break a shoot — **one speaker per clip**
-  (a shot block naming two speakers cannot be generated as written) and the **shot floor** (under
+  cost range, and how many clips carry dialogue. It also enforces the **shot floor** (under
   4 seconds cannot be generated; 4 seconds is available on the higher-quality model only, because
   the lower-cost model's floor is 5 seconds). Exit code 1 means something was flagged, so it can
   gate the hand-off. Usage: `python3 scripts/audit_shots.py path/to/script.md`
@@ -150,10 +149,12 @@ owner in their video editor.
   on that lane — plan 5–6s or put the beat on the premium lane. Never plan a clip
   shorter than the chosen lane's floor, and don't stretch a beat to fill a
   longer one.
-- **One speaker per clip, lines ≤ 5 seconds.** The model syncs one mouth to
-  one voice per clip. Break dialogue into shot/reverse-shot close-ups. A
-  multi-speaker clip is a legitimate experiment on this model, never the
-  default.
+- **Two speakers per clip are allowed, and there is no per-line length cap.**
+  The one-speaker-per-clip / "lines ≤ 5 seconds" rule was retired in Oct 2026 — it
+  was flattening the dialogue. Write the scene the way it plays and let the clip's
+  duration carry the line (5–15s on the budget lane, 4–30s on the premium lane).
+  What is untested is voice separation inside one clip: A/B the first two-hander and
+  review the voices before building an episode on it.
 - **Consistency comes from reference images.** Anchor every shot with the
   same character sheet, named honestly in the prompt text (@Image1, @Image2…) —
   the model has no memory between clips.
