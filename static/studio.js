@@ -351,10 +351,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
-/* ---------- Media strips: approve / unapprove (star toggle) ----------
-   Yellow star = approved (the stored pick). Clicking the approved file
-   unapproves it — zero approvals is a valid state. Freshly uploaded media
-   starts unapproved; the preview box / player fall back to the newest file. */
+/* ---------- Media strips: select (view) vs approve (star) ----------
+   Clicking a thumbnail SELECTS it: it swaps the preview box and highlights,
+   nothing more — it must never write an approval. Only the ★ writes the
+   stored pick (metadata primary_image / primary_video), and clicking the ★ of
+   the already-approved file clears it (zero approvals is a valid state).
+   Freshly uploaded media starts unapproved; the preview box / player fall
+   back to the newest file. */
 function _stripStars(strip, chosenEl, approved) {
   if (!strip) return;
   strip.querySelectorAll('.thumb').forEach(function (t) {
@@ -368,33 +371,79 @@ function _stripStars(strip, chosenEl, approved) {
     if (star) { star.classList.add('on'); star.title = '✓ Approved — click to unapprove'; }
   }
 }
+function _markShotSel(strip, el) {
+  if (!strip) return;
+  strip.querySelectorAll('.thumb').forEach(function (t) { t.classList.remove('sel'); });
+  if (el) el.classList.add('sel');
+}
+function _shotFallbackUrl(main) {
+  if (!main) return '';
+  /* Both the wrapper and the inner element can lose this when the preview is
+     rebuilt, so cache it on the wrapper the first time it is read. */
+  if (!main.dataset.fallback) {
+    var m = main.querySelector('[data-fallback]');
+    if (m) main.dataset.fallback = m.dataset.fallback || '';
+  }
+  return main.dataset.fallback || '';
+}
+function _showShotMedia(project, shot, kind, url) {
+  var main = document.getElementById('media-' + kind + '-' + shot);
+  if (!main || !url) return;
+  var fbUrl = _shotFallbackUrl(main);
+  if (kind === 'image') {
+    main.innerHTML = '<img src="' + url + '" data-fallback="' + fbUrl +
+      '" onclick="openLightbox(this.src)" alt="' + shot + ' image">';
+  } else {
+    main.innerHTML = '<video controls playsinline preload="metadata" data-fallback="' + fbUrl +
+      '" src="' + url + '"></video>';
+    if (window.onShotVideoReplaced) window.onShotVideoReplaced(shot, url);
+  }
+}
+/* Thumbnail click — VIEW only: no POST, no star change, no feedback line. */
 function selectShotMedia(project, shot, kind, filename, el) {
+  var strip = document.getElementById('strip-' + kind + '-' + shot);
+  _markShotSel(strip, el);
+  _showShotMedia(project, shot, kind,
+    '/p/' + project + '/' + shot + '/file/' + encodeURIComponent(filename));
+}
+/* Star click — APPROVE / UNAPPROVE: the only writer on a shot card. */
+function approveShotMedia(project, shot, kind, filename, el) {
   var field = (kind === 'image') ? 'primary_image' : 'primary_video';
   var strip = document.getElementById('strip-' + kind + '-' + shot);
-  var cur = strip ? strip.querySelector('.thumb.sel') : null;
-  var curFile = cur ? (cur.dataset.file || '') : '';
-  var unapprove = (curFile === filename);
+  var on = strip ? strip.querySelector('.thumb .star.on') : null;
+  var approvedFile = on ? ((on.parentElement && on.parentElement.dataset.file) || '') : '';
+  var unapprove = (approvedFile === filename);
   var fd = new FormData();
   fd.append('field', field);
   fd.append('value', unapprove ? '' : filename);
-  fetch('/p/' + project + '/' + shot + '/update', { method: 'POST', body: fd }).catch(function () {});
   var fb = new FormData();
   fb.append('text', (unapprove ? '[unapproved ' : '[approved ') + kind + '] ' + filename);
-  fetch('/p/' + project + '/' + shot + '/feedback', { method: 'POST', body: fb }).catch(function () {});
-  _stripStars(strip, unapprove ? null : el, !unapprove);
-  var main = document.getElementById('media-' + kind + '-' + shot);
-  if (main) {
-    var url = unapprove
-      ? (main.dataset.fallback || '')
-      : '/p/' + project + '/' + shot + '/file/' + encodeURIComponent(filename);
-    if (url) {
-      if (kind === 'image') {
-        main.innerHTML = '<img src="' + url + '" onclick="openLightbox(this.src)" alt="' + shot + ' image">';
-      } else {
-        main.innerHTML = '<video controls playsinline preload="metadata" src="' + url + '"></video>';
-        if (window.onShotVideoReplaced) window.onShotVideoReplaced(shot, url);
-      }
+  /* Serialise the two writes: both are read-modify-write cycles on the same
+     metadata.json, so firing them together loses the audit line (the server
+     keeps the last writer). Approval first, then the log line. */
+  fetch('/p/' + project + '/' + shot + '/update', { method: 'POST', body: fd })
+    .then(function () {
+      return fetch('/p/' + project + '/' + shot + '/feedback', { method: 'POST', body: fb });
+    }).catch(function () {});
+  if (strip) {
+    strip.querySelectorAll('.thumb').forEach(function (t) {
+      var star = t.querySelector('.star');
+      if (star) { star.classList.remove('on'); star.title = 'Mark approved'; }
+    });
+    if (!unapprove && el) {
+      var star = el.querySelector('.star');
+      if (star) { star.classList.add('on'); star.title = '✓ Approved — click to unapprove'; }
     }
+  }
+  if (unapprove) {
+    _markShotSel(strip, null);
+    var main = document.getElementById('media-' + kind + '-' + shot);
+    var fbUrl = _shotFallbackUrl(main);
+    if (fbUrl) _showShotMedia(project, shot, kind, fbUrl);
+  } else {
+    _markShotSel(strip, el);
+    _showShotMedia(project, shot, kind,
+      '/p/' + project + '/' + shot + '/file/' + encodeURIComponent(filename));
   }
 }
 
@@ -407,10 +456,13 @@ function selectAssetMedia(scope, asset, filename, el) {
   var fd = new FormData();
   fd.append('field', 'primary_image');
   fd.append('value', unapprove ? '' : filename);
-  fetch('/a/' + scope + '/' + asset + '/update', { method: 'POST', body: fd }).catch(function () {});
   var fb = new FormData();
   fb.append('text', (unapprove ? '[unapproved] ' : '[approved] ') + filename);
-  fetch('/a/' + scope + '/' + asset + '/feedback', { method: 'POST', body: fb }).catch(function () {});
+  /* Approval first, then the audit line — see the note in approveShotMedia. */
+  fetch('/a/' + scope + '/' + asset + '/update', { method: 'POST', body: fd })
+    .then(function () {
+      return fetch('/a/' + scope + '/' + asset + '/feedback', { method: 'POST', body: fb });
+    }).catch(function () {});
   _stripStars(strip, unapprove ? null : el, !unapprove);
   /* Keep the header pill in step: Approved (green) when a pick exists,
      Generated (blue) when nothing is approved. */
@@ -435,10 +487,13 @@ function selectAssetVoice(scope, asset, filename, el) {
   var fd = new FormData();
   fd.append('field', 'voice');
   fd.append('value', unapprove ? '' : filename);
-  fetch('/a/' + scope + '/' + asset + '/update', { method: 'POST', body: fd }).catch(function () {});
   var fb = new FormData();
   fb.append('text', (unapprove ? '[unapproved voice] ' : '[approved voice] ') + filename);
-  fetch('/a/' + scope + '/' + asset + '/feedback', { method: 'POST', body: fb }).catch(function () {});
+  /* Approval first, then the audit line — see the note in approveShotMedia. */
+  fetch('/a/' + scope + '/' + asset + '/update', { method: 'POST', body: fd })
+    .then(function () {
+      return fetch('/a/' + scope + '/' + asset + '/feedback', { method: 'POST', body: fb });
+    }).catch(function () {});
   if (!strip) return;
   strip.querySelectorAll('.voice-item').forEach(function (t) {
     t.classList.remove('sel');
