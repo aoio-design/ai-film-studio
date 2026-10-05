@@ -879,10 +879,10 @@ def update_asset(project_id, asset_id):
             meta.pop(field + "_at", None)
         else:
             meta[field] = value
-            if field == "primary_image":
+            if field in ("primary_image", "voice"):
                 # Timestamp + touch the file: an approval is only valid while
                 # the media set is unchanged, so regenerations are detectable.
-                meta["primary_image_at"] = datetime.now(timezone.utc).isoformat()
+                meta[field + "_at"] = datetime.now(timezone.utc).isoformat()
                 if "/" not in value and "\\" not in value:
                     try:
                         os.utime(APP_ASSETS_DIR / project_id / asset_id / value)

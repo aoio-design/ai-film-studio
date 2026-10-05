@@ -165,7 +165,9 @@ folder; the agent populates it by dropping files + `metadata.json` in.
   "character_sheet_prompt": "…",  // image prompt for the reference sheet —
                                   // compose it from the six fields above
   "voice_prompt": "…",            // voice direction / TTS prompt (if any)
-  "voice": "nora_voice.wav",      // voice file reference
+  "voice": "nora_voice.wav",      // the APPROVED take's filename — set by the ★
+                                  // on the voice cell; empty = owner hasn't chosen
+  "voice_at": "…",                // when that voice was approved
   "status": "Approved",           // Approved | Revision | Generated
   "feedback": [{"timestamp": "…", "text": "…"}]
 }
@@ -197,6 +199,15 @@ Preview (images/audio) · Prompt (editable) · Status · Feedback.
 
 Voices live inline in the Bible's Voice column — do NOT create standalone
 Voice assets.
+
+**Use the owner's approved voice — never the newest or best-named file.**
+`voice` holds the filename of the take the owner starred in the Reference Voice
+cell (`voice_at` records when). A card can carry rejected takes and alternates
+next to it, so read `voice` and use exactly that file for the character's
+reference voice on every clip. If `voice` is empty the owner has not chosen
+yet: ASK which take to use — do not pick for them. The same ★ marks the
+approved reference image (`primary_image`), and a regenerated file voids the
+approval, so re-check `voice` before a batch that reuses it.
 
 ## Media file naming standard
 

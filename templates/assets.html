@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Character Bible &amp; Assets — {{ scope_title }}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='studio.css') }}?v=11">
+<link rel="stylesheet" href="{{ url_for('static', filename='studio.css') }}?v=13">
 <style>
 body { padding:0; }
 .header {
@@ -205,12 +205,25 @@ audio.voice {
           </div>
         </div>
         <div>
-          <div class="cell-label">Reference Voice</div>
-          {% for au in a.audios %}
-          <audio class="voice" controls preload="none"><source src="/a/{{ scope_id }}/{{ a.id }}/file/{{ au|urlencode }}"></audio>
+          <div class="cell-label">Reference Voice <span style="color:var(--mut);font-weight:400;text-transform:none;letter-spacing:0;">— click the ★ on the take you approve</span></div>
+          {% if a.audios %}
+          <div class="voice-strip" id="voice-strip-{{ a.id }}">
+            {% for au in a.audios %}
+            {% set lbl = au.split('_Audio_')[-1].rsplit('.',1)[0].replace('_',' ') if '_Audio_' in au else au %}
+            <div class="voice-item {{ 'sel' if au == a.voice else '' }}" data-file="{{ au }}">
+              <audio class="voice" controls preload="none"><source src="/a/{{ scope_id }}/{{ a.id }}/file/{{ au|urlencode }}"></audio>
+              <div class="voice-row">
+                <span class="voice-name" title="{{ au }}">{{ lbl }}</span>
+                <button class="star {{ 'on' if au == a.voice else '' }}"
+                        title="{{ 'Approved voice — click to unapprove' if au == a.voice else 'Mark as the approved voice' }}"
+                        onclick="event.stopPropagation();selectAssetVoice('{{ scope_id }}','{{ a.id }}','{{ au }}',this)">★</button>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
           {% else %}
-          <span style="color:var(--mut);font-size:12px;">{{ a.voice or 'No voice reference yet.' }}</span>
-          {% endfor %}
+          <span style="color:var(--mut);font-size:12px;">No voice reference yet.</span>
+          {% endif %}
           {% if a.feedback %}
           <div class="cell-label" style="margin-top:12px;">Agent feedback history</div>
           <div class="fb-history acc open">
@@ -285,7 +298,7 @@ audio.voice {
 </div>
 
 {% include '_studio_ui.html' %}
-<script src="{{ url_for('static', filename='studio.js') }}?v=10"></script>
+<script src="{{ url_for('static', filename='studio.js') }}?v=11"></script>
 <script>
 function toggleAsset(head) {
   head.closest('.asset').classList.toggle('open');

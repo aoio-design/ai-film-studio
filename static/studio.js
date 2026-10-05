@@ -423,6 +423,38 @@ function selectAssetMedia(scope, asset, filename, el) {
   }
 }
 
+/* ---------- Reference voice: approve / unapprove (star toggle) ----------
+   The approved take is the filename stored in metadata.voice, which is what
+   the agent reads to know which clip to reuse as the character's reference
+   voice. Clicking the approved star clears it — no approval is a valid state. */
+function selectAssetVoice(scope, asset, filename, el) {
+  var strip = el ? el.closest('.voice-strip') : null;
+  var cur = strip ? strip.querySelector('.voice-item.sel') : null;
+  var curFile = cur ? (cur.dataset.file || '') : '';
+  var unapprove = (curFile === filename);
+  var fd = new FormData();
+  fd.append('field', 'voice');
+  fd.append('value', unapprove ? '' : filename);
+  fetch('/a/' + scope + '/' + asset + '/update', { method: 'POST', body: fd }).catch(function () {});
+  var fb = new FormData();
+  fb.append('text', (unapprove ? '[unapproved voice] ' : '[approved voice] ') + filename);
+  fetch('/a/' + scope + '/' + asset + '/feedback', { method: 'POST', body: fb }).catch(function () {});
+  if (!strip) return;
+  strip.querySelectorAll('.voice-item').forEach(function (t) {
+    t.classList.remove('sel');
+    var s = t.querySelector('.star');
+    if (s) { s.classList.remove('on'); s.title = 'Mark as the approved voice'; }
+  });
+  if (!unapprove && el) {
+    var item = el.closest('.voice-item');
+    if (item) {
+      item.classList.add('sel');
+      var st = item.querySelector('.star');
+      if (st) { st.classList.add('on'); st.title = 'Approved voice — click to unapprove'; }
+    }
+  }
+}
+
 /* ---------- Uploads (multi-file, never overwrite) ---------- */
 function studioUpload(project, shot, kind) {
   var inp = document.createElement('input');
