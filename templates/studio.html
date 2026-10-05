@@ -617,35 +617,62 @@ const PLAYLIST = [
   renderLines();
 })();
 
-/* ---------- Script ↔ cards sync ---------- */
+/* ---------- Script ↔ cards sync (two-way) ----------
+   A shot marker is a bracketed id at the START of a line — alone ("[F-01]") or
+   followed by the beat's title ("[F-01] The machine at work"), which is how the
+   saved episode script writes them. Tokens are validated against the real card
+   ids, so an inline bracket in dialogue ("[whispered] …") can never be taken
+   for a shot marker. Either pane may drive: whichever moved last owns the sync
+   briefly, so the two directions cannot fight each other or the player. */
 (function () {
   const ta = document.getElementById('episodeScript');
   const scrollArea = document.getElementById('scrollArea');
   if (!ta || !scrollArea) return;
-  let shotLines = {};
+  const cardIds = new Set(Array.from(scrollArea.querySelectorAll('.shot'))
+    .map(c => c.dataset.shot).filter(Boolean));
+  let marks = [];        // [{ idx: line index, id: shot id }] in line order
   let lineH = 19.4;
+  let selfScript = 0, selfCards = 0;   // we wrote this pane — ignore its echo
   function buildMap() {
-    shotLines = {};
-    const lines = ta.value.split('\n');
+    marks = [];
+    const seen = new Set();
+    const lines = ta.value.split(/\r?\n/);
     for (let i = 0; i < lines.length; i++) {
-      const m = lines[i].match(/^\[([^\]]+)\]\s*$/);
-      if (m) shotLines[m[1]] = i;
+      const m = lines[i].match(/^\s*\[([^\]\r\n]{1,24})\]/);
+      if (!m) continue;
+      const id = m[1].trim();
+      if (!cardIds.has(id) || seen.has(id)) continue;
+      seen.add(id);
+      marks.push({ idx: i, id: id });
     }
-    const cs = getComputedStyle(ta);
-    const lh = parseFloat(cs.lineHeight);
+    const lh = parseFloat(getComputedStyle(ta).lineHeight);
     if (lh > 0) lineH = lh;
   }
   ta.addEventListener('input', buildMap);
   buildMap();
+  /* Top of a logical line, measured with the SAME ruler the cards→script
+     direction uses (the wrap-aware studioLineTop). The gutter's offsetTop is
+     NOT usable here: its offsetParent sits ~100px above the gutter, so it is
+     origin-shifted and the two directions would chase each other backwards. */
+  function lineTop(i) {
+    return window.studioLineTop ? window.studioLineTop(i) : i * lineH;
+  }
+  /* Cards → script: scroll the script to the shot holding the left edge.
+     Every move is a no-op when it is already in place, which is what stops the
+     two directions ping-ponging — no time lock, so a real scroll is never
+     swallowed. */
   window.syncScriptToShot = function (shotId) {
-    if (!shotLines[shotId]) return;
-    var top = window.studioLineTop ? window.studioLineTop(shotLines[shotId]) : ((shotLines[shotId] - 2) * lineH);
-    ta.scrollTop = Math.max(0, top - 2 * lineH);
-    var gutter = document.getElementById('lineNums');
-    if (gutter) gutter.scrollTop = ta.scrollTop;
+    let hit = null;
+    for (let i = 0; i < marks.length; i++) if (marks[i].id === shotId) { hit = marks[i]; break; }
+    if (!hit) return;
+    const top = Math.max(0, (window.studioLineTop ? window.studioLineTop(hit.idx) : hit.idx * lineH) - 2 * lineH);
+    if (Math.abs(ta.scrollTop - top) > 2) { ta.scrollTop = top; selfScript = Date.now() + 150; }
+    const gutter = document.getElementById('lineNums');
+    if (gutter && Math.abs(gutter.scrollTop - ta.scrollTop) > 2) gutter.scrollTop = ta.scrollTop;
   };
   let scrollTimer = null;
   scrollArea.addEventListener('scroll', () => {
+    if (Date.now() < selfCards) return;
     clearTimeout(scrollTimer);
     scrollTimer = setTimeout(() => {
       const cards = scrollArea.querySelectorAll('.shot');
@@ -659,6 +686,32 @@ const PLAYLIST = [
       if (best && bestDist < 400) {
         window.syncScriptToShot(best.dataset.shot);
       }
+    }, 120);
+  });
+  /* Script → cards: the shot marker nearest above the top of the visible
+     script scrolls the shot list to its card. The tolerance keeps a marker the
+     cards-side sync just parked two lines below the top as the SAME shot, so
+     the pair settles instead of walking backwards a shot at a time. */
+  let scriptTimer = null;
+  ta.addEventListener('scroll', () => {
+    if (Date.now() < selfScript) return;
+    clearTimeout(scriptTimer);
+    scriptTimer = setTimeout(() => {
+      if (!marks.length) return;
+      const tol = 3 * lineH;
+      const top = ta.scrollTop;
+      let cur = marks[0];
+      for (let i = 0; i < marks.length; i++) {
+        if (lineTop(marks[i].idx) <= top + tol) cur = marks[i]; else break;
+      }
+      const card = document.getElementById('shot-' + cur.id);
+      if (!card) return;
+      if (Math.abs(card.offsetLeft - scrollArea.scrollLeft) < 4) return;
+      /* Left as the browser clamps it: at the tail of the list the last cards
+         cannot reach the left edge, and pretending otherwise would drag the
+         script back a shot or two. */
+      scrollArea.scrollLeft = card.offsetLeft;
+      selfCards = Date.now() + 150;
     }, 120);
   });
 })();
