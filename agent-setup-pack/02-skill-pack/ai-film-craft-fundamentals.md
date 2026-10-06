@@ -1,6 +1,6 @@
 ---
 name: ai-film-craft-fundamentals
-description: "Filmmaking craft for AI films: what each shot is for, shot size as emotional distance, blocking, coverage (including the axis and one-speaker-per-clip dialogue pattern), how a scene is built from beats, pacing and tension/release, plus the visual-storytelling choices (mise en scène, colour, juxtaposition, metaphor, the rule of three, irony) that make clips cut together into a film."
+description: "Filmmaking craft for AI films: what each shot is for, shot size as emotional distance, blocking, coverage (including the axis and dialogue coverage for one or two speakers), how a scene is built from beats, pacing and tension/release, plus the visual-storytelling choices (mise en scène, colour, juxtaposition, metaphor, the rule of three, irony) that make clips cut together into a film."
 version: 1.0.0
 author: Hermes Agent
 license: MIT

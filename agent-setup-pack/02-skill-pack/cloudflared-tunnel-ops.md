@@ -12,14 +12,13 @@ metadata:
 
 # Cloudflared Tunnel Operations
 
-> **Exact by-hand sequence for this stack:** `references/manual-fallbacks.md` §2 — the
-> binary and its config live inside `$HERMES_HOME/.cloudflared`, one tunnel serves two
-> hostnames, the app is reached by its container service name (`http://hermes-webui:8787`)
-> and the studio on `localhost`.
+> **Buyer image boundary:** the owner creates a named Cloudflare Tunnel; enables Cloudflare's One-time PIN identity provider; creates Access apps/policies; changes the desktop password; then enters the per-tunnel `CLOUDFLARE_TUNNEL_TOKEN` in the private Hostinger Docker Manager YAML while the tunnel has no public hostname routes. After the connector is healthy, the owner adds the two routes; Access must exist before either route is published. The token hook depends on an image build; an empty/sample token means no tunnel. Never print or request the token, use a Quick Tunnel, create API-token/custom-OAuth credentials, or change Cloudflare routes or Access policies from this skill. See `references/manual-fallbacks.md` §2.
+>
+> On the buyer image, the token hook is the tunnel lifecycle. Do not run `cloudflared tunnel login/create/run` or add a second daemon to "repair" it. Check the existing process/log without reading secrets; if the image-managed process cannot recover, ask the owner to apply/restart the project in Hostinger after confirming the image build supports the hook. The CLI lifecycle below is for non-buyer named-tunnel deployments only.
 
 ## When to Use
 
-- A subdomain (e.g. `agent.MY-DOMAIN`, `studio.MY-DOMAIN`) is down / 502 / unreachable
+- A subdomain (e.g. `cloud.MY-DOMAIN`, `studio.MY-DOMAIN`) is down / 502 / unreachable
 - Restarting the Hermes WebUI or other tunneled local services
 - Validating or editing the tunnel ingress config
 - Investigating why a health-check cron stopped firing
@@ -35,7 +34,7 @@ Diagnostic order:
 3. Check the service log tail for the crash: `tail -30 $HERMES_HOME/logs/webui.log` — look for `[crash-visibility] process exit pid=NNNN` (Hermes WebUI logs this when it dies).
 4. If origin is up but tunnel is down → restart tunnel (see Lifecycle).
 
-**Connection refused / DNS failure on the subdomain itself** = tunnel or DNS record problem. Verify the CNAME: `cloudflared tunnel route dns <TUNNEL> <hostname>`.
+**Connection refused / DNS failure on a buyer hostname** = tunnel or dashboard route problem. Check the token-backed process and local service; ask the owner to inspect the Cloudflare published route and Access application in the dashboard. Do not run `cloudflared tunnel route dns` or change the route for the buyer.
 
 **Cloudflare error 1033 / 530 on EVERY subdomain = the tunnel process is DOWN** (not the origins). 530 = "origin unreachable" at the edge; when ALL hostnames through the same named tunnel fail at once (store, studio, agent, guide…), the cloudflared process died (this deployment: watchdog race or a background session ending silently — the process can vanish while the watchdog believes it healthy). Diagnosis: `pgrep -af "[c]loudflared"` returns nothing → restart the tunnel (see Lifecycle). A single 502 on one subdomain while the others work = origin down (start the service); ALL subdomains 530/1033 = restart the tunnel. After restarting, verify each subdomain: 302/200 = fine, 502 on one = that origin is down, 530 again = tunnel still not connected.
 
@@ -78,7 +77,7 @@ Wait ~8-10s, then verify: local `/health` returns 200, subdomain returns 302 (lo
 ### Verify end-to-end
 ```
 curl -sS -m 5 -o /dev/null -w "local:8787 -> %{http_code}\n" http://127.0.0.1:8787/health
-curl -sS -m 10 -o /dev/null -w "subdomain -> %{http_code}\n" https://agent.MY-DOMAIN
+curl -sS -m 10 -o /dev/null -w "subdomain -> %{http_code}\n" https://cloud.MY-DOMAIN
 ```
 
 ## Health-Check Cron Pattern
@@ -128,6 +127,6 @@ Keep every watchdog script in BOTH locations — copy after every edit.
 5. **Duplicate instances of the same named tunnel** — each `cloudflared tunnel run <name>` spawns a competing instance; multiple racing instances cause edge routing flapping and log noise. They accumulate when a start script (e.g. `start.sh`, which launches the tunnel) gets invoked repeatedly by a health-check cron. Identify with `ps -o pid,lstart,cmd -C cloudflared`: keep the OLDEST instance (the known-good one that has been serving), kill only the recent duplicates by PID (`kill <pid>`), then re-verify the subdomain still returns 302. Avoid blanket `pkill -x cloudflared` unless a brief tunnel interruption is acceptable — it forces a full reconnect. NOTE: check for existing instances right before starting one — a "no tunnel running" verdict can be stale by seconds if a health-check cron is mid-recovery.
 6. **Any daemon binary in `/tmp` dies on container/image recreate** — cloudflared, etc. Persist binaries under `$HERMES_HOME` and make every start script/watchdog re-download when missing (see Start tunnel).
 7. **`pkill -f "cloudflared tunnel run X"` kills your own shell** — `pkill -f` pattern-matches the full command line, which includes the bash wrapper running your command (observed: exit -15 and "nothing happened"). List with `pgrep -af "[c]loudflared"` (the `[c]` trick stops self-match) and kill by PID instead.
-8. **New subdomain returns 502 until the local server is up** — after adding an ingress rule + `tunnel route dns`, 502 is CORRECT until the origin service listens. That's a success signal for routing, not a fault; start the server, then re-check.
+8. **New subdomain returns 502 until the local server is up** — in a non-buyer CLI-managed tunnel, 502 may follow a published route while the origin is still down; check the origin before changing tunnel settings. For the buyer image, do not run `tunnel route dns`: the owner manages published routes in Cloudflare's dashboard.
 9. **Host-Docker origin services need the HOST IP, not `localhost`, in ingress** — when cloudflared runs INSIDE a container (this deployment) and the target service is a separate docker-compose project on the HOST with a published port (e.g. a Hostinger Docker-catalog deploy, which picks a random 3276x–3279x host port), `service: http://localhost:<port>` yields permanent 502: from the tunnel's perspective `localhost` is the cloudflared container, and the service lives on the host. The docker bridge gateway (`172.17.0.1`) is often ALSO unreachable from inside the container — use the host's public IP in the ingress line (`service: http://<host-ip>:32779`). Verify reachability from inside the container first: `curl -s -o /dev/null -w "%{http_code}" http://<host-ip>:<port>/` — the ONLY address that answers is the one to put in the config. Note the random host port may change if the catalog project is recreated; re-check before assuming the ingress is stale.
 10. **Infinite 302 redirect loop on every path = app force-redirects to https while the origin sees http** — cloudflared terminates TLS at the edge and forwards plain HTTP to the origin. Any app configured with an https "site URL" that sets a `force_https`-style flag will redirect every request to https → tunnel → http → loop forever (`location:` header equals the requested URL on every hop). Seen with app installers that write a `force_https` flag into their config file when the site URL starts with https:// and then force-redirect every request. Fix inside the app (container console): switch that flag off in its config and reload. Public visitors still get https; only the origin sees http. Diagnose with a redirect-chain probe (`for i in 1 2 3; do curl -s -o /dev/null -D - https://host/ | grep -iE '^(HTTP|location)'; done`) — identical self-location = this loop.

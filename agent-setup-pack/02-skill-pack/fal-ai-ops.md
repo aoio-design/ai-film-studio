@@ -166,8 +166,7 @@ choice for the project — never re-ask per clip:
   Clips **5–15s with a 5-second minimum**, so a **3s or 4s shot cannot be made on this
   lane** — the 4-second floor belongs to the premium lane.
 
-Across a 70-second film the two lanes are roughly **7–9× apart** (~US$32–40 premium vs
-~US$4–6 budget) — the biggest single cost decision in the production. **List prices only:
+For **70 seconds of generated video in an approximately 60-second finished film**, the two lanes are roughly **7–9× apart** (~US$32–40 premium vs ~US$4–6 budget). **List prices only:
 quote the live model page, never a promo or discounted rate.**
 
 #### Premium lane — Seedance 2.5 reference-to-video
@@ -214,7 +213,7 @@ cost nothing extra on this model** — you pay for the clip's seconds (plus any 
 
 Rules:
 
-- **Minimum clip length on this lane is 4 whole seconds** (maximum 30) and the practical shot length is 5–6s (the plan's range is 5–30s — 5s is the minimum precisely because the budget lane cannot go below it). The budget lane's floor is 5s — a 3s or 4s shot exists only here, on the premium lane.
+- **Seedance 2.5 supports 4–30 seconds.** Plan shots in the overall 5–30s range; 5–15s shots fit either lane, while a 4s or 16–30s shot is premium-only. The budget H3 lane is 5–15s with a hard 5s floor. Use 5–6s as practical coverage when the story does not call for another length.
 - **AR is explicit per project** — 16:9 in this Guide (pass `--aspect_ratio`; vertical-shorts projects use 9:16, keyframes 1152×2048).
 - **Two speakers per clip are allowed and lines have no length cap** — the one-speaker / ≤5s rule was retired in Oct 2026. Two voices in one clip are the untested part: the model advertises multi-character voice retention, so A/B the first one and review the voices.
 - **Voice consistency across shots = the same Audio ref file** every time that character speaks.
@@ -287,9 +286,7 @@ lane, ~US$0.14 per 4K upscale — these figures are orientation only; check
   3s or 4s shots). State the trade-off in one line, ask ONCE, and hold the answer for the
   project. Where both platforms sell the model you are quoting, compare both platform
   prices too: Higgsfield sells the H3 family at **2K only** at fal's own 2K rate (~US$0.13/s,
-  so the platforms match), and below 2K only fal.ai sells it. Scale: a 70-second film's
-  video is ~US$39.73 fal / ~US$32.35 Higgsfield on the premium lane against ~US$5.60
-  (`h3-max`) / ~US$4.20 (`h3`) on the budget lane — a 7–9× spread.
+  so the platforms match), and below 2K only fal.ai sells it. Scale: **70 seconds of generated video for an approximately 60-second finished film** is ~US$39.73 fal / ~US$32.35 Higgsfield on the premium lane against ~US$5.60 (`h3-max`) / ~US$4.20 (`h3`) on the budget lane — a 7–9× spread.
 - **LIST PRICES ONLY.** Quote the live model page (or `genmedia pricing <model-id>`) every
   time. A promo or discounted rate must never be quoted, repeated or stored anywhere.
 - **Never start a paid batch without asking first.** Message the owner on

@@ -41,50 +41,15 @@ inside a running instance.
 If port 80 is unavailable, set `STUDIO_PORT=8080` in `start.sh` and change the tunnel
 rule's `service:` to `http://localhost:8080` (they must match).
 
-## 2. The Cloudflare tunnel (normal path: Guide Chapter 2; studio half in 3.3)
+## 2. Cloudflare tunnel (normal path: Guide Chapter 4, Section 4.1)
 
-```bash
-mkdir -p "$HERMES_HOME/bin" "$HERMES_HOME/.cloudflared" "$HERMES_HOME/logs"
-curl -fsSL -o "$HERMES_HOME/bin/cloudflared" \
-  https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-chmod +x "$HERMES_HOME/bin/cloudflared"
-export TUNNEL_ORIGIN_CERT="$HERMES_HOME/.cloudflared/cert.pem"     # keeps the cert in the volume
-"$HERMES_HOME/bin/cloudflared" tunnel login                       # print the URL, wait for the owner
-"$HERMES_HOME/bin/cloudflared" tunnel create my-agent             # note the credentials .json path
-"$HERMES_HOME/bin/cloudflared" tunnel route dns my-agent agent.MY-DOMAIN
-"$HERMES_HOME/bin/cloudflared" tunnel route dns my-agent studio.MY-DOMAIN
-```
+The owner manages the Cloudflare dashboard steps: create one named Tunnel and copy its run token; enable Cloudflare's **One-time PIN** identity provider; create the `cloud.MY-DOMAIN` and `studio.MY-DOMAIN` Access applications with Allow policies for the owner's email; change the desktop password; then enter `CLOUDFLARE_TUNNEL_TOKEN` in the private Hostinger Docker Manager YAML while the Tunnel has no public routes. After the connector is healthy, add the published hostname routes (`cloud.MY-DOMAIN` → `http://localhost:3000`, desktop; `studio.MY-DOMAIN` → `http://localhost:80`, studio). Access must exist before either route is published. The token hook depends on an image build that implements it; an empty/sample token means no tunnel.
 
-`$HERMES_HOME/.cloudflared/config.yml`:
+**Do not run `cloudflared tunnel login`, `tunnel create`, or `tunnel route dns` for this buyer flow.** Do not use an unauthenticated/password-only Quick Tunnel, create a Cloudflare API token or custom OAuth client, or ask the owner to paste the tunnel token into chat. The owner creates and changes Access applications, policies, and routes in Cloudflare; you may verify them but do not modify them.
 
-```yaml
-tunnel: my-agent
-credentials-file: <the path printed by tunnel create>
-ingress:
-  - hostname: agent.MY-DOMAIN
-    service: http://hermes-webui:8787      # the web app container, by service name
-  - hostname: studio.MY-DOMAIN
-    service: http://localhost:80           # the studio, in this container
-  - service: http_status:404
-```
+For local diagnosis only, check the supported image's tunnel process/log without printing environment values, then check the two origin services from inside the machine. If the token hook is absent, stop and report the image-build dependency; do not improvise another tunnel method.
 
-The app's address must point at the **service name** (`http://hermes-webui:8787`),
-never at `localhost` — the app runs in a different container. Verify the name answers
-before touching the config:
-
-```bash
-curl -s -o /dev/null -w '%{http_code}\n' http://hermes-webui:8787/health   # expect 200
-"$HERMES_HOME/bin/cloudflared" --config "$HERMES_HOME/.cloudflared/config.yml" tunnel ingress validate
-"$HERMES_HOME/bin/cloudflared" --config "$HERMES_HOME/.cloudflared/config.yml" tunnel ingress rule https://studio.MY-DOMAIN
-nohup "$HERMES_HOME/bin/cloudflared" --config "$HERMES_HOME/.cloudflared/config.yml" tunnel run my-agent \
-  >> "$HERMES_HOME/logs/tunnel.log" 2>&1 &
-```
-
-The config is read only at startup — after any edit, restart the tunnel. `zone not found`
-on a DNS route means the domain is not active in Cloudflare yet: report it, do not retry
-in a loop.
-
-## 3. The free local browser (normal path: Guide Chapter 1, Section 1.8)
+## 3. The free local browser (normal path: Guide Chapter 3, Section 3.2)
 
 ```bash
 npx -y agent-browser install --with-deps                       # ~200 MB, one time
@@ -98,7 +63,7 @@ npx -y agent-browser open https://example.com && npx -y agent-browser close
 Without the two `config set` lines the agent silently falls back to a **paid cloud
 browser**. Re-check them if browsing ever starts costing money.
 
-## 4. The fal.ai key (normal path: Guide Chapter 4, Section 4.4)
+## 4. The fal.ai key (normal path: Guide Chapter 6, Section 6.5)
 
 **fal.ai is not an LLM provider — it never appears on the app's Settings → Providers page.**
 The key belongs in the agent's own environment file, which the owner edits through the

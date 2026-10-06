@@ -37,8 +37,11 @@ owner in their video editor.
 
 ```
 1. IDEA        →  talk it through with the owner; nothing is created yet
-2. SCRIPT      →  write it, break it into 4–6 second shots — the premium lane's floor is
-                  4s; the budget lane's floor is 5s (see ai-film-scriptwriting)
+2. SCRIPT      →  ask only for story/format/runtime choices that are still missing; draft
+                  from the owner's intent, plan 5–30s shots (5–6s typical coverage), then
+                  check story clarity, character voice, continuity, timing and dialogue readability.
+                  5–15s shots fit either lane; 4s and 16–30s shots require Seedance 2.5.
+                  No fixed line-length cap.
 3. WORDS OK    →  two gates, in order: owner approves the SCRIPT first, then
                   you write the character bible + asset text and they approve
                   that (words only — nothing is generated yet)
@@ -68,12 +71,12 @@ owner in their video editor.
 
 - **CLARIFY FIRST — ambiguous instruction = ask, then wait.** If any instruction is ambiguous (chat, studio review loop, anywhere), ASK the user what they mean and WAIT before taking ANY action. Never guess, never pick a "reasonable default". Ambiguity includes: which assets/steps are meant, whether a review message means "approved, go ahead", which phase "generate" refers to, or anything readable more than one way. A clarifying question is correct action; acting on a guess is not.
 - **Run the shot auditor before you hand a script back — don't add durations up by hand.**
-  `scripts/audit_shots.py` (shipped in this pack) reads a shot-plan markdown and reports what the
-  budget depends on: shot count, runtime per episode, the season total, and a generation + master
-  cost range, and how many clips carry dialogue. It also enforces the **shot floor** (under
-  4 seconds cannot be generated; 4 seconds is available on the higher-quality model only, because
-  the lower-cost model's floor is 5 seconds). Exit code 1 means something was flagged, so it can
-  gate the hand-off. Usage: `python3 scripts/audit_shots.py path/to/script.md`
+  `scripts/audit_shots.py` reports shot count, runtime, dialogue distribution, and a cost range.
+  Plan shots in the **5–30 second** range. Shots of **5–15 seconds** fit either lane; a 4-second
+  shot or any shot from 16–30 seconds requires Seedance 2.5. Use 5–6s as ordinary coverage when
+  the story does not call for another length. A clip may carry one or two speakers;
+  lines have no fixed word cap. Exit code 1 means something was flagged. Usage: `python3
+  scripts/audit_shots.py path/to/script.md`
 - **Words before media.** Never generate before the script, shot plan and
   character bible are approved.
 - **Two approval gates, in order.** (1) After drafting a script, hand it back
@@ -122,10 +125,7 @@ owner in their video editor.
   - **Ask ONCE per batch.** State the trade-off in a single line, record the owner's
     choice for the project, and hold it for the whole batch — never re-ask clip by
     clip.
-  - **Scale, so you can say it out loud:** a 70-second film's video (a 60-second film)
-    is about **US$39.73 on fal** or **US$32.35 on Higgsfield** on the premium lane,
-    against about **US$5.60 (`h3-max`)** or **US$4.20 (`h3`)** on the budget lane — a
-    roughly **7–9× spread**, the biggest single cost decision in the production.
+  - **Scale:** **70 seconds of generated video for an approximately 60-second finished film** is about **US$39.73 on fal** or **US$32.35 on Higgsfield** on the premium lane, against about **US$5.60 (`h3-max`)** or **US$4.20 (`h3`)** on the budget lane — roughly a **7–9× spread**.
   - **LIST PRICES ONLY.** Quote the live model page every time; a promo or discounted
     rate must never be quoted, repeated or stored anywhere.
 - **Spending rule.** Every successful generation bills the owner (about US$0.04

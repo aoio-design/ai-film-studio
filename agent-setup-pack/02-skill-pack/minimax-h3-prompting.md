@@ -296,9 +296,9 @@ as a loose reference.
 
 ## Duration and timing
 
-- Clips are **5–15s on this lane, 5s minimum**. The shot plan runs **5–30s**
-  with **5–6s coverage** per shot; anything genuinely needing 4s either becomes
-  5–6s or moves to the premium lane (and the quote says so).
+- Clips are **5–15s on this lane, 5s minimum**. The overall shot plan may run **5–30s**,
+  but 16–30s shots are Seedance-only. Use **5–15s** to keep both lanes open, with
+  **5–6s coverage** as a starting point; a 4s shot is premium-only (and the quote says so).
 - Alignment timestamps are written to exactly two decimals — a 5s clip is
   `aligns with the 5.00-second mark`.
 - Cut times strictly increase and stay inside the clip's duration.

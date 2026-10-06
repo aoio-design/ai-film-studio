@@ -59,51 +59,15 @@ defaults, not the number to quote.
 > `video.mp4`, never overwrite), and update `projects.json` whenever we add
 > shots, episodes or assets.
 
-## 3b. Watch my feedback — create this job now (the studio loop depends on it)
+## 3b. The studio feedback watcher is created during first-task setup
 
-> My studio has a **"Talk to your agent"** drawer on every page. That is where I
-> leave notes on a shot, an asset or the episode script — it is how I review your
-> work, instead of messaging you about each one. **Nothing reads those notes
-> unless this job exists**, so create it now, before we produce anything:
->
-> ```text
-> hermes cron create 'every 5m' --name 'Studio feedback watcher' --deliver local \
->   --monitor-script studio-feedback-watch.py \
->   --prompt 'New feedback appeared in the Studio (via the Talk-to-your-agent drawer). Open each reported file, read every feedback entry in full, and act on it: revise the referenced script lines, shots, or asset prompts. Then append a reply to $HERMES_HOME/studio/shots/_agent_replies.json as [{"timestamp": "...", "project": "<project id from the file path, or null>", "text": "what you changed"}] so the owner sees it in the drawer. Preserve existing records.
-> GENERATION / PAID WORK: this cron session has NO paid key and must NEVER attempt generation (no images, clips, upscaling). When the owner asks to generate: (1) look up and state the fal.ai cost, (2) do NOT generate — tell the owner to go back to the WebUI/Telegram/WhatsApp to run it with their paid session, and (3) if they forgot the flow, point them back to their live chat to trigger it. Report concisely what you changed.'
-> ```
->
-> Then confirm to me that the job is listed and running, in one line, and tell me
-> what happens the next time I leave a note in the drawer. Your `studio-ops` skill
-> explains what the script watches and how to test it.
+> The studio feedback watcher is created once from the setup checklist started in Guide Section 4.2, after the owner finishes the manual Cloudflare bootstrap. Do not create a second watcher during onboarding. If it is missing later, use the recovery instructions in `studio-ops.md` and check for an existing job first.
 
-## 3c. Scheduled work must be able to reach me
+## 3c. Know which scheduled jobs exist
 
-> Two rules about the jobs you create for me, now and later.
->
-> **1. A job that cannot reach me is not done.** My mechanical jobs (the studio
-> keep-alive, backups, update checks) run from the container's own cron through
-> `/config/cron-notify.sh`, which delivers a job's output to my chat — but **only
-> if a chat channel is connected**. If none is, the run is still logged and
-> nothing is delivered. So before you tell me setup is finished: pair Telegram or
-> WhatsApp, then **prove the path works** with a real message:
->
-> ```text
-> /config/cron-notify.sh "Test — alert path" /bin/echo "if you can see this, my jobs can reach me"
-> ```
->
-> If it reaches me, say so in one line. If nothing arrives, read
-> `/config/cron-notify.log` (every send is logged whether or not delivery
-> succeeded), fix the channel, and tell me plainly that I was not reachable
-> until then.
->
-> **2. A job that fails quietly is worse than no job.** The wrapper logs every run
-> to `/config/cron-notify.log` and every non-zero exit to `/config/hermes-cron.log`.
-> Those two files are the truth about my scheduled work: when I ask "is everything
-> still running?", answer from them, and if something has been failing, fix it or
-> tell me — do not let it fail silently for days. Silence is success **only** for
-> jobs that print when they act (the studio watchdog works that way). A job you
-> schedule yourself must speak when it has something to say.
+> The image seeds four machine-schedule lines: the Hermes cron tick/liveness stamp, the cloudflared tunnel watchdog, the studio keep-alive, and the app launcher. The studio feedback watcher is the single agent-schedule job created from Guide Section 4.2. **There is no in-container backup job or update-check job.** Backups are managed by the hosting provider in hPanel; the owner updates the app manually from Settings → About → Updates. Do not invent or recreate backup/update jobs, and do not claim they deliver alerts to chat.
+
+> When diagnosing a scheduled job, inspect the scheduler's actual job list and logs. Report only jobs you can read back from the running machine; do not infer a schedule from old notes.
 
 ## 3d. Keeping your skills current
 
@@ -136,20 +100,33 @@ that, do not guess).
 Then report in plain language: what changed, what was kept, where the backup is.
 If nothing changed, one line is enough.
 
-## 4. Learn each new project — automatically
+## 3e. Cloudflare setup belongs to the owner
 
-> Whenever I start describing a new film or series, do this on your own —
-> no need for me to ask, and no separate prompt from me:
+> The owner completes the Cloudflare work in the dashboard, following Guide Section 4.1: create one named Tunnel and copy its run token; enable the Cloudflare One-time PIN identity provider; create Access applications and Allow policies for `cloud.MY-DOMAIN` and `studio.MY-DOMAIN`; change the desktop password; then enable the per-tunnel `CLOUDFLARE_TUNNEL_TOKEN` in private Hostinger YAML while the Tunnel has no hostname routes. Once the connector is healthy, add the published routes (`cloud.MY-DOMAIN` → `http://localhost:3000`, desktop; `studio.MY-DOMAIN` → `http://localhost:80`, studio). Access must exist before routes. The token hook depends on an image build; until it is published, do not claim the tunnel is supported. A blank or sample placeholder disables the tunnel.
 >
-> 1. Ask me for the basics: title, genre, logline, characters, locations,
->    and episode count if it's a series.
-> 2. Set up a project folder for it and draft a character bible + location
->    bible from my description (working notes — the studio bible is written
->    after the script is approved).
-> 3. Keep a memory entry for every fact you learn about this project.
+> Never ask for or print the token, create a Cloudflare API token or custom OAuth client, require the owner's existing Cloudflare MCP OAuth, use an unauthenticated/password-only Quick Tunnel, or publish a host port. You may verify the connected tunnel and gated routes after the owner has completed the steps, but do not create or change Cloudflare applications, policies, or routes yourself.
+
+## 3f. First-task setup checklist (run only when Guide Section 4.2 starts it)
+
+> Wait until the owner has completed the dashboard steps in Guide Section 4.1 and explicitly starts this checklist. The owner creates the named Cloudflare Tunnel, enables One-time PIN, creates both Access applications/policies, changes the desktop password, then connects the tunnel with its token while no hostname routes exist; once connected, they add both routes. The token hook depends on an image build. If it is absent, report that dependency and stop; never improvise a Quick Tunnel or ask for the token.
 >
-> This happens as part of our normal conversation — I never have to remember
-> to trigger it.
+> 1. Check whether the image-supported tunnel is connected. Never read, print, request or copy `CLOUDFLARE_TUNNEL_TOKEN`.
+> 2. Check both hostname routes use the expected local services (`cloud.MY-DOMAIN` → `http://localhost:3000`, `studio.MY-DOMAIN` → `http://localhost:80`) and confirm each public address shows its Cloudflare Access gate. If a route or policy is missing, tell the owner what to fix in Cloudflare; do not modify the dashboard.
+> 3. Check the desktop and studio origins from inside the machine and confirm the Compose project publishes no ports.
+> 4. Check that the browser opens one page using the shipped browser.
+> 5. Verify the image-seeded Hermes cron tick/liveness stamp, tunnel watchdog, studio keep-alive, and app launcher. Create the studio feedback watcher once if absent; do not create a duplicate, backup job, or update-check job.
+>
+> Report only what you checked. Backups are provider-managed in hPanel; app updates are manual from Settings → About → Updates. Do not claim tunnel support unless the image hook exists and the connected tunnel and gated routes were verified.
+
+## 4. Start a new project with adaptive intake
+
+> When I ask you to develop a film or series, first note what I have already told you and identify the next decision the work needs. Ask only for missing details that change that next step; do not make me repeat information I already gave you, and do not ask for fields that are not needed yet. Ask the relevant questions together in one short batch.
+>
+> If I am only sharing an idea or asking for feedback, do not create project files or start production work unless I ask. If an ambiguity could change the story, characters, format, or production plan, stop and ask me before acting; never guess a “reasonable default.”
+>
+> Once the direction is clear, create or update the project folder and working notes needed for the requested next step. Keep the character/location bible as working notes until the script is approved, and record durable project facts in project memory.
+
+This keeps intake responsive: a complete brief moves straight into the next work; an incomplete brief gets only the questions needed to proceed safely.
 
 ## 5. The production workflow (follow this order on every episode)
 
@@ -158,9 +135,8 @@ If nothing changed, one line is enough.
 > 1. **Idea chat** — I bring an idea, you ask questions and shape it with me.
 >    Nothing is created yet. (This is also when you learn the project — see
 >    step 4 above.)
-> 2. **Write it up** — when I say go, write the script, break it into 5–15
->    second shots (the model's floor is 5s), and populate my studio: the project/season, the episode
->    cards and every shot card, with the episode script in the script pane.
+> 2. **Write the script first** — when I say go, ask only for story, format or runtime choices that are still missing. Draft from my intent; do not impose a fixed word or sentence cap on dialogue. Plan shots from the beats and target runtime: use **5–15 seconds** when keeping both video lanes open, with 5–6s as a useful coverage starting point. Mark 4-second and 16–30-second shots as Seedance-only.
+>    Check story clarity, character voice, continuity, shot timing and dialogue readability; flag concrete problems and revise without a blanket "keep it short" rule. Run `scripts/audit_shots.py`, then populate my studio with the project/season, episode, shot cards and script pane.
 >    Words only — no image, audio or video generation at this stage. Then
 >    STOP and tell me the script is ready for review. Do not build the
 >    character bible, and do not offer keyframes, video prompts or clips,
@@ -301,16 +277,11 @@ If nothing changed, one line is enough.
 >    2. anything **live on the internet** — my tunnel configuration, my login
 >       gate, my domain or DNS records
 >    3. **money** — paid generation, my store and payments, subscriptions
->    4. my **backups**, including the scheduled backup job itself
+>    4. my **provider-managed VPS backup and restore choices** — check the current hPanel status; there is no backup cron to change
 >    5. the **model registry and prompt skills** — the things that decide how my
 >       films look
 >
-> **5. Back up before you build.** Check whether the change sits inside what the
-> weekly backup covers: your settings, skills, memories and my studio's words
-> (project list, scripts, shot plans, feedback) are covered; my generated images
-> and clips are NOT — they are large and regenerable. Save your own copy of
-> anything you are about to overwrite, and tell me if a change would sit outside
-> the backup's reach.
+> **5. Check recovery before you build.** Read the current backup/snapshot options and restore-point status in hPanel; do not assume a weekly in-container job or that a particular folder is covered. Save a copy of files you are about to overwrite, and tell me if the change could be lost in a provider restore.
 >
 > **6. Never install a program into the machine itself.** This server is built
 > from a picture of a machine, and only two folders are kept outside that picture:

@@ -14,7 +14,7 @@ binding is living data** ("which model" changes — and appends instead of overr
 |---|---|---|---|
 | **Reference images** | character sheets / set stills / prop sheets | char **3-panel** (face close-up ‖ front/back, ONE-face rule) · loc **4-panel** 2×2 · prop **4-panel** grid | consistency for the video model |
 | **Keyframe** (first-frame edit) | one frozen frame per shot — opening+closing **if the video binding demands a pair** | single opening frame, mouth closed/neutral on dialogue shots | **AR inherited from the VIDEO binding** |
-| **Video clip** | clip with dialogue + sound | motion + dialogue-in-quotes, one speaker ≤5s, soundscape stated; clip length follows the chosen LANE — premium 4–30s, budget 5–15s (5-second minimum) | master |
+| **Video clip** | clip with dialogue + sound | motion + dialogue and soundscape; one or two speakers are allowed, with no fixed line-length cap; premium 4–30s, budget 5–15s (5-second minimum) | master |
 | **Master** | 4K (or 1080p social) upscale | aigc preset | output |
 
 > **The one living rule: the selected VIDEO model owns the frame aspect ratio (and whether a
@@ -62,8 +62,8 @@ The video stage carries a second decision the owner makes, once per batch:
 
 | Lane | Profiles | Clips | Rate (list) | Refs |
 |---|---|---|---|---|
-| **Premium** | `seedance-25` (default) | 4–30s | ~US$0.57/s @720p fal · ~US$0.46/s @720p Higgsfield (≈US$2.84 / US$2.31 per 5s) | up to 30 image refs; image and audio refs free |
-| **Budget** | `h3-reference-video` (cheaper tier), `h3-max-reference-video` (upper tier) | 5–15s, **5-second minimum** | ~US$0.06/s (`h3`) · ~US$0.08/s (`h3-max`) @768p (≈US$0.30 / US$0.40 per 5s) | first 5 reference images free, then ~US$0.08 each (`h3`) or ~US$0.02 per 2048px image (`h3-max`) |
+| **Premium** | `seedance-25` (default) | 4–30s | US$0.5676/s @720p fal · US$0.4622/s @720p Higgsfield (≈US$2.84 / US$2.31 per 5s) | up to 30 image refs; image and audio refs free |
+| **Budget** | `h3-reference-video` (cheaper tier), `h3-max-reference-video` (upper tier) | 5–15s, **5-second minimum** | US$0.06/s (`h3`) · US$0.08/s (`h3-max`) @768p (US$0.30 / US$0.40 per 5s) | first 5 reference images free, then ~US$0.08 each (`h3`) or ~US$0.02 per 2048px image (`h3-max`) |
 
 - **A 3s or 4s shot cannot be made on the budget lane** — the 4-second floor belongs to the
   premium lane only. Plan 5–6s there, or put that one shot on the premium lane and say so.
@@ -71,9 +71,7 @@ The video stage carries a second decision the owner makes, once per batch:
   owner's choice for the project — never re-ask clip by clip.
 - **List prices only:** quote the live model page each time; never quote, repeat or store a
   promo or discounted rate.
-- Scale: a 70-second film's video is ~US$39.73 fal / ~US$32.35 Higgsfield on the premium lane
-  against ~US$5.60 (`h3-max`) / ~US$4.20 (`h3`) on the budget lane — a ~7–9× spread, the
-  biggest single cost decision in the production.
+- Scale: **70 seconds of generated video for an approximately 60-second finished film** is ~US$39.73 fal / ~US$32.35 Higgsfield on the premium lane, against ~US$5.60 (`h3-max`) / ~US$4.20 (`h3`) on the budget lane — about a 7–9× spread.
 
 ## Mapping protocol — for a recognized/unknown model
 

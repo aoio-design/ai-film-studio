@@ -308,26 +308,8 @@ create it all. The loop:
 
 1. **Idea chat (Web UI).** The owner brings an idea; you ask questions and
    shape it with them. No files yet.
-2. **Write it up, then populate the studio.** When the owner says go: write the
-   script, break it into 4–6 second shots (the premium lane's floor is 4s; the
-   budget lane's floor is 5s — see the clip step below), save any look
-   images the owner has sent into the **Style Reference** section (so the look is
-   locked before anything is generated), build the character/location/prop
-   bible, then create everything in the studio — the project (or season) in
-   `projects.json`, the assets in `assets/<season>/…` (`/a/<season>`), the
-   episode entries (`/s/<season>`) and every shot card (`/p/<episode>`), with
-   the episode script in `_episode_script.json`. **Words only at this stage —
-   nothing is generated** — but every asset card already carries its
-   **image prompt** (Characters: `character_sheet_prompt`; Locations/Props:
-   `prompt`) drafted from the bible fields, so the owner reviews the prompt
-   and the description together.
-3. **Draft review.** The owner reviews the words on `/a/<season>` (characters,
-   sets, props) and on `/p/<episode>` (script pane + shot cards), sending
-   notes through the **Talk to your agent** drawer and editing prompt /
-   description fields directly on the cards when they prefer. Read only notes
-   newer than your last revision, amend the drafts, re-upload, and say what
-   changed. Loop until the owner approves the words — they signal that in
-   chat (e.g. "generate the reference images").
+2. **Draft the script and shot plan first.** When the owner says go, ask only for story, format, or runtime choices that are still missing. Build the script around their intent; do not impose a fixed sentence or word cap on dialogue. Plan shots from the story beats and requested runtime: use the shared **5–15 second** range to keep both lanes open, with **5–6 seconds** as a useful coverage starting point. Seedance 2.5 supports 4–30s; 4-second and 16–30-second shots are premium-only, while MiniMax H3/H3 Max support 5–15s. Before hand-back, check story clarity, character voice, continuity, shot timing, and dialogue readability; flag and revise concrete issues, not by applying a blanket “keep it short” rule. Populate the project/season, script pane and shot cards in the studio. **Words only. Stop and wait for script approval before writing the studio character/location/prop bible.**
+3. **After the script is approved, draft and review the asset bible.** Save any look images the owner has sent into the **Style Reference** section. Then write the character/location/prop text and prompts into `/a/<season>`; every asset card carries its image prompt (Characters: `character_sheet_prompt`; Locations/Props: `prompt`). The owner reviews those words separately through the **Talk to your agent** drawer. Read only notes newer than your last revision, amend the drafts, re-upload, and say what changed. Loop until the owner approves the bible. **No generation until both the script and the asset words are approved.**
 4. **Generation — QUOTE BOTH PROVIDERS FIRST (and, for clips, both LANES — see the
    rule below), and run the
    project's phases in order.** Each phase runs through the owner's fal.ai
@@ -360,8 +342,7 @@ create it all. The loop:
       yes and generate one clip per shot from its approved frame, in the chosen lane's
       own prompt format (the video model speaks the dialogue; a clip may carry one
       speaker or two).
-      Across a 70-second film the two lanes are ~7–9× apart (~US$32–40 vs ~US$4–6) —
-      the biggest single cost decision in the production.
+      For 70 seconds of generated video in an approximately 60-second finished film, the two lanes are ~7–9× apart (~US$32–40 vs ~US$4–6). Quote the live rate and project-specific total before each batch.
 5. **Media review.** The owner approves a take by clicking its **★** on the
    card; a note on a card (via the drawer) = regenerate that ONE shot or
    asset — quote the cost, get a yes, save the new take under the next `v<N>`
@@ -399,7 +380,7 @@ create it all. The loop:
   **budget lane** (MiniMax H3 family: `minimax/h3` ~US$0.06/s and `minimax/h3-max`
   ~US$0.08/s at 768p, 5–15s clips with a **5-second minimum**, so a 3s or 4s shot is
   impossible on that lane). State the trade-off in one line, **ask ONCE per batch**, and
-  hold the owner's answer for the project. Across a 70-second film the lanes are
+  hold the owner's answer for the project. For 70 seconds of generated video in an approximately 60-second finished film, the lanes are
   ~7–9× apart (~US$32–40 vs ~US$4–6). Where both platforms sell the model you are
   quoting, compare both platform prices: Higgsfield sells the H3 family at **2K only**
   at fal's own 2K rate (~US$0.13/s, so the platforms match there), and below 2K only
@@ -434,8 +415,8 @@ create it all. The loop:
 
 Without this job the studio is only half-working: the **Talk to your agent**
 drawer is how the owner reviews work, and nothing reads what they leave there.
-Treat a missing watcher as a broken studio, not a missing nicety — it is created
-during setup (§3b of the onboarding brief, which carries the same command).
+Treat a missing watcher as a broken studio, not a missing nicety — it is created once
+from the Guide Section 4.2 first-task checklist. This section is operational recovery guidance: check for an existing job before using its command, and never create a duplicate.
 
 `studio-feedback-watch.py` reports new feedback from **all four** places the
 studio writes it: shot `metadata.json`, episode `_episode_script.json`,
@@ -464,7 +445,7 @@ GENERATION / PAID WORK: this cron session has NO paid key and must NEVER attempt
 ```
 
 > ⚠️ **Two hard rules for this job:**
-> 1. **`--deliver local` ONLY.** The agent's reply appears in the studio drawer, so it must NOT also blast a Telegram/WhatsApp channel every time the owner sends feedback (that would spam them on every note). Keep the OTHER scheduled jobs (health checks, backup, update checks) delivering to a channel so the owner is only pinged when something actually needs attention.
+> 1. **`--deliver local` ONLY.** The agent's reply appears in the studio drawer, so it must NOT also blast a Telegram/WhatsApp channel every time the owner sends feedback (that would spam them on every note). The image-seeded machine jobs (cron tick, tunnel watchdog, studio keep-alive, app launcher) are not backup or update-check jobs. Do not add chat delivery to those jobs or create replacements.
 > 2. **Never generate from this cron.** The background job has no paid key. Paid generation (images, clips, upscaling via fal.ai) must be run by the owner in their live WebUI/Telegram/WhatsApp session. The agent's job is to report the cost and redirect the owner there — never attempt generation itself.
 
 This closes the loop: you leave feedback → watcher detects it (checks shots,

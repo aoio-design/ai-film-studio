@@ -107,7 +107,7 @@ The most powerful series titles operate on **three levels** — diegetic, themat
 
 ## Screenplay Format (Pipeline-Optimized)
 
-Standard screenplay format adapted for AI generation. Each scene maps to one video clip. We use a **markdown hybrid** that's both human-readable and easy for me to generate, but we can also output in **Fountain** format for interoperability with professional screenwriting tools.
+This format keeps the screenplay readable while making production planning easy. A scene is a dramatic/story unit, not a generated clip: split it into separately identified shots where action, framing, point of view, or the audience's needed information changes. Give each generated shot its own prompt and duration. The **markdown hybrid** is the default; output **Fountain** when the user needs interoperability with screenwriting software.
 
 ### Primary Format: Markdown Hybrid
 
@@ -520,7 +520,7 @@ Shot size: [Progression of shot sizes]
 
 ### Why Break Into Sub-Scenes?
 
-1. **The video model generates 4-second-minimum clips on the premium lane, 5-second-minimum on the budget lane (plan 5–6s, so the plan works on either lane — the range is 5–30s; the budget lane's MiniMax H3 floor is 5s, so a 3s or 4s shot cannot be made there)** — each sub-scene is one clip
+1. **Clip limits differ by lane:** Seedance 2.5 supports 4–30s; MiniMax H3/H3 Max support 5–15s. Keep shots at 5–15s (5–6s is useful coverage) to keep either lane open; a 4s or 16–30s shot is Seedance-only, and 3s cannot be generated on either lane — each sub-scene is one clip
 2. **Different shot sizes = different prompts** — wide establishing shots need different composition than closeups
 3. **Review granularity** — the user can approve/reject individual camera angles without redoing the whole scene
 4. **Consistency** — each sub-scene references the same approved character + set assets from the consistency tracker

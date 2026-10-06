@@ -62,9 +62,7 @@ line, ask **once**, and hold the answer for the project — never re-ask per cli
 | **Budget — `minimax/h3`** | ≈US$0.30 | 5–15s with a **5-second floor**, 15s cap, refs billed past the first 5 |
 | **Budget — `minimax/h3-max`** | ≈US$0.40 | as above |
 
-Across a 70-second film the two lanes are roughly **7–9× apart** — the biggest
-single cost decision in the production, which is why it is the owner's to make.
-A 3s or 4s beat is the one thing that forces the premium lane.
+For **70 seconds of generated video in an approximately 60-second finished film**, the two lanes are roughly **7–9× apart**. A 3s or 4s beat is the one thing that forces the premium lane.
 
 ## Parameters
 

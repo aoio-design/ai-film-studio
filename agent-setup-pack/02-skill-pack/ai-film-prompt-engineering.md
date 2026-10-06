@@ -191,8 +191,7 @@ look broken.
 4. Generate at 720p (480p for drafts), upscale later
 5. Character consistency via reference images, named `@Image1`, `@Image2`… in the prompt
 6. Physical cues, not emotions
-7. Keep clips 4–6 seconds on the premium lane (Seedance 2.5 accepts nothing under 4s);
-   the budget lane's floor is 5s, so a 3s or 4s shot cannot be made there at all
+7. Plan generated shots at 5–30 seconds, with 5–6 seconds as the default; 4 seconds is premium-lane only. Budget H3/H3 Max shots run 5–15 seconds (5-second floor). Treat sub-5-second beats as edit estimates: merge, hold, or trim them rather than generating a standalone clip.
 8. The approved Style Reference is the FIRST reference image on every image request
 
 See also: `ai-film-keyframe-authoring` (first-frame prompts), `fal-ai-ops`

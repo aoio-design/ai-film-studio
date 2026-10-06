@@ -71,10 +71,7 @@ as two *hosts*. Price both lanes on the same shots and let them decide:
   2K, only fal.ai sells it: say that plainly instead of implying a choice. Seedance 2.5 is
   about 19% cheaper on Higgsfield. In practice the budget lane is a fal.ai lane and the
   premium lane is a Higgsfield lane.
-- **Scale, which is worth saying out loud:** a 70-second film's video (a 60-second film)
-  is about US$39.73 on fal or US$32.35 on Higgsfield on the premium lane, against about
-  US$5.60 (`h3-max`) or US$4.20 (`h3`) on the budget lane — roughly a **7–9× spread**, the
-  biggest single cost decision in the production.
+- **Scale:** 70 seconds of generated video for an approximately 60-second finished film is about US$39.73 on fal or US$32.35 on Higgsfield on the premium lane, against about US$5.60 (`h3-max`) or US$4.20 (`h3`) on the budget lane — roughly a **7–9× spread**.
 - **Ask ONCE per batch.** State the trade-off in one line, let the owner choose, and hold
   that choice for the project — do not re-ask for every clip, and do not present one lane
   as the only option.
