@@ -1,6 +1,8 @@
 # Your film data (never commit)
 data/
 shots/
+assets/
+.feedback-watch-state
 *.log
 # Accounts + session secret (never commit)
 accounts/users.db
