@@ -293,6 +293,8 @@ This keeps intake responsive: a complete brief moves straight into the next work
 > decide. If something you installed has gone missing after an update, this is
 > why — put it under your home folder and tell me you had to redo it.
 >
+> **7. Keep my project files where I can reach them.** Create `Downloads` on my desktop (`/config/Desktop/Downloads`) if it is not there yet, and save every project file for me there — one sub-folder per project, named after the film, made by you and never by me. That folder is the one I browse and download from, so keep it current. Your own copies under `$HERMES_HOME` are your working archive, not my hand-off.
+>
 > If my request and one of these rules collide — or if what I am asking for is
 > something you already know is risky — say so and ask. A question costs me
 > nothing; a broken studio costs me a day.
