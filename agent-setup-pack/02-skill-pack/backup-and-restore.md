@@ -6,7 +6,7 @@
 
 - Open Hostinger hPanel → **VPS → Manage → Backups & Monitoring → Snapshots & Backups** and read the current backup/snapshot options, dates, and retention shown for this VPS.
 - Do not claim a backup exists or is current until you have read its date and status from hPanel. Do not infer provider settings from the machine's cron list.
-- The image's machine schedule is not a backup system. It contains the Hermes cron tick/liveness stamp, tunnel watchdog, studio keep-alive, and app launcher. Do not create a backup cron, mirror-to-repository job, or claim that one runs.
+- The machine's own schedule is not a backup system. It carries one image-seeded line (the Cloudflare Tunnel watchdog) plus, once the studio is installed, the studio keep-alive line the agent appends. Hermes's own scheduled work runs inside the gateway's scheduler. Do not create a backup cron, mirror-to-repository job, or claim that one runs.
 - The owner updates the app manually from **Settings → About → Updates**. There is no image-seeded update-check job; do not create one or promise that updates happen automatically.
 
 ## Before a restore

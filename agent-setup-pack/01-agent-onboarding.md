@@ -127,7 +127,7 @@ If nothing changed, one line is enough.
 > 2. Check both hostname routes use the expected local services (`cloud.MY-DOMAIN` → `http://localhost:3000`, `studio.MY-DOMAIN` → `http://localhost:80`) and confirm each public address shows its Cloudflare Access gate. If a route or policy is missing, tell the owner what to fix in Cloudflare; do not modify the dashboard.
 > 3. Check the desktop and studio origins from inside the machine and confirm the Compose project publishes no ports.
 > 4. Check that the browser opens one page using the shipped browser.
-> 5. Verify the image-seeded Hermes cron tick/liveness stamp, tunnel watchdog, studio keep-alive, and app launcher. Create the studio feedback watcher once if absent; do not create a duplicate, backup job, or update-check job.
+> 5. Verify the machine's schedule: the image-seeded Cloudflare Tunnel watchdog line, plus the studio keep-alive line that was appended when the studio was installed (if the studio is installed and the line is missing, add it per §3c). Hermes's own scheduled work runs inside the gateway, so there is no tick line to look for. Create the studio feedback watcher once if absent; do not create a duplicate, backup job, or update-check job.
 >
 > Report only what you checked. Backups are provider-managed in hPanel; app updates are manual from Settings → About → Updates. Do not claim tunnel support unless the image hook exists and the connected tunnel and gated routes were verified.
 
