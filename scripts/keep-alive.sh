@@ -10,8 +10,9 @@
 #   2. the studio answers on its port                    -> restarted with the studio's own start.sh
 #   3. the tunnel process is alive                       -> restarted from its own settings file
 #
-# Wire it up on the machine's own schedule, /config/crontabs/abc:
-#   */5 * * * * HERMES_HOME=/agent-home/.hermes HOME=/config PATH=/config/.local/bin:/usr/local/bin:/usr/bin:/bin /config/cron-notify.sh "Keep-alive" /agent-home/.hermes/studio/scripts/keep-alive.sh
+# Wire it up on the machine's own schedule, /config/crontabs/abc — APPEND at the end of
+# that file (the lines above it are the image's), then load it with: crontab /config/crontabs/abc
+#   */5 * * * * AOIO_NOTIFY_ENV=/config/.hermes/.env HERMES_HOME=/config/.hermes HOME=/config PATH=/config/.local/bin:/usr/local/bin:/usr/bin:/bin /config/cron-notify.sh "Keep-alive" /config/.hermes/studio/scripts/keep-alive.sh
 #
 # Report one line only when it acted, so silence is success and the log stays empty on a
 # healthy machine. Studied from the same design as studio-watchdog.sh.

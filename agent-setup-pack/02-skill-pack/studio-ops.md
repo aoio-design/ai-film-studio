@@ -69,10 +69,10 @@ python3 "$HERMES_HOME/studio/accounts/aoio_auth.py" verify owner@example.com 'pa
 ```
 
 - Roles: `owner` = the full studio. `reviewer` = the studio only, never the agent's chat.
-- The agent's **own web app** has a separate password, set by the owner when they
-  deployed it (`HERMES_WEBUI_PASSWORD`). It is not in this account file and you do not
-  manage it here — if the owner is locked out of the app, point them at hpanel →
-  Docker Manager (their project's configuration), not at the studio's accounts.
+- The **desktop app** has its own login, set by the owner in their Compose file
+  (`CUSTOM_USER` / `PASSWORD`), and it is also the desktop's login. It is not in this
+  account file and you do not manage it here — if the owner is locked out, point them at
+  hpanel → Docker Manager → their project's YAML editor, not at the studio's accounts.
 - **There is no password-reset email and there never will be** — the VPS runs no
   mail server (providers block outgoing mail ports), so a reset link could not be
   delivered. When the owner says "I forgot my password", run the `passwd` command
@@ -306,7 +306,7 @@ field. Feedback on the script lives in that JSON's `feedback[]` too.
 The studio starts EMPTY. Nothing in it is created by hand by the owner; you
 create it all. The loop:
 
-1. **Idea chat (Web UI).** The owner brings an idea; you ask questions and
+1. **Idea chat (the app).** The owner brings an idea; you ask questions and
    shape it with them. No files yet.
 2. **Draft the script and shot plan first.** When the owner says go, ask only for story, format, or runtime choices that are still missing. Build the script around their intent; do not impose a fixed sentence or word cap on dialogue. Plan shots from the story beats and requested runtime: use the shared **5–15 second** range to keep both lanes open, with **5–6 seconds** as a useful coverage starting point. Seedance 2.5 supports 4–30s; 4-second and 16–30-second shots are premium-only, while MiniMax H3/H3 Max support 5–15s. Before hand-back, check story clarity, character voice, continuity, shot timing, and dialogue readability; flag and revise concrete issues, not by applying a blanket “keep it short” rule. Populate the project/season, script pane and shot cards in the studio. **Words only. Stop and wait for script approval before writing the studio character/location/prop bible.**
 3. **After the script is approved, draft and review the asset bible.** Save any look images the owner has sent into the **Style Reference** section. Then write the character/location/prop text and prompts into `/a/<season>`; every asset card carries its image prompt (Characters: `character_sheet_prompt`; Locations/Props: `prompt`). The owner reviews those words separately through the **Talk to your agent** drawer. Read only notes newer than your last revision, amend the drafts, re-upload, and say what changed. Loop until the owner approves the bible. **No generation until both the script and the asset words are approved.**
@@ -441,18 +441,18 @@ Studio's Talk-to-your-agent drawer**:
 hermes cron create 'every 5m' --name 'Studio feedback watcher' --deliver local \
   --monitor-script studio-feedback-watch.py \
   --prompt 'New feedback appeared in the Studio (via the Talk-to-your-agent drawer). Open each reported file, read every feedback entry in full, and act on it: revise the referenced script lines, shots, or asset prompts. Then append a reply to $HERMES_HOME/studio/shots/_agent_replies.json as [{"timestamp": "...", "project": "<project id from the file path, or null>", "text": "what you changed"}] so the owner sees it in the drawer. Preserve existing records.
-GENERATION / PAID WORK: this cron session has NO paid key and must NEVER attempt generation (no images, clips, upscaling). When the owner asks to generate: (1) look up and state the fal.ai cost, (2) do NOT generate — tell the owner to go back to the WebUI/Telegram/WhatsApp to run it with their paid session, and (3) if they forgot the flow, point them back to their live chat to trigger it. Report concisely what you changed.'
+GENERATION / PAID WORK: this cron session has NO paid key and must NEVER attempt generation (no images, clips, upscaling). When the owner asks to generate: (1) look up and state the fal.ai cost, (2) do NOT generate — tell the owner to go back to their live chat (the app, Telegram or WhatsApp) to run it with their paid session, and (3) if they forgot the flow, point them back to their live chat to trigger it. Report concisely what you changed.'
 ```
 
 > ⚠️ **Two hard rules for this job:**
 > 1. **`--deliver local` ONLY.** The agent's reply appears in the studio drawer, so it must NOT also blast a Telegram/WhatsApp channel every time the owner sends feedback (that would spam them on every note). The image-seeded machine jobs (cron tick, tunnel watchdog, studio keep-alive, app launcher) are not backup or update-check jobs. Do not add chat delivery to those jobs or create replacements.
-> 2. **Never generate from this cron.** The background job has no paid key. Paid generation (images, clips, upscaling via fal.ai) must be run by the owner in their live WebUI/Telegram/WhatsApp session. The agent's job is to report the cost and redirect the owner there — never attempt generation itself.
+> 2. **Never generate from this cron.** The background job has no paid key. Paid generation (images, clips, upscaling via fal.ai) must be run by the owner in their live chat (the app, Telegram or WhatsApp) session. The agent's job is to report the cost and redirect the owner there — never attempt generation itself.
 
 This closes the loop: you leave feedback → watcher detects it (checks shots,
 the episode script, your Character Bible assets, and your general studio
 notes every 5 minutes) → your agent applies text changes and TELLS YOU what it
 did in the drawer. If paid fal.ai generation is needed, the agent reports the
-estimated cost and points you back to your live WebUI/Telegram/WhatsApp
+estimated cost and points you back to your live chat (the app, Telegram or WhatsApp)
 session to run it — so money is only ever spent in a session you are present
 in and have approved.
 
@@ -483,7 +483,7 @@ same loop — there is only one copy of the wiring, driven by files on disk.
 5. If the owner's request needs **paid fal.ai generation** (images, clips,
    upscaling), do NOT fire it and do NOT try from the cron. Look up and state
    the **estimated cost**, then tell the owner to **go back to their live
-   WebUI/Telegram/WhatsApp session** to run it there (the paid key lives in
+   live chat (the app, Telegram or WhatsApp) session** to run it there (the paid key lives in
    that interactive session). If the owner seems to have forgotten the flow
    and asks you to "kick off" generation, point them back to their live chat
    to trigger it — never attempt generation from the cron.
@@ -529,7 +529,7 @@ When the owner says their machine was updated, or asks whether their skills are
 current:
 
 ```bash
-P=/agent-home/.hermes/studio/agent-setup-pack/02-skill-pack/scripts/refresh-skills-pack.sh
+P=$HERMES_HOME/studio/agent-setup-pack/02-skill-pack/scripts/refresh-skills-pack.sh
 bash "$P" --dry-run     # what would change — show this first
 bash "$P"               # apply it (every replaced file is backed up)
 bash "$P" --studio      # also the app code; then restart the studio, and rebuild

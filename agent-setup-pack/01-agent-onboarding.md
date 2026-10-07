@@ -65,7 +65,20 @@ defaults, not the number to quote.
 
 ## 3c. Know which scheduled jobs exist
 
-> The image seeds four machine-schedule lines: the Hermes cron tick/liveness stamp, the cloudflared tunnel watchdog, the studio keep-alive, and the app launcher. The studio feedback watcher is the single agent-schedule job created from Guide Section 4.2. **There is no in-container backup job or update-check job.** Backups are managed by the hosting provider in hPanel; the owner updates the app manually from Settings → About → Updates. Do not invent or recreate backup/update jobs, and do not claim they deliver alerts to chat.
+> **The machine's own schedule** (`/config/crontabs/abc`, installed at every boot) carries **one** line: the Cloudflare Tunnel crash-recovery watchdog. Hermes runs its own scheduler inside the gateway, so there is no cron-tick line here and nothing to add for your own jobs.
+>
+> **You create two jobs, once each — never a duplicate:**
+>
+> 1. **The studio keep-alive.** Create it when you finish installing the studio (Guide Chapter 5). It belongs on the **machine's** schedule, because it has to keep working when the agent is not: append this line at the **END** of `/config/crontabs/abc` (never rewrite the lines above it, they are the image's), then load it with `crontab /config/crontabs/abc` (that is the whole install — no restart of anything):
+>
+>    ```
+>    */5 * * * * AOIO_NOTIFY_ENV=/config/.hermes/.env HERMES_HOME=/config/.hermes HOME=/config PATH=/config/.local/bin:/usr/local/bin:/usr/bin:/bin /config/cron-notify.sh "Keep-alive" /config/.hermes/studio/scripts/keep-alive.sh
+>    ```
+>
+>    It probes the desktop, restarts the studio when it is down, and prints nothing on a healthy machine. Set `AOIO_NOTIFY_ENV` exactly as shown: `/config/cron-notify.sh` reads the Telegram token and chat id from the buyer's own `.env`, and its built-in default points at an older home path, so without this line a restart it makes would never reach the owner.
+> 2. **The studio feedback watcher.** Created from the checklist in Guide Section 4.2, after the owner finishes the manual Cloudflare bootstrap. That one is a **Hermes** job (`no_agent`, `deliver=local`, every 5 minutes), because its output belongs in the studio drawer and not in a chat channel.
+>
+> **There is no in-container backup job or update-check job.** Backups are managed by the hosting provider in hPanel; the owner updates the app manually from Settings → About → Updates. Do not invent or recreate backup/update jobs, and do not claim they deliver alerts to chat.
 
 > When diagnosing a scheduled job, inspect the scheduler's actual job list and logs. Report only jobs you can read back from the running machine; do not infer a schedule from old notes.
 
@@ -78,7 +91,7 @@ means a **newer copy inside an updated image does not reach me on its own.**
 Bring it across when I ask, or after I tell you my machine was updated:
 
 ```bash
-S=/agent-home/.hermes/studio/agent-setup-pack/02-skill-pack/scripts/refresh-skills-pack.sh
+S=$HERMES_HOME/studio/agent-setup-pack/02-skill-pack/scripts/refresh-skills-pack.sh
 bash "$S" --dry-run    # show me what would change, first
 bash "$S"              # then apply it
 ```
@@ -284,13 +297,13 @@ This keeps intake responsive: a complete brief moves straight into the next work
 > **5. Check recovery before you build.** Read the current backup/snapshot options and restore-point status in hPanel; do not assume a weekly in-container job or that a particular folder is covered. Save a copy of files you are about to overwrite, and tell me if the change could be lost in a provider restore.
 >
 > **6. Never install a program into the machine itself.** This server is built
-> from a picture of a machine, and only two folders are kept outside that picture:
-> the desktop's home (`/config`) and yours (`/agent-home`). Everything else is
-> thrown away and rebuilt whenever the machine is updated — so a tool installed
-> with `apt` or `pip`, or downloaded into `/tmp` or `/usr/local`, works today and
-> has vanished tomorrow with no warning. If you need a tool, install it under
-> `/agent-home/...` so it survives; if that will not work, tell me why and let me
-> decide. If something you installed has gone missing after an update, this is
+> from a picture of a machine, and only two folders survive an update: the
+> desktop's home (`/config`, which holds your own home, `/config/.hermes`) and
+> `/shared`. Everything else is thrown away and rebuilt whenever the machine is
+> updated — so a tool installed with `apt` or `pip`, or downloaded into `/tmp` or
+> `/usr/local`, works today and has vanished tomorrow with no warning. If you need
+> a tool, install it under your own home (`$HERMES_HOME/...`) so it survives; if
+> that will not work, tell me why and let me decide. If something you installed has gone missing after an update, this is
 > why — put it under your home folder and tell me you had to redo it.
 >
 > **7. Keep my project files where I can reach them.** Create `Downloads` on my desktop (`/config/Desktop/Downloads`) if it is not there yet, and save every project file for me there — one sub-folder per project, named after the film, made by you and never by me. That folder is the one I browse and download from, so keep it current. Your own copies under `$HERMES_HOME` are your working archive, not my hand-off.

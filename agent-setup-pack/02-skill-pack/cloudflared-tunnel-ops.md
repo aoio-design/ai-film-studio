@@ -1,12 +1,12 @@
 ---
 name: cloudflared-tunnel-ops
-description: "Operate and troubleshoot cloudflared named tunnels routing subdomains to local services (Hermes WebUI, studio, dashboards). Covers 502 vs origin-down diagnosis, tunnel lifecycle, config validation, and health-check cron patterns."
+description: "Operate and troubleshoot cloudflared named tunnels routing subdomains to local services (the desktop on port 3000, the studio on port 80). Covers 502 vs origin-down diagnosis, tunnel lifecycle, config validation, and health-check cron patterns."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
 metadata:
   hermes:
-    tags: [cloudflared, cloudflare-tunnel, webui, devops, 502, health-check, cron]
+    tags: [cloudflared, cloudflare-tunnel, desktop, studio, devops, 502, health-check, cron]
     related_skills: [hermes-agent]
 ---
 
@@ -19,7 +19,7 @@ metadata:
 ## When to Use
 
 - A subdomain (e.g. `cloud.MY-DOMAIN`, `studio.MY-DOMAIN`) is down / 502 / unreachable
-- Restarting the Hermes WebUI or other tunneled local services
+- Restarting a tunneled local service (the desktop on port 3000, the studio on port 80)
 - Validating or editing the tunnel ingress config
 - Investigating why a health-check cron stopped firing
 - Any "site stopped working after update/restart" report for tunneled services
@@ -31,7 +31,7 @@ metadata:
 Diagnostic order:
 1. `curl -sS -m 5 -o /dev/null -w "local:PORT -> HTTP %{http_code}\n" http://127.0.0.1:PORT/health` — if this fails to connect, the origin is down. That's the root cause.
 2. `ps aux | grep cloudflared` — tunnel process alive? (It will still be running when you get 502; the tunnel doesn't die when the origin does.)
-3. Check the service log tail for the crash: `tail -30 $HERMES_HOME/logs/webui.log` — look for `[crash-visibility] process exit pid=NNNN` (Hermes WebUI logs this when it dies).
+3. Check the origin's own log tail: the studio logs to `$HERMES_HOME/studio/studio.log`; the desktop is served by the machine's own supervised services (nginx + Selkies), so check `svc-nginx`/`svc-selkies` state rather than an app log.
 4. If origin is up but tunnel is down → restart tunnel (see Lifecycle).
 
 **Connection refused / DNS failure on a buyer hostname** = tunnel or dashboard route problem. Check the token-backed process and local service; ask the owner to inspect the Cloudflare published route and Access application in the dashboard. Do not run `cloudflared tunnel route dns` or change the route for the buyer.
@@ -66,17 +66,18 @@ ln -sf "$CF" /tmp/cloudflared
 ```
 GitHub release downloads return 200 from this VPS (redirect to objects.githubusercontent.com works even though api.github.com is blocked).
 
-### Restart Hermes WebUI (port 8787)
+### Restart the studio (port 80)
 ```
-cd $HERMES_HOME/hermes-webui
-HERMES_WEBUI_PYTHON=/opt/hermes/.venv/bin/python3 nohup python3 bootstrap.py \
-  --skip-agent-install --no-browser --foreground 8787 >> $HERMES_HOME/logs/webui.log 2>&1 &
+cd "$HERMES_HOME/studio" && bash start.sh      # prints "Studio started" when it is up
 ```
-Wait ~8-10s, then verify: local `/health` returns 200, subdomain returns 302 (login redirect = working).
+Wait ~8-10s, then verify: `curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:80/` returns **302** (the login redirect = working). If it is already running, `start.sh` refuses — do not force a second instance.
+
+The **desktop** is not restarted by hand: nginx and Selkies are supervised by the machine's own service manager, so if port 3000 is down, check the machine's service state and, failing that, restart the container from the owner's panel.
 
 ### Verify end-to-end
 ```
-curl -sS -m 5 -o /dev/null -w "local:8787 -> %{http_code}\n" http://127.0.0.1:8787/health
+curl -sS -m 5 -o /dev/null -w "desktop:3000 -> %{http_code}\n" http://127.0.0.1:3000/
+curl -sS -m 5 -o /dev/null -w "studio:80  -> %{http_code}\n" http://127.0.0.1:80/
 curl -sS -m 10 -o /dev/null -w "subdomain -> %{http_code}\n" https://cloud.MY-DOMAIN
 ```
 
@@ -103,11 +104,11 @@ Convert the job to a plain script watchdog instead: `no_agent=true` + `script=..
 Scripts run under bash directly — no tool restrictions — and the watchdog pattern
 (empty stdout = silent; print only when something was restarted) keeps it quiet:
 ```
-cronjob(action='update', job_id=..., no_agent=true, script='webui-tunnel-health.sh', schedule='every 5m', deliver='local')
+cronjob(action='update', job_id=..., no_agent=true, script='studio-keep-alive.sh', schedule='every 5m', deliver='local')
 ```
 The script must: probe the service (/health), check the binary exists (re-download
 if missing), re-create the `/tmp` symlink, `pgrep` the daemon and restart only when
-absent. Known-good example: `$HERMES_HOME/studio/scripts/keep-alive.sh` — shipped with the studio and wired to the machine's own schedule in the Guide's Chapter 2 (it probes the desktop in-machine, restarts the studio via `start.sh`, and restarts the tunnel from `.cloudflared/config.yml`).
+absent. Known-good example: `$HERMES_HOME/studio/scripts/keep-alive.sh` — shipped with the studio. On the buyer image the machine's own schedule carries only the **tunnel watchdog** line (`/config/crontabs/abc`), so the **studio keep-alive is an agent-side job** the owner's agent creates once (Guide Chapter 5): it probes the desktop in-machine, restarts the studio via `start.sh`, and restarts the tunnel from `.cloudflared/config.yml`.
 
 **Cron script-path quirk:** the cronjob tool validates script paths relative to
 `~/.hermes/scripts/` (rejects absolute paths), but the scheduler RUNNER resolves bare

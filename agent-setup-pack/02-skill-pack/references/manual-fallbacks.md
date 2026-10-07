@@ -68,38 +68,42 @@ browser**. Re-check them if browsing ever starts costing money.
 **fal.ai is not an LLM provider — it never appears on the app's Settings → Providers page.**
 The key belongs in the agent's own environment file, which the owner edits through the
 app's file browser (`$HERMES_HOME/.env`) — never in a chat, and never in the studio repo.
-**Route (the only one that works): hpanel → Docker Manager → the project → Manage →
-`.yaml` editor → add `FAL_KEY` to the `hermes-agent` service's `environment:` →
-Update.** Verified: the key then answers `printenv FAL_KEY` in your container.
-**There is no in-app route.** The app's Providers page is for chat models only, and the
-app's file browser cannot reach your settings file: the two of you run in separate
-containers with different paths to the same folder (you see `/home/hermes/.hermes`; the
-app sees `/home/hermeswebui/.hermes`). Never quote your own `$HERMES_HOME` path to the
-owner as somewhere they can open.
+**Route (the normal one): the app's own key field — Settings → Tools & Keys → Tools →
+the FAL API key row → paste → save** (the value then shows masked). This is the route the
+Guide teaches, and you and the app run in the **same** container on the **same** machine,
+so `$HERMES_HOME/.env` is a real path for both of you.
+The owner can also reach that file themselves through the app's file panel
+(**Open folder as project…** → `/config/.hermes`, then `.env`). Terminal equivalent, if
+you need it: `hermes config set FAL_KEY '<key>'`.
 By hand (or to check the file):
 
 ```bash
 grep -c FAL_KEY "$HERMES_HOME/.env" || echo "FAL_KEY=..." >> "$HERMES_HOME/.env"
 ```
 
-## 5. The app itself (Web UI) — only if the catalog deploy is unusable
+## 5. The app itself — nothing to install
 
-The normal path is one click in hpanel → Docker Manager → Compose → One click deploy →
-**Hermes WebUI**, which brings the agent and this app together. The manual equivalent,
-for a host where that is not an option:
+The app is not a separate product and there is nothing to add: it arrives with you. The
+installer's `--include-desktop` flag builds it, and it starts with
 
 ```bash
-git clone https://github.com/nesquena/hermes-webui.git "$HERMES_HOME/hermes-webui"
-cd "$HERMES_HOME/hermes-webui"
-cp .env.docker.example .env      # or .env.example for the native path
-# set: HERMES_WEBUI_HOST=127.0.0.1, HERMES_WEBUI_PORT=8787,
-#      HERMES_WEBUI_PASSWORD=<long random>, HERMES_HOME=the agent's home
-./ctl.sh start && curl -s http://127.0.0.1:8787/health
+hermes desktop
 ```
 
-Use this only as a fallback and say so plainly when you do: the standard install keeps
-the app and the agent in one managed project where updates preserve the data volume, and
-the hand-built path does not.
+It shares the same config, keys, sessions, memory and skills as your terminal — one
+agent, two windows onto it.
+
+If it will not open, check these two, in this order:
+
+- **The container's Electron rule.** Inside this machine Electron's own sandbox cannot
+  start, so the app launches with `--no-sandbox`, set once:
+  `hermes config set desktop.electron_flags '["--no-sandbox"]'`.
+- **Run it with `--skip-build` from a terminal** (`hermes desktop --skip-build`): a
+  failure is then printed in plain text instead of dying silently. Report what it says.
+
+Do **not** install a web UI, dashboard or any second interface for the owner. The desktop
+app is the supported surface; anything else is a second thing to keep alive and a second
+way to be confused about which one has their keys.
 
 ## 6. The installer script (no fallback needed)
 
