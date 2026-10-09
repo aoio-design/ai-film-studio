@@ -360,8 +360,9 @@ create it all. The loop:
 ## Keys and the spending rule (MANDATORY — never break this)
 
 > All generation runs through the owner's **fal.ai** account (the key lives in the
-> agent's environment file as `FAL_KEY` — fal is not an LLM provider, so it is **not**
-> on the app's Providers page) and through **Higgsfield** (`HIGGSFIELD_API_KEY`) once
+> agent's environment file as `FAL_KEY`; the owner enters it once in the app at
+> **Settings → Tools & Keys → Tools**, on the **FAL API key** row — Section 2.3 of
+> *Setting up your AI Film Studio* — and fal is not an LLM provider, so it is **not** on the app's Providers page) and through **Higgsfield** (`HIGGSFIELD_API_KEY`) once
 > that is configured. Every successful output costs the owner money (roughly US$0.04
 > per character sheet at high quality, US$0.01 per location or prop at medium,
 > US$0.045 per first frame, ~US$0.01 per character for the one-time voice reference,
@@ -416,7 +417,7 @@ create it all. The loop:
 Without this job the studio is only half-working: the **Talk to your agent**
 drawer is how the owner reviews work, and nothing reads what they leave there.
 Treat a missing watcher as a broken studio, not a missing nicety — it is created once
-from the Guide Section 4.2 first-task checklist. This section is operational recovery guidance: check for an existing job before using its command, and never create a duplicate.
+when the studio is installed (the install checklist in Chapter 1 of *Setting up your AI Film Studio*). This section is operational recovery guidance: check for an existing job before using its command, and never create a duplicate.
 
 `studio-feedback-watch.py` reports new feedback from **all four** places the
 studio writes it: shot `metadata.json`, episode `_episode_script.json`,

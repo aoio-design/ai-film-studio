@@ -11,7 +11,9 @@ finished files.*
 > provider with live rates: `references/provider-price-comparison.md`.
 >
 > **A second provider may be configured: Higgsfield** (`HIGGSFIELD_API_KEY`, in the same
-> `.env`, added by the owner through the app's workspace panel exactly like `FAL_KEY`).
+> `.env`). It has **no field in the app**, so the owner sets it with one terminal line on
+> the machine — `hermes config set HIGGSFIELD_API_KEY "KEY_ID:KEY_SECRET"` (Section 2.4 of
+> *Setting up your AI Film Studio*) — and the FAL key is entered in the app instead (next section).
 > Check it the same way you check `FAL_KEY` and include it in every price comparison —
 > it carries the **same** image model as fal (at OpenAI's own token rates, so images
 > normally price identically on both providers) and the **same** premium video model
@@ -36,33 +38,31 @@ finished files.*
 ## The account and the key
 
 - The owner has a **fal.ai** account (prepaid credits) and an **API key**
-  stored as **`FAL_KEY`** in your environment file on the server — the owner adds
-  it there from hpanel (Docker Manager → the project → **Manage** → the `.yaml`
-  editor → add `FAL_KEY` to the `hermes-agent` service's `environment:` → **Update**),
-  or, if they prefer, in `$HERMES_HOME/.env` through the app's file browser — that
-  file sits in a dot-folder, so the workspace must be switched to the agent's home
-  path and "Show hidden files" switched on first (guide Ch4 §4.4). Never ask for the
-  key in chat. **Do not send the owner into the app's file browser for this, and do not
-  quote your own `$HERMES_HOME` path to them:** the app runs in a different container and
-  sees the same folder under a different path, so a path that is correct for you will
-  not exist for them.
+  stored as **`FAL_KEY`** in your environment file on the server. **The owner's route is
+  the app's own key field: Settings → Tools & Keys → the Tools tab → the FAL API key row
+  → paste → save** (the value then shows masked). That is the route the Guide teaches
+  (Section 2.3 of *Setting up your AI Film Studio*). Never ask for the key in chat.
+  **Do not send the owner into a file browser, and do not quote your own `$HERMES_HOME`
+  path to them:** send them to that key field. By hand the same value can also be set in
+  `$HERMES_HOME/.env` or as an `environment:` entry on the `cloud-computer` service in
+  hpanel's Docker Manager YAML — those are fallbacks, not the taught route.
   **fal is not an LLM provider, so it never appears on the app's Providers page —
   if the owner says it isn't there, that is correct, not a bug.** Confirm it with:
   ```bash
   echo ${FAL_KEY:+FAL_KEY is set}
   ```
   If it prints nothing, read `$HERMES_HOME/.env` yourself and report what you find
-  (never ask the owner to paste the key into chat — tell them the steps in guide
-  Ch4 §4.4 instead).
-  If the line is missing, tell the owner to add `FAL_KEY=…` to that file in
-  their Hermes app (guide Chapter 4, Section 4.4) — **never** ask them to
-  paste the key in chat.
+  (never ask the owner to paste the key into chat — send them to the app's key field,
+  Section 2.3 of *Setting up your AI Film Studio*).
+  If the line is missing, tell the owner to paste the key into the app's
+  **Settings → Tools & Keys → Tools** field, on the **FAL API key** row
+  (Section 2.3 of *Setting up your AI Film Studio*) — **never** ask them to paste the key in chat.
 - **Never print, log, or echo the key itself.** Secrets live in the
   environment; `echo $FAL_KEY` is for the *presence* check above only.
 
 ## The tool: genmedia (fal's CLI for agents)
 
-Install once (the guide's Chapter 4, Section 4.5 has the owner-facing
+Install once (Section 2.3 of *Setting up your AI Film Studio* has the owner-facing
 instructions; if it's missing here, install it):
 
 ```bash
@@ -323,7 +323,7 @@ lane, ~US$0.14 per 4K upscale — these figures are orientation only; check
 
 | Symptom | Action |
 |---|---|
-| `FAL_KEY is set` prints nothing | Key not in your environment — read `$HERMES_HOME/.env`; if the line is missing, tell the owner to add `FAL_KEY=…` to it via the app's file browser (guide Ch4 §4.4). If the line IS there, ask them to restart the app so you pick it up. Stop. |
+| `FAL_KEY is set` prints nothing | Key not in your environment — read `$HERMES_HOME/.env`; if the line is missing, tell the owner to paste the key into the app's **Settings → Tools & Keys → Tools** field on the **FAL API key** row (Section 2.3 of *Setting up your AI Film Studio*). If the line IS there, ask them to restart the app so you pick it up. Stop. |
 | `401 Unauthorized` / `403` | Key wrong or scope not **API** — ask the owner to check the key on fal.ai. |
 | `429` or queue waits long | Platform is busy or out of credit — check the balance; wait and retry, or ask the owner to top up. |
 | Model error in the response | Re-read `genmedia run <model> --help`, fix the parameter, retry. One retry, then report. |

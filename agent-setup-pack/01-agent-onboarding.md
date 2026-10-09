@@ -61,7 +61,7 @@ defaults, not the number to quote.
 
 ## 3b. The studio feedback watcher is created during first-task setup
 
-> The studio feedback watcher is created once from the setup checklist started in Guide Section 4.2, after the owner finishes the manual Cloudflare bootstrap. Do not create a second watcher during onboarding. If it is missing later, use the recovery instructions in `studio-ops.md` and check for an existing job first.
+> The studio feedback watcher is created once **when you install the studio** — the install checklist in Chapter 1 (Section 1.4) of *Setting up your AI Film Studio*. Do not create a second watcher: check for an existing job first, and only create one if it is missing. If it is missing later, use the recovery instructions in `studio-ops.md` and check for an existing job first.
 
 ## 3c. Know which scheduled jobs exist
 
@@ -69,14 +69,14 @@ defaults, not the number to quote.
 >
 > **You create two jobs, once each — never a duplicate:**
 >
-> 1. **The studio keep-alive.** Create it when you finish installing the studio (Guide Chapter 5). It belongs on the **machine's** schedule, because it has to keep working when the agent is not: append this line at the **END** of `/config/crontabs/abc` (never rewrite the lines above it, they are the image's), then load it with `crontab /config/crontabs/abc` (that is the whole install — no restart of anything):
+> 1. **The studio keep-alive.** Create it when you finish installing the studio (Chapter 1 of *Setting up your AI Film Studio*). It belongs on the **machine's** schedule, because it has to keep working when the agent is not: append this line at the **END** of `/config/crontabs/abc` (never rewrite the lines above it, they are the image's), then load it with `crontab /config/crontabs/abc` (that is the whole install — no restart of anything):
 >
 >    ```
 >    */5 * * * * AOIO_NOTIFY_ENV=/config/.hermes/.env HERMES_HOME=/config/.hermes HOME=/config PATH=/config/.local/bin:/usr/local/bin:/usr/bin:/bin /config/cron-notify.sh "Keep-alive" /config/.hermes/studio/scripts/keep-alive.sh
 >    ```
 >
 >    It probes the desktop, restarts the studio when it is down, and prints nothing on a healthy machine. Set `AOIO_NOTIFY_ENV` exactly as shown: `/config/cron-notify.sh` reads the Telegram token and chat id from the buyer's own `.env`, and its built-in default points at an older home path, so without this line a restart it makes would never reach the owner.
-> 2. **The studio feedback watcher.** Created from the checklist in Guide Section 4.2, after the owner finishes the manual Cloudflare bootstrap. That one is a **Hermes** job (`no_agent`, `deliver=local`, every 5 minutes), because its output belongs in the studio drawer and not in a chat channel.
+> 2. **The studio feedback watcher.** Created when you install the studio (Chapter 1 of *Setting up your AI Film Studio*). That one is a **Hermes** job (`no_agent`, `deliver=local`, every 5 minutes), because its output belongs in the studio drawer and not in a chat channel.
 >
 > **There is no in-container backup job or update-check job.** Backups are managed by the hosting provider in hPanel; the owner updates the app manually from Settings → About → Updates. Do not invent or recreate backup/update jobs, and do not claim they deliver alerts to chat.
 
@@ -115,17 +115,17 @@ If nothing changed, one line is enough.
 
 ## 3e. Cloudflare setup belongs to the owner
 
-> The owner completes the Cloudflare work in the dashboard, following Guide Section 4.1: create one named Tunnel and copy its run token; enable the Cloudflare One-time PIN identity provider; create Access applications and Allow policies for `cloud.MY-DOMAIN` and `studio.MY-DOMAIN`; change the desktop password; then enable the per-tunnel `CLOUDFLARE_TUNNEL_TOKEN` in private Hostinger YAML while the Tunnel has no hostname routes. Once the connector is healthy, add the published routes (`cloud.MY-DOMAIN` → `http://localhost:3000`, desktop; `studio.MY-DOMAIN` → `http://localhost:80`, studio). Access must exist before routes. Use this only with a buyer image and Compose template that include the `CLOUDFLARE_TUNNEL_TOKEN` hook. If the field is missing or the connector does not come up, tell the owner to update to a supported release and stop; never improvise a Quick Tunnel. A blank or sample placeholder disables the tunnel.
+> The owner completes the Cloudflare work in the dashboard, in **two sittings**. In the first Guide (*Setting up your Cloud Computer and Hermes Agent*, Section 1.5): create one named Tunnel and copy its run token; enable the Cloudflare One-time PIN identity provider; create the `cloud.MY-DOMAIN` Access application and its Allow policy; change the desktop password; then enable the per-tunnel `CLOUDFLARE_TUNNEL_TOKEN` in private Hostinger YAML while the Tunnel has no hostname routes; once the connector is healthy, add that address's published route (`cloud.MY-DOMAIN` → `http://localhost:3000`). Later — before the studio is installed — the owner adds the studio's own Access application and Allow policy and its published route (`studio.MY-DOMAIN` → `http://localhost:80`), as Section 1.3 of *Setting up your AI Film Studio*. Access must exist before routes. Use this only with a buyer image and Compose template that include the `CLOUDFLARE_TUNNEL_TOKEN` hook. If the field is missing or the connector does not come up, tell the owner to update to a supported release and stop; never improvise a Quick Tunnel. A blank or sample placeholder disables the tunnel.
 >
 > Never ask for or print the token, create a Cloudflare API token or custom OAuth client, require the owner's existing Cloudflare MCP OAuth, use an unauthenticated/password-only Quick Tunnel, or publish a host port. You may verify the connected tunnel and gated routes after the owner has completed the steps, but do not create or change Cloudflare applications, policies, or routes yourself.
 
-## 3f. First-task setup checklist (run only when Guide Section 4.2 starts it)
+## 3f. First-task setup checklist (run only when *Setting up your Cloud Computer and Hermes Agent*, Section 4.1, starts it)
 
-> Wait until the owner has completed the dashboard steps in Guide Section 4.1 and explicitly starts this checklist. The owner creates the named Cloudflare Tunnel, enables One-time PIN, creates both Access applications/policies, changes the desktop password, then connects the tunnel with its token while no hostname routes exist; once connected, they add both routes. If the installed image lacks the token hook or Compose field, report that the image/Compose update is required and stop; never improvise a Quick Tunnel or ask for the token.
+> Wait until the owner has completed the dashboard steps of the first Guide (*Setting up your Cloud Computer and Hermes Agent*, Section 1.5) and explicitly starts this checklist. The owner creates the named Cloudflare Tunnel, enables One-time PIN, creates the desktop's Access application and policy, changes the desktop password, then connects the tunnel with its token while no hostname routes exist; once connected, they add the desktop's route. The studio's address is a later step, handled in *Setting up your AI Film Studio*. If the installed image lacks the token hook or Compose field, report that the image/Compose update is required and stop; never improvise a Quick Tunnel or ask for the token.
 >
 > 1. Check whether the image-supported tunnel is connected. Never read, print, request or copy `CLOUDFLARE_TUNNEL_TOKEN`.
-> 2. Check both hostname routes use the expected local services (`cloud.MY-DOMAIN` → `http://localhost:3000`, `studio.MY-DOMAIN` → `http://localhost:80`) and confirm each public address shows its Cloudflare Access gate. If a route or policy is missing, tell the owner what to fix in Cloudflare; do not modify the dashboard.
-> 3. Check the desktop and studio origins from inside the machine and confirm the Compose project publishes no ports.
+> 2. Check that the `cloud.MY-DOMAIN` route uses the expected local service (`http://localhost:3000`) and confirm that address shows its Cloudflare Access gate. If the route or policy is missing, tell the owner what to fix in Cloudflare; do not modify the dashboard.
+> 3. Check the desktop origin from inside the machine and confirm the Compose project publishes no ports.
 > 4. Check that the browser opens one page using the shipped browser.
 > 5. Verify the machine's schedule: the image-seeded Cloudflare Tunnel watchdog line, plus the studio keep-alive line that was appended when the studio was installed (if the studio is installed and the line is missing, add it per §3c). Hermes's own scheduled work runs inside the gateway, so there is no tick line to look for. Create the studio feedback watcher once if absent; do not create a duplicate, backup job, or update-check job.
 >

@@ -16,7 +16,7 @@ Two rules before anything below:
 
 ---
 
-## 1. The studio app (normal path: Guide Chapter 3, Section 3.2)
+## 1. The studio app (normal path: Chapter 1, Section 1.4 of *Setting up your AI Film Studio*)
 
 By hand, in this order:
 
@@ -41,15 +41,15 @@ inside a running instance.
 If port 80 is unavailable, set `STUDIO_PORT=8080` in `start.sh` and change the tunnel
 rule's `service:` to `http://localhost:8080` (they must match).
 
-## 2. Cloudflare tunnel (normal path: Guide Chapter 4, Section 4.1)
+## 2. Cloudflare tunnel (normal path: Section 1.5 of *Setting up your Cloud Computer and Hermes Agent* for the desktop's address, then Section 1.3 of *Setting up your AI Film Studio* for the studio's)
 
-The owner manages the Cloudflare dashboard steps: create one named Tunnel and copy its run token; enable Cloudflare's **One-time PIN** identity provider; create the `cloud.MY-DOMAIN` and `studio.MY-DOMAIN` Access applications with Allow policies for the owner's email; change the desktop password; then enter `CLOUDFLARE_TUNNEL_TOKEN` in the private Hostinger Docker Manager YAML while the Tunnel has no public routes. After the connector is healthy, add the published hostname routes (`cloud.MY-DOMAIN` → `http://localhost:3000`, desktop; `studio.MY-DOMAIN` → `http://localhost:80`, studio). Access must exist before either route is published. Use only a published buyer image and Compose template that include the token hook; if either is missing, update to the supported release before enabling the Tunnel. An empty/sample token means no tunnel.
+The owner manages the Cloudflare dashboard steps: create one named Tunnel and copy its run token; enable Cloudflare's **One-time PIN** identity provider; create the `cloud.MY-DOMAIN` Access application with an Allow policy for the owner's email (the studio's own application and route are added later, before the studio is installed); change the desktop password; then enter `CLOUDFLARE_TUNNEL_TOKEN` in the private Hostinger Docker Manager YAML while the Tunnel has no public routes. After the connector is healthy, add the published hostname routes (`cloud.MY-DOMAIN` → `http://localhost:3000`, desktop; `studio.MY-DOMAIN` → `http://localhost:80`, studio). Access must exist before either route is published. Use only a published buyer image and Compose template that include the token hook; if either is missing, update to the supported release before enabling the Tunnel. An empty/sample token means no tunnel.
 
 **Do not run `cloudflared tunnel login`, `tunnel create`, or `tunnel route dns` for this buyer flow.** Do not use an unauthenticated/password-only Quick Tunnel, create a Cloudflare API token or custom OAuth client, or ask the owner to paste the tunnel token into chat. The owner creates and changes Access applications, policies, and routes in Cloudflare; you may verify them but do not modify them.
 
 For local diagnosis only, check the supported image's tunnel process/log without printing environment values, then check the two origin services from inside the machine. If the token hook is absent, stop and report the image-build dependency; do not improvise another tunnel method.
 
-## 3. The free local browser (normal path: Guide Chapter 3, Section 3.2)
+## 3. The free local browser (normal path: the setup wizard's browser step, Section 2.4 of *Setting up your Cloud Computer and Hermes Agent*)
 
 ```bash
 npx -y agent-browser install --with-deps                       # ~200 MB, one time
@@ -63,18 +63,17 @@ npx -y agent-browser open https://example.com && npx -y agent-browser close
 Without the two `config set` lines the agent silently falls back to a **paid cloud
 browser**. Re-check them if browsing ever starts costing money.
 
-## 4. The fal.ai key (normal path: Guide Chapter 6, Section 6.5)
+## 4. The fal.ai key (normal path: Chapter 2, Section 2.3 of *Setting up your AI Film Studio*)
 
 **fal.ai is not an LLM provider — it never appears on the app's Settings → Providers page.**
-The key belongs in the agent's own environment file, which the owner edits through the
-app's file browser (`$HERMES_HOME/.env`) — never in a chat, and never in the studio repo.
-**Route (the normal one): the app's own key field — Settings → Tools & Keys → Tools →
-the FAL API key row → paste → save** (the value then shows masked). This is the route the
-Guide teaches, and you and the app run in the **same** container on the **same** machine,
-so `$HERMES_HOME/.env` is a real path for both of you.
-The owner can also reach that file themselves through the app's file panel
-(**Open folder as project…** → `/config/.hermes`, then `.env`). Terminal equivalent, if
-you need it: `hermes config set FAL_KEY '<key>'`.
+The key ends up in the agent's own environment file as `FAL_KEY`, but **the owner's route is
+the app's own key field: Settings → Tools & Keys → the Tools tab → the FAL API key row →
+paste → save** (the value then shows masked). That is the route the Guide teaches
+(Section 2.3 of *Setting up your AI Film Studio*). Never in a chat, and never in the studio repo.
+The by-hand equivalents, if the key field is unavailable: the owner can reach
+`$HERMES_HOME/.env` through the app's file panel (**Open folder as project…** →
+`/config/.hermes`, then `.env`), or set it from a terminal with
+`hermes config set FAL_KEY '<key>'`.
 By hand (or to check the file):
 
 ```bash

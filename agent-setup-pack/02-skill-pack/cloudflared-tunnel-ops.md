@@ -108,7 +108,7 @@ cronjob(action='update', job_id=..., no_agent=true, script='studio-keep-alive.sh
 ```
 The script must: probe the service (/health), check the binary exists (re-download
 if missing), re-create the `/tmp` symlink, `pgrep` the daemon and restart only when
-absent. Known-good example: `$HERMES_HOME/studio/scripts/keep-alive.sh` — shipped with the studio. On the buyer image the machine's own schedule carries only the **tunnel watchdog** line (`/config/crontabs/abc`), so the **studio keep-alive is an agent-side job** the owner's agent creates once (Guide Chapter 5): it probes the desktop in-machine, restarts the studio via `start.sh`, and restarts the tunnel from `.cloudflared/config.yml`.
+absent. Known-good example: `$HERMES_HOME/studio/scripts/keep-alive.sh` — shipped with the studio. On the buyer image the machine's own schedule carries only the **tunnel watchdog** line (`/config/crontabs/abc`), so the **studio keep-alive is an agent-side job** the owner's agent creates once, when the studio is installed (Chapter 1 of *Setting up your AI Film Studio*): it probes the desktop in-machine, restarts the studio via `start.sh`, and restarts the tunnel from `.cloudflared/config.yml`.
 
 **Cron script-path quirk:** the cronjob tool validates script paths relative to
 `~/.hermes/scripts/` (rejects absolute paths), but the scheduler RUNNER resolves bare
